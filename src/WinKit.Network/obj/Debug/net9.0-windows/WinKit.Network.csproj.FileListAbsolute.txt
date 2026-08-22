@@ -1,0 +1,17 @@
+P:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\WinKit.Network.csproj.AssemblyReference.cache
+P:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\WinKit.Network.GeneratedMSBuildEditorConfig.editorconfig
+P:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\WinKit.Network.AssemblyInfoInputs.cache
+P:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\WinKit.Network.AssemblyInfo.cs
+P:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\WinKit.Network.csproj.CoreCompileInputs.cache
+p:\WinKit\src\WinKit.Network\bin\Debug\net9.0-windows\WinKit.Network.deps.json
+P:\WinKit\src\WinKit.Network\bin\Debug\net9.0-windows\WinKit.Network.dll
+P:\WinKit\src\WinKit.Network\bin\Debug\net9.0-windows\WinKit.Network.pdb
+P:\WinKit\src\WinKit.Network\bin\Debug\net9.0-windows\WinKit.Core.dll
+P:\WinKit\src\WinKit.Network\bin\Debug\net9.0-windows\WinKit.Infrastructure.dll
+P:\WinKit\src\WinKit.Network\bin\Debug\net9.0-windows\WinKit.Core.pdb
+P:\WinKit\src\WinKit.Network\bin\Debug\net9.0-windows\WinKit.Infrastructure.pdb
+p:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\WinKit.N.BCD87024.Up2Date
+P:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\WinKit.Network.dll
+P:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\refint\WinKit.Network.dll
+P:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\WinKit.Network.pdb
+p:\WinKit\src\WinKit.Network\obj\Debug\net9.0-windows\ref\WinKit.Network.dll

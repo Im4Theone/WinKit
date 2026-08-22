@@ -1,0 +1,263 @@
+<UserControl x:Class="WinKit.UI.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WinKit.UI.ViewModels"
+             xmlns:themes="clr-namespace:WinKit.Themes;assembly=WinKit.Themes"
+             d:DataContext="{d:DesignInstance vm:SettingsViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008/design"
+             mc:Ignorable="d" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+
+    <UserControl.Resources>
+        <Style x:Key="SectionCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="MaxWidth" Value="720"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+        <Style x:Key="SettingRow" TargetType="Grid">
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+        <Style x:Key="HexBox" TargetType="TextBox">
+            <Setter Property="Width" Value="96"/>
+            <Setter Property="Padding" Value="8,5"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="28,22,28,28">
+        <StackPanel MaxWidth="1000" HorizontalAlignment="Left">
+            <TextBlock Text="Settings" Style="{StaticResource Text.Display}" Margin="0,0,0,20"/>
+
+            <!-- Appearance -->
+            <TextBlock Text="Appearance" Style="{StaticResource Text.Title}" Margin="0,0,0,10"/>
+            <Border Style="{StaticResource SectionCard}">
+                <StackPanel>
+                    <Grid Style="{StaticResource SettingRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Theme" Style="{StaticResource Text.Base}"/>
+                            <TextBlock Text="Choose a built-in theme, follow Windows, or use a custom one." Style="{StaticResource Text.Muted}"/>
+                        </StackPanel>
+                        <ComboBox Grid.Column="1" Width="180" ItemsSource="{Binding ThemeNames}" SelectedItem="{Binding SelectedThemeName}"/>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <Button Content="Create theme" Command="{Binding CreateThemeCommand}" Style="{StaticResource Button.Secondary}" Padding="12,6" Margin="0,0,8,0"/>
+                        <Button Content="Edit current theme" Command="{Binding EditCurrentThemeCommand}" Style="{StaticResource Button.Secondary}" Padding="12,6" Margin="0,0,8,0"/>
+                        <Button Content="Import" Command="{Binding ImportThemeCommand}" Style="{StaticResource Button.Secondary}" Padding="12,6" Margin="0,0,8,0"/>
+                        <Button Content="Export" Command="{Binding ExportThemeCommand}" Style="{StaticResource Button.Secondary}" Padding="12,6" Margin="0,0,8,0"/>
+                        <Button Content="Reset to default" Command="{Binding ResetThemeCommand}" Style="{StaticResource Button.Secondary}" Padding="12,6"/>
+                    </StackPanel>
+
+                    <!-- Live theme editor -->
+                    <Border Visibility="{Binding Editor, Converter={StaticResource NullToVisibilityConverter}}"
+                            Background="{DynamicResource Brush.Surface}" BorderBrush="{DynamicResource Brush.Border}"
+                            BorderThickness="1" CornerRadius="{DynamicResource Theme.CornerRadiusSmall}" Padding="16" Margin="0,14,0,0">
+                        <StackPanel DataContext="{Binding Editor}">
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                         FontSize="{DynamicResource Font.Size.Title}" Margin="0,0,10,0"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Content="Cancel" Command="{Binding DataContext.CloseEditorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            Style="{StaticResource Button.Secondary}" Padding="12,6" Margin="0,0,8,0"/>
+                                    <Button Content="Save theme" Command="{Binding DataContext.SaveThemeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            Style="{StaticResource Button.Primary}" Padding="12,6"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Colors" Style="{StaticResource Text.Muted}" Margin="0,0,0,8"/>
+                            <WrapPanel Margin="0,0,0,14">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding BackgroundHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding BackgroundHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Background" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding SurfaceHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding SurfaceHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Surface" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding SurfaceElevatedHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding SurfaceElevatedHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Elevated surface" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding BorderHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding BorderHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Border" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding TextPrimaryHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding TextPrimaryHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Primary text" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding TextSecondaryHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding TextSecondaryHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Secondary text" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding TextMutedHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding TextMutedHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Muted text" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding AccentHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding AccentHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Accent" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding AccentHoverHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding AccentHoverHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Accent hover" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding SuccessHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding SuccessHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Success" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding WarningHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding WarningHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Warning" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding ErrorHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding ErrorHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Error" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding UpdateHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding UpdateHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Update" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </WrapPanel>
+
+                            <TextBlock Text="Layout" Style="{StaticResource Text.Muted}" Margin="0,0,0,8"/>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="50"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Corner radius" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                                <Slider Grid.Column="1" Minimum="0" Maximum="24" Value="{Binding CornerRadius}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{Binding CornerRadius, StringFormat={}{0:0}}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="50"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Sidebar width" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                                <Slider Grid.Column="1" Minimum="180" Maximum="320" Value="{Binding SidebarWidth}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{Binding SidebarWidth, StringFormat={}{0:0}}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="50"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Font scale" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                                <Slider Grid.Column="1" Minimum="0.8" Maximum="1.4" Value="{Binding FontScale}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{Binding FontScale, StringFormat={}{0:0.00}}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <WrapPanel>
+                                <StackPanel Margin="0,0,20,0">
+                                    <TextBlock Text="Density" Style="{StaticResource Text.Muted}" Margin="0,0,0,6"/>
+                                    <ComboBox Width="160" ItemsSource="{Binding DensityOptions}" SelectedItem="{Binding Density}"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,20,0">
+                                    <TextBlock Text="Material" Style="{StaticResource Text.Muted}" Margin="0,0,0,6"/>
+                                    <ComboBox Width="160" ItemsSource="{Binding MaterialOptions}" SelectedItem="{Binding Material}"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="Animation intensity" Style="{StaticResource Text.Muted}" Margin="0,0,0,6"/>
+                                    <ComboBox Width="160" ItemsSource="{Binding AnimationOptions}" SelectedItem="{Binding AnimationIntensity}"/>
+                                </StackPanel>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Personalization -->
+            <TextBlock Text="Personalization" Style="{StaticResource Text.Title}" Margin="0,4,0,10"/>
+            <Border Style="{StaticResource SectionCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                        <TextBlock Text="Your name" Style="{StaticResource Text.Base}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" Padding="10,7" MaxWidth="280" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="Save" Command="{Binding SaveNameCommand}" Style="{StaticResource Button.Primary}" Padding="16,8" VerticalAlignment="Bottom"/>
+                </Grid>
+            </Border>
+
+            <!-- Behavior -->
+            <TextBlock Text="Behavior" Style="{StaticResource Text.Title}" Margin="0,4,0,10"/>
+            <Border Style="{StaticResource SectionCard}">
+                <StackPanel>
+                    <Grid Style="{StaticResource SettingRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Start minimized" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                        <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding StartMinimized}"/>
+                    </Grid>
+                    <Grid Style="{StaticResource SettingRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Start with Windows" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                        <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding StartWithWindows}"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Notifications" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                        <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding NotificationsEnabled}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Advanced -->
+            <TextBlock Text="Advanced" Style="{StaticResource Text.Title}" Margin="0,4,0,10"/>
+            <Border Style="{StaticResource SectionCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource Text.Secondary}">
+                            <Run Text="Running as administrator:"/>
+                            <Run Text="{Binding IsElevated, Mode=OneWay}" FontWeight="SemiBold"/>
+                        </TextBlock>
+                        <TextBlock Text="WinKit only requests administrator access for the specific action that needs it."
+                                   Style="{StaticResource Text.Muted}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="Run as Administrator" Command="{Binding RunAsAdministratorCommand}"
+                            Style="{StaticResource Button.Secondary}" Padding="14,7" VerticalAlignment="Center"
+                            Visibility="{Binding IsElevated, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

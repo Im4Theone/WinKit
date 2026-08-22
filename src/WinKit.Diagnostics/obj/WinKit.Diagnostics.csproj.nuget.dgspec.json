@@ -1,0 +1,305 @@
+{
+  "format": 1,
+  "restore": {
+    "p:\\WinKit\\src\\WinKit.Diagnostics\\WinKit.Diagnostics.csproj": {}
+  },
+  "projects": {
+    "p:\\WinKit\\src\\WinKit.Cleanup\\WinKit.Cleanup.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "p:\\WinKit\\src\\WinKit.Cleanup\\WinKit.Cleanup.csproj",
+        "projectName": "WinKit.Cleanup",
+        "projectPath": "p:\\WinKit\\src\\WinKit.Cleanup\\WinKit.Cleanup.csproj",
+        "packagesPath": "C:\\Users\\ImTheOne\\.nuget\\packages\\",
+        "outputPath": "p:\\WinKit\\src\\WinKit.Cleanup\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ImTheOne\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0-windows"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0-windows7.0": {
+            "targetAlias": "net9.0-windows",
+            "projectReferences": {
+              "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj": {
+                "projectPath": "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj"
+              },
+              "P:\\WinKit\\src\\WinKit.Infrastructure\\WinKit.Infrastructure.csproj": {
+                "projectPath": "P:\\WinKit\\src\\WinKit.Infrastructure\\WinKit.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0-windows7.0": {
+          "targetAlias": "net9.0-windows",
+          "dependencies": {
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.317/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj",
+        "projectName": "WinKit.Core",
+        "projectPath": "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj",
+        "packagesPath": "C:\\Users\\ImTheOne\\.nuget\\packages\\",
+        "outputPath": "P:\\WinKit\\src\\WinKit.Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ImTheOne\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "CommunityToolkit.Mvvm": {
+              "target": "Package",
+              "version": "[8.4.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.317/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "p:\\WinKit\\src\\WinKit.Diagnostics\\WinKit.Diagnostics.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "p:\\WinKit\\src\\WinKit.Diagnostics\\WinKit.Diagnostics.csproj",
+        "projectName": "WinKit.Diagnostics",
+        "projectPath": "p:\\WinKit\\src\\WinKit.Diagnostics\\WinKit.Diagnostics.csproj",
+        "packagesPath": "C:\\Users\\ImTheOne\\.nuget\\packages\\",
+        "outputPath": "p:\\WinKit\\src\\WinKit.Diagnostics\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ImTheOne\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0-windows"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0-windows7.0": {
+            "targetAlias": "net9.0-windows",
+            "projectReferences": {
+              "p:\\WinKit\\src\\WinKit.Cleanup\\WinKit.Cleanup.csproj": {
+                "projectPath": "p:\\WinKit\\src\\WinKit.Cleanup\\WinKit.Cleanup.csproj"
+              },
+              "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj": {
+                "projectPath": "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj"
+              },
+              "P:\\WinKit\\src\\WinKit.Infrastructure\\WinKit.Infrastructure.csproj": {
+                "projectPath": "P:\\WinKit\\src\\WinKit.Infrastructure\\WinKit.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0-windows7.0": {
+          "targetAlias": "net9.0-windows",
+          "dependencies": {
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "System.ServiceProcess.ServiceController": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.317/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "P:\\WinKit\\src\\WinKit.Infrastructure\\WinKit.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "P:\\WinKit\\src\\WinKit.Infrastructure\\WinKit.Infrastructure.csproj",
+        "projectName": "WinKit.Infrastructure",
+        "projectPath": "P:\\WinKit\\src\\WinKit.Infrastructure\\WinKit.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\ImTheOne\\.nuget\\packages\\",
+        "outputPath": "P:\\WinKit\\src\\WinKit.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ImTheOne\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0-windows"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0-windows7.0": {
+            "targetAlias": "net9.0-windows",
+            "projectReferences": {
+              "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj": {
+                "projectPath": "P:\\WinKit\\src\\WinKit.Core\\WinKit.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0-windows7.0": {
+          "targetAlias": "net9.0-windows",
+          "dependencies": {
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.Win32.Registry": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.317/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
