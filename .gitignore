@@ -12,6 +12,9 @@ publish-*/
 *.pubxml
 *.pubxml.user
 
+## Installer build output
+installer/output/
+
 ## Rider / VS temp
 .vs/
 .idea/
