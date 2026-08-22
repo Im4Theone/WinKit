@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinKit.SystemTools.Models;
@@ -11,11 +12,17 @@ public sealed partial class ProcessManagerViewModel : ObservableObject
 {
     private readonly IProcessManagerService _processManagerService;
     private readonly IDialogService _dialogService;
+    private readonly DispatcherTimer _refreshTimer;
+    private bool _isRefreshing;
 
     public ProcessManagerViewModel(IProcessManagerService processManagerService, IDialogService dialogService)
     {
         _processManagerService = processManagerService;
         _dialogService = dialogService;
+
+        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _refreshTimer.Tick += async (_, _) => await RefreshAsync();
+        _refreshTimer.Start();
     }
 
     public ObservableCollection<ProcessEntry> Processes { get; } = new();
@@ -23,9 +30,21 @@ public sealed partial class ProcessManagerViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FreezeButtonText))]
+    private bool _isFrozen;
+
+    public string FreezeButtonText => IsFrozen ? "Unfreeze" : "Freeze";
+
     [RelayCommand]
     private async Task RefreshAsync()
     {
+        if (_isRefreshing)
+        {
+            return;
+        }
+
+        _isRefreshing = true;
         IsLoading = true;
         try
         {
@@ -39,6 +58,23 @@ public sealed partial class ProcessManagerViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+            _isRefreshing = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ToggleFreezeAsync()
+    {
+        IsFrozen = !IsFrozen;
+
+        if (IsFrozen)
+        {
+            _refreshTimer.Stop();
+        }
+        else
+        {
+            _refreshTimer.Start();
+            await RefreshAsync();
         }
     }
 
@@ -64,6 +100,9 @@ public sealed partial class ProcessManagerViewModel : ObservableObject
             _dialogService.ShowError("Couldn't end process", result.UserMessage ?? "Unknown error.", result.TechnicalDetail);
         }
 
-        await RefreshAsync();
+        if (!IsFrozen)
+        {
+            await RefreshAsync();
+        }
     }
 }

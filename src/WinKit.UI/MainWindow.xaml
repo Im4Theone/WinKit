@@ -5,6 +5,7 @@
         xmlns:vm="clr-namespace:WinKit.UI.ViewModels"
         xmlns:views="clr-namespace:WinKit.UI.Views"
         Title="WinKit" Height="760" Width="1180" MinHeight="560" MinWidth="880"
+        Icon="pack://application:,,,/Assets/Icon/WinKit.ico"
         WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize">
 
     <shell:WindowChrome.WindowChrome>
@@ -56,6 +57,8 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                <Image Source="pack://application:,,,/Assets/Icon/icon-64.png" Width="22" Height="22"
+                       Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
                 <TextBlock Text="WinKit" Style="{StaticResource Text.Base}" FontWeight="SemiBold"
                            FontSize="{DynamicResource Font.Size.Small}" Foreground="{DynamicResource Brush.TextSecondary}"/>
             </StackPanel>

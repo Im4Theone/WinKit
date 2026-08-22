@@ -73,18 +73,45 @@ public sealed class InstalledAppsService : IInstalledAppsService
 
         try
         {
+            var (fileName, arguments) = SplitCommand(app.UninstallCommand);
             Process.Start(new ProcessStartInfo
             {
-                FileName = "cmd.exe",
-                Arguments = $"/c {app.UninstallCommand}",
+                FileName = fileName,
+                Arguments = arguments,
                 UseShellExecute = true
             });
             return OperationResult.Ok();
         }
-        catch (System.ComponentModel.Win32Exception ex)
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
         {
             return OperationResult.Fail($"Unable to start the uninstaller for \"{app.Name}\".", ex.Message);
         }
+    }
+
+    /// <summary>
+    /// Registry UninstallString values are a raw command line (e.g. "C:\Program Files\App\uninst.exe" /S,
+    /// or MsiExec.exe /X{GUID}) rather than a pre-split file name + arguments. Shelling this through
+    /// cmd.exe /c breaks on quoted paths, so split it ourselves the way Windows itself would.
+    /// </summary>
+    private static (string FileName, string Arguments) SplitCommand(string command)
+    {
+        command = command.Trim();
+
+        if (command.StartsWith('"'))
+        {
+            var closingQuote = command.IndexOf('"', 1);
+            if (closingQuote > 0)
+            {
+                var fileName = command[1..closingQuote];
+                var arguments = command[(closingQuote + 1)..].Trim();
+                return (fileName, arguments);
+            }
+        }
+
+        var spaceIndex = command.IndexOf(' ');
+        return spaceIndex < 0
+            ? (command, string.Empty)
+            : (command[..spaceIndex], command[(spaceIndex + 1)..].Trim());
     }
 
     private static DateOnly? ParseInstallDate(string? raw)

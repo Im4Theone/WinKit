@@ -18,7 +18,7 @@ public sealed partial class OnboardingViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ContinueCommand))]
-    private string _name = string.Empty;
+    private string _name = Environment.UserName;
 
     [RelayCommand(CanExecute = nameof(CanContinue))]
     private async Task ContinueAsync()

@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:WinKit.UI.ViewModels.SystemTools"
              xmlns:models="clr-namespace:WinKit.SystemTools.Models;assembly=WinKit.SystemTools"
+             xmlns:behaviors="clr-namespace:WinKit.UI.Behaviors"
              d:DataContext="{d:DesignInstance vm:EnvironmentVariablesViewModel}"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008/design"
              mc:Ignorable="d" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
@@ -21,12 +22,15 @@
 
         <Border Style="{StaticResource Card}" Padding="0">
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500">
-                <ListView ItemsSource="{Binding Variables}">
+                <ListView ItemsSource="{Binding Variables}" behaviors:GridViewSort.AutoSort="True">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Scope" Width="80" DisplayMemberBinding="{Binding Scope}"/>
-                            <GridViewColumn Header="Name" Width="220" DisplayMemberBinding="{Binding Name}"/>
-                            <GridViewColumn Header="Value" Width="400" DisplayMemberBinding="{Binding Value}"/>
+                            <GridViewColumn Header="Scope" Width="80" DisplayMemberBinding="{Binding Scope}"
+                                             behaviors:GridViewSort.PropertyName="Scope"/>
+                            <GridViewColumn Header="Name" Width="220" DisplayMemberBinding="{Binding Name}"
+                                             behaviors:GridViewSort.PropertyName="Name"/>
+                            <GridViewColumn Header="Value" Width="400" DisplayMemberBinding="{Binding Value}"
+                                             behaviors:GridViewSort.PropertyName="Value"/>
                             <GridViewColumn Header="" Width="80">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type models:EnvironmentVariableEntry}">

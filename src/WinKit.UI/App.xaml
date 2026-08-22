@@ -11,6 +11,8 @@
 
             <sc:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <conv:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+            <conv:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+            <conv:NullableMegabytesConverter x:Key="NullableMegabytesConverter"/>
             <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
             <conv:BytesToReadableConverter x:Key="BytesToReadableConverter"/>
             <conv:DiagnosticStatusToBrushConverter x:Key="DiagnosticStatusToBrushConverter"/>

@@ -7,5 +7,7 @@ public interface IActivityLogService
 {
     ReadOnlyObservableCollection<ActivityEntry> Entries { get; }
 
+    Task LoadAsync();
+
     void Record(string title, ActivityKind kind = ActivityKind.Info, string? detail = null);
 }

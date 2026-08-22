@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:WinKit.UI.ViewModels.SystemTools"
              xmlns:models="clr-namespace:WinKit.SystemTools.Models;assembly=WinKit.SystemTools"
+             xmlns:behaviors="clr-namespace:WinKit.UI.Behaviors"
              d:DataContext="{d:DesignInstance vm:ServicesManagerViewModel}"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008/design"
              mc:Ignorable="d" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
@@ -19,12 +20,15 @@
 
         <Border Style="{StaticResource Card}" Padding="0">
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="560">
-                <ListView ItemsSource="{Binding Services}">
+                <ListView ItemsSource="{Binding Services}" behaviors:GridViewSort.AutoSort="True">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Name" Width="320" DisplayMemberBinding="{Binding DisplayName}"/>
-                            <GridViewColumn Header="Status" Width="100" DisplayMemberBinding="{Binding Status}"/>
-                            <GridViewColumn Header="Startup type" Width="110" DisplayMemberBinding="{Binding StartupType}"/>
+                            <GridViewColumn Header="Name" Width="320" DisplayMemberBinding="{Binding DisplayName}"
+                                             behaviors:GridViewSort.PropertyName="DisplayName"/>
+                            <GridViewColumn Header="Status" Width="100" DisplayMemberBinding="{Binding Status}"
+                                             behaviors:GridViewSort.PropertyName="Status"/>
+                            <GridViewColumn Header="Startup type" Width="110" DisplayMemberBinding="{Binding StartupType}"
+                                             behaviors:GridViewSort.PropertyName="StartupType"/>
                             <GridViewColumn Header="" Width="160">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type models:ServiceEntry}">

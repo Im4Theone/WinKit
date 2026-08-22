@@ -184,9 +184,10 @@
                         <Border x:Name="Box" Width="18" Height="18" CornerRadius="4"
                                 Background="{DynamicResource Brush.Surface}"
                                 BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1">
-                            <Path x:Name="Check" Data="M2,6 L5,9 L11,2" Stroke="{DynamicResource Brush.OnAccent}"
+                            <Path x:Name="Check" Data="M1,4.5 L4,7.5 L9,1" Stroke="{DynamicResource Brush.OnAccent}"
                                   StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                  StrokeLineJoin="Round" Opacity="0"/>
+                                  StrokeLineJoin="Round" Opacity="0" Stretch="Uniform"
+                                  Width="10" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>

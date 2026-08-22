@@ -7,6 +7,15 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>WinKit</AssemblyName>
     <RootNamespace>WinKit.UI</RootNamespace>
+    <ApplicationIcon>Assets\Icon\WinKit.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>WinKit</AssemblyTitle>
+    <Description>A lightweight Windows toolkit for system information, diagnostics, cleanup, and networking.</Description>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +26,11 @@
     <ProjectReference Include="..\WinKit.Network\WinKit.Network.csproj" />
     <ProjectReference Include="..\WinKit.Cleanup\WinKit.Cleanup.csproj" />
     <ProjectReference Include="..\WinKit.Diagnostics\WinKit.Diagnostics.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Icon\WinKit.ico" />
+    <Resource Include="Assets\Icon\icon-64.png" />
   </ItemGroup>
 
   <ItemGroup>

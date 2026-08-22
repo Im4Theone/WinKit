@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using WinKit.SystemTools.Models;
 using WinKit.SystemTools.Services;
 using WinKit.UI.Dialogs;
 
@@ -9,6 +8,8 @@ namespace WinKit.UI.ViewModels.SystemTools;
 
 public sealed partial class InstalledAppsViewModel : ObservableObject
 {
+    private static readonly TimeSpan LaunchFeedbackDuration = TimeSpan.FromSeconds(2);
+
     private readonly IInstalledAppsService _installedAppsService;
     private readonly IDialogService _dialogService;
 
@@ -18,7 +19,7 @@ public sealed partial class InstalledAppsViewModel : ObservableObject
         _dialogService = dialogService;
     }
 
-    public ObservableCollection<InstalledApp> Apps { get; } = new();
+    public ObservableCollection<InstalledAppItemViewModel> Apps { get; } = new();
 
     [ObservableProperty]
     private bool _isLoading;
@@ -33,7 +34,7 @@ public sealed partial class InstalledAppsViewModel : ObservableObject
             Apps.Clear();
             foreach (var app in apps)
             {
-                Apps.Add(app);
+                Apps.Add(new InstalledAppItemViewModel(app));
             }
         }
         finally
@@ -43,12 +44,12 @@ public sealed partial class InstalledAppsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Uninstall(InstalledApp app)
+    private async Task UninstallAsync(InstalledAppItemViewModel item)
     {
         var confirmed = _dialogService.Confirm(new ConfirmationRequest
         {
             Title = "Uninstall application",
-            Message = $"This opens the uninstaller for \"{app.Name}\". WinKit doesn't remove anything itself — you'll finish the uninstall in the app's own wizard.",
+            Message = $"This opens the uninstaller for \"{item.App.Name}\". WinKit doesn't remove anything itself — you'll finish the uninstall in the app's own wizard.",
             ConfirmText = "Continue",
             IsDestructive = true
         });
@@ -58,10 +59,23 @@ public sealed partial class InstalledAppsViewModel : ObservableObject
             return;
         }
 
-        var result = _installedAppsService.LaunchUninstaller(app);
-        if (!result.Success)
+        item.IsUninstalling = true;
+        try
         {
-            _dialogService.ShowError("Couldn't start uninstaller", result.UserMessage ?? "Unknown error.", result.TechnicalDetail);
+            var result = _installedAppsService.LaunchUninstaller(item.App);
+            if (!result.Success)
+            {
+                _dialogService.ShowError("Couldn't start uninstaller", result.UserMessage ?? "Unknown error.", result.TechnicalDetail);
+                return;
+            }
+
+            // The uninstaller is a separate process WinKit doesn't track to completion;
+            // this just holds the busy indicator long enough to confirm the launch went through.
+            await Task.Delay(LaunchFeedbackDuration);
+        }
+        finally
+        {
+            item.IsUninstalling = false;
         }
     }
 }

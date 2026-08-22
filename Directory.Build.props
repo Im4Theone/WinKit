@@ -8,6 +8,13 @@
     <Authors>WinKit</Authors>
     <NeutralLanguage>en</NeutralLanguage>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>none</DebugType>
   </PropertyGroup>
 </Project>

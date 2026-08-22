@@ -17,6 +17,8 @@ public static class AppPaths
 
     public static string SettingsFile { get; } = Path.Combine(RootDirectory, "settings.json");
 
+    public static string ActivityLogFile { get; } = Path.Combine(RootDirectory, "activity.json");
+
     public static void EnsureCreated()
     {
         Directory.CreateDirectory(RootDirectory);
