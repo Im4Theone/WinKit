@@ -58,6 +58,7 @@ public sealed class UpdateService : IUpdateService
                 Status = UpdateCheckStatus.UpdateAvailable,
                 LatestVersion = latestVersionText,
                 ReleaseUrl = release.HtmlUrl,
+                ReleaseNotes = release.Body,
                 InstallerAssetUrl = FindAsset(assets, n => n.StartsWith("WinKitSetup-", StringComparison.OrdinalIgnoreCase) && n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)),
                 InstallerChecksumAssetUrl = FindAsset(assets, n => n.StartsWith("WinKitSetup-", StringComparison.OrdinalIgnoreCase) && n.EndsWith(".exe.sha256", StringComparison.OrdinalIgnoreCase)),
                 PortableAssetUrl = FindAsset(assets, n => n.StartsWith("WinKit-", StringComparison.OrdinalIgnoreCase) && n.EndsWith("-portable.zip", StringComparison.OrdinalIgnoreCase)),
@@ -245,6 +246,9 @@ public sealed class UpdateService : IUpdateService
 
         [JsonPropertyName("html_url")]
         public string? HtmlUrl { get; set; }
+
+        [JsonPropertyName("body")]
+        public string? Body { get; set; }
 
         [JsonPropertyName("assets")]
         public List<GitHubAsset>? Assets { get; set; }

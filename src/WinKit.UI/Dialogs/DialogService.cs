@@ -21,4 +21,7 @@ public sealed class DialogService : IDialogService
 
     public void ShowErrorReport(string title, string userMessage, DiagnosticReport report) =>
         DialogWindow.ShowErrorReport(Application.Current.MainWindow, title, userMessage, report, _errorReportingService.SendReportAsync);
+
+    public bool ShowUpdateConfirmation(string version, string? releaseNotes) =>
+        DialogWindow.ShowUpdateConfirmation(Application.Current.MainWindow, version, releaseNotes);
 }

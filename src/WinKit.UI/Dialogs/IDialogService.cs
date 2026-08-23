@@ -12,4 +12,7 @@ public interface IDialogService
 
     /// <summary>Shows the reusable error-report dialog (Preview / Close / Send to Developers).</summary>
     void ShowErrorReport(string title, string userMessage, DiagnosticReport report);
+
+    /// <summary>Shows the update changelog with Cancel / Install Update actions; returns true if the user chose to install.</summary>
+    bool ShowUpdateConfirmation(string version, string? releaseNotes);
 }

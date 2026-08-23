@@ -10,6 +10,7 @@
     <PathGeometry x:Key="Icon.Diagnostics" Figures="M1,8 H4 L6,3 L8,13 L10,5 L11,8 H15"/>
     <PathGeometry x:Key="Icon.Settings" Figures="M1,3 H15 M4,1.2 V4.8 M1,8 H15 M10,6.2 V9.8 M1,13 H15 M6,11.2 V14.8"/>
     <PathGeometry x:Key="Icon.About" Figures="M2,2 H14 V14 H2 Z M8,5 L8,5.15 M8,7.3 V11.3"/>
+    <PathGeometry x:Key="Icon.Activity" Figures="M14.5,8 A6.5,6.5 0 1 1 14.499,7.9 Z M8,4.3 V8.3 L11,10.3"/>
 
     <PathGeometry x:Key="Icon.Minimize" Figures="M2,8 H14"/>
     <PathGeometry x:Key="Icon.Maximize" Figures="M2.5,2.5 H13.5 V13.5 H2.5 Z"/>

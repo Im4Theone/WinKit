@@ -38,7 +38,6 @@ public sealed class ThemeDraftViewModel : ObservableObject
         _cornerRadius = source.CornerRadius;
         _sidebarWidth = source.SidebarWidth;
         _fontScale = source.FontScale;
-        _material = source.Material;
         _animationIntensity = source.AnimationIntensity;
     }
 
@@ -101,14 +100,10 @@ public sealed class ThemeDraftViewModel : ObservableObject
     private double _fontScale;
     public double FontScale { get => _fontScale; set { if (SetProperty(ref _fontScale, value)) Notify(); } }
 
-    private MaterialPreference _material;
-    public MaterialPreference Material { get => _material; set { if (SetProperty(ref _material, value)) Notify(); } }
-
     private AnimationIntensity _animationIntensity;
     public AnimationIntensity AnimationIntensity { get => _animationIntensity; set { if (SetProperty(ref _animationIntensity, value)) Notify(); } }
 
     public IReadOnlyList<UiDensity> DensityOptions { get; } = Enum.GetValues<UiDensity>();
-    public IReadOnlyList<MaterialPreference> MaterialOptions { get; } = Enum.GetValues<MaterialPreference>();
     public IReadOnlyList<AnimationIntensity> AnimationOptions { get; } = Enum.GetValues<AnimationIntensity>();
 
     public ThemeDefinition ToDefinition() => new()
@@ -136,7 +131,6 @@ public sealed class ThemeDraftViewModel : ObservableObject
         CornerRadius = CornerRadius,
         SidebarWidth = SidebarWidth,
         FontScale = FontScale,
-        Material = Material,
         AnimationIntensity = AnimationIntensity
     };
 

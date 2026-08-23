@@ -2,6 +2,16 @@
 
 All notable changes to WinKit are documented in this file.
 
+## 1.1.1 — 2026-08-23
+
+Bug fixes: Activity page and window dragging, plus removal of a window material setting that never actually worked.
+
+### Fixed
+- The Activity page could throw during rendering — an internal style tried to set its own `Style` property from within one of its own triggers, which WPF doesn't allow. This showed up as an empty Activity page, and the repeated failure also stalled the UI thread badly enough that the window couldn't be dragged while that page was open.
+
+### Removed
+- Mica and Acrylic window materials. The underlying DWM calls succeeded, but the translucent surface was never actually composited through WPF's client-area rendering, so the setting had no real visual effect despite appearing to. Rather than keep an option that silently does nothing, it's been removed — windows are now always a solid surface.
+
 ## 1.1.0 — 2026-08-23
 
 Adds error reporting and auto-updates, plus reliability fixes found through real use.

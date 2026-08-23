@@ -60,18 +60,29 @@ static void WaitForProcessExit(int pid, TimeSpan timeout)
 
 static void CopyDirectoryWithRetry(string sourceDir, string destDir)
 {
-    foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+    var files = Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories);
+
+    // A self-contained publish is 150+ small files; copying them one at a time is the
+    // main reason an update visibly takes a while. Directories are created up front
+    // (cheap, and avoids concurrent CreateDirectory races) so the actual file copies
+    // can run in parallel — this is I/O-bound work, so wall-clock time drops sharply
+    // even though each individual copy still costs the same.
+    var destDirs = files
+        .Select(file => Path.GetDirectoryName(Path.Combine(destDir, Path.GetRelativePath(sourceDir, file))))
+        .Where(dir => !string.IsNullOrEmpty(dir))
+        .Distinct();
+    foreach (var dir in destDirs)
+    {
+        Directory.CreateDirectory(dir!);
+    }
+
+    var degreeOfParallelism = Math.Clamp(Environment.ProcessorCount, 2, 8);
+    Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism }, file =>
     {
         var relativePath = Path.GetRelativePath(sourceDir, file);
         var destPath = Path.Combine(destDir, relativePath);
-        var destPathDir = Path.GetDirectoryName(destPath);
-        if (!string.IsNullOrEmpty(destPathDir))
-        {
-            Directory.CreateDirectory(destPathDir);
-        }
-
         CopyFileWithRetry(file, destPath);
-    }
+    });
 }
 
 static void CopyFileWithRetry(string sourceFile, string destFile)

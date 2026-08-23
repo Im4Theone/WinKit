@@ -38,6 +38,9 @@
         <DataTemplate DataType="{x:Type vm:AboutViewModel}">
             <views:AboutView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ActivityViewModel}">
+            <views:ActivityView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:NotificationHostViewModel}">
             <views:NotificationHostView/>
         </DataTemplate>
@@ -113,7 +116,7 @@
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="ContentControl">
-                                                        <Border Background="Transparent" Margin="0,3,0,0" CornerRadius="{DynamicResource Theme.CornerRadius}"
+                                                        <Border Background="Transparent" Margin="0,3,0,0" CornerRadius="{DynamicResource Theme.CornerRadiusSmall}"
                                                                 Cursor="Hand" Padding="10,9"
                                                                 x:Name="Row">
                                                             <Border.InputBindings>

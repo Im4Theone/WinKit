@@ -16,30 +16,16 @@ public partial class MainWindow : Window
         DataContext = viewModel;
         _themeService = themeService;
 
-        SourceInitialized += (_, _) => ApplyWindowMaterial();
-        _themeService.ThemeChanged += (_, _) => ApplyWindowMaterial();
+        SourceInitialized += (_, _) => ApplyWindowStyling();
+        _themeService.ThemeChanged += (_, _) => ApplyWindowStyling();
         StateChanged += (_, _) => UpdateMaximizeGlyph();
     }
 
-    private void ApplyWindowMaterial()
+    private void ApplyWindowStyling()
     {
         var theme = _themeService.Current;
         var isDark = IsDarkBackground(theme.Colors.Background);
-        var materialApplied = DwmWindowMaterial.Apply(this, theme.Material, isDark);
-
-        // DwmWindowMaterial makes the native composition surface transparent so
-        // Mica/Acrylic can show through; RootGrid's own opaque background would
-        // otherwise paint straight over it. Clearing it reverts to the normal
-        // DynamicResource-bound background when no material is actually active
-        // (older Windows builds, MaterialPreference.Solid, or a failed apply).
-        if (materialApplied)
-        {
-            RootGrid.Background = Brushes.Transparent;
-        }
-        else
-        {
-            RootGrid.ClearValue(BackgroundProperty);
-        }
+        DwmWindowMaterial.Apply(this, isDark);
     }
 
     private static bool IsDarkBackground(string backgroundHex)

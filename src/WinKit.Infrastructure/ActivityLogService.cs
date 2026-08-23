@@ -32,9 +32,9 @@ public sealed class ActivityLogService : IActivityLogService
         }
     }
 
-    public void Record(string title, ActivityKind kind = ActivityKind.Info, string? detail = null)
+    public void Record(string title, ActivityKind kind = ActivityKind.Info, string? detail = null, ActivityCategory category = ActivityCategory.Action)
     {
-        _entries.Insert(0, new ActivityEntry { Title = title, Kind = kind, Detail = detail });
+        _entries.Insert(0, new ActivityEntry { Title = title, Kind = kind, Detail = detail, Category = category });
         while (_entries.Count > MaxEntries)
         {
             _entries.RemoveAt(_entries.Count - 1);

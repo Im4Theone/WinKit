@@ -181,10 +181,6 @@
                                     <TextBlock Text="Density" Style="{StaticResource Text.Muted}" Margin="0,0,0,6"/>
                                     <ComboBox Width="160" ItemsSource="{Binding DensityOptions}" SelectedItem="{Binding Density}"/>
                                 </StackPanel>
-                                <StackPanel Margin="0,0,20,0">
-                                    <TextBlock Text="Material" Style="{StaticResource Text.Muted}" Margin="0,0,0,6"/>
-                                    <ComboBox Width="160" ItemsSource="{Binding MaterialOptions}" SelectedItem="{Binding Material}"/>
-                                </StackPanel>
                                 <StackPanel>
                                     <TextBlock Text="Animation intensity" Style="{StaticResource Text.Muted}" Margin="0,0,0,6"/>
                                     <ComboBox Width="160" ItemsSource="{Binding AnimationOptions}" SelectedItem="{Binding AnimationIntensity}"/>
@@ -220,7 +216,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Start minimized" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Start minimized" Style="{StaticResource Text.Base}" VerticalAlignment="Center" Margin="0,0,20,0"/>
                         <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding StartMinimized}"/>
                     </Grid>
                     <Grid Style="{StaticResource SettingRow}">
@@ -228,7 +224,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Start with Windows" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Start with Windows" Style="{StaticResource Text.Base}" VerticalAlignment="Center" Margin="0,0,20,0"/>
                         <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding StartWithWindows}"/>
                     </Grid>
                     <Grid Style="{StaticResource SettingRow}">
@@ -236,7 +232,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Notifications" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Notifications" Style="{StaticResource Text.Base}" VerticalAlignment="Center" Margin="0,0,20,0"/>
                         <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding NotificationsEnabled}"/>
                     </Grid>
                     <Grid>
@@ -244,7 +240,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Automatically check for updates" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Automatically check for updates" Style="{StaticResource Text.Base}" VerticalAlignment="Center" Margin="0,0,20,0"/>
                         <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AutoCheckForUpdates}"/>
                     </Grid>
                 </StackPanel>

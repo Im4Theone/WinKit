@@ -27,6 +27,27 @@ public partial class DialogWindow : Window
         return dialog.ShowDialog() == true;
     }
 
+    /// <summary>Shows an update confirmation with the release's changelog visible, and Cancel / Install Update actions.</summary>
+    public static bool ShowUpdateConfirmation(Window? owner, string version, string? releaseNotes)
+    {
+        var dialog = new DialogWindow { Owner = owner };
+        dialog.TitleText.Text = $"WinKit {version} is available";
+        dialog.MessageText.Text = "Review what's changed, then choose whether to install it now. Your settings, themes, and activity history are preserved.";
+        dialog.ConfirmButton.Content = "Install Update";
+        dialog.CancelButton.Content = "Cancel";
+
+        if (!string.IsNullOrWhiteSpace(releaseNotes))
+        {
+            dialog.DetailsExpander.Header = "What's new";
+            dialog.DetailsExpander.IsExpanded = true;
+            dialog.DetailsExpander.Visibility = Visibility.Visible;
+            dialog.DetailsText.Text = releaseNotes;
+            dialog.CopyButton.Content = "Copy changelog";
+        }
+
+        return dialog.ShowDialog() == true;
+    }
+
     public static void ShowError(Window? owner, string title, string userMessage, string? technicalDetail)
     {
         var dialog = new DialogWindow { Owner = owner };

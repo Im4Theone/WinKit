@@ -136,7 +136,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IAsyncInitiali
         await _themeService.ApplyThemeAsync(name);
         _settingsService.ThemeName = name;
         await _settingsService.SaveAsync();
-        _activityLog.Record($"Theme changed to {name}", ActivityKind.Info);
+        _activityLog.Record($"Theme changed to {name}", ActivityKind.Info, category: ActivityCategory.ThemeAndSettings);
     }
 
     [RelayCommand]
@@ -220,7 +220,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IAsyncInitiali
         await _settingsService.SaveAsync();
 
         Editor = null;
-        _activityLog.Record($"Theme \"{definition.Name}\" saved", ActivityKind.Success);
+        _activityLog.Record($"Theme \"{definition.Name}\" saved", ActivityKind.Success, category: ActivityCategory.ThemeAndSettings);
         _notificationService.Show(new NotificationRequest { Title = "Theme saved", Description = definition.Name, Severity = NotificationSeverity.Success });
     }
 

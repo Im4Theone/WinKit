@@ -118,10 +118,14 @@ public partial class App : Application
             notificationService.Show(new NotificationRequest
             {
                 Title = $"WinKit {result.LatestVersion} is available",
-                Description = "Click to review and install the update.",
+                Description = "Click to review what's changed and install it.",
                 Severity = NotificationSeverity.Update,
-                ActionText = "View",
-                Action = () => navigationService.NavigateTo<AboutViewModel>(),
+                ActionText = "Update Now",
+                Action = () =>
+                {
+                    var aboutViewModel = navigationService.NavigateTo<AboutViewModel>();
+                    _ = aboutViewModel.ShowPendingUpdateAsync(result);
+                },
                 AutoDismissAfter = null
             });
         }

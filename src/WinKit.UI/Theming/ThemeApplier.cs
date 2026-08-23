@@ -44,7 +44,13 @@ public sealed class ThemeApplier
         SetColor(resources, "Color.Update", colors.Update);
 
         resources["Theme.CornerRadius"] = new CornerRadius(theme.CornerRadius);
-        resources["Theme.CornerRadiusSmall"] = new CornerRadius(Math.Max(0, theme.CornerRadius - 2));
+
+        // Compact controls (buttons, text inputs) use this instead of the raw corner
+        // radius. Capped rather than merely smaller: at extreme settings (e.g. 24) the
+        // full radius on a ~30px-tall control rounds past its own content, clipping
+        // button text — capping keeps every setting usable while staying identical to
+        // the uncapped value at normal (low-to-moderate) corner radii.
+        resources["Theme.CornerRadiusSmall"] = new CornerRadius(Math.Min(theme.CornerRadius, 12));
         resources["Theme.SidebarWidth"] = new GridLength(theme.SidebarWidth);
 
         var densityScale = theme.Density == UiDensity.Compact ? 0.85 : 1.0;

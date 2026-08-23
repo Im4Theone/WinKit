@@ -24,8 +24,10 @@
                         BorderThickness="1" CornerRadius="{DynamicResource Theme.CornerRadiusSmall}"
                         Padding="10" Margin="0,8,0,0">
                     <StackPanel>
-                        <TextBlock x:Name="DetailsText" Style="{StaticResource Text.Muted}"
-                                   FontFamily="Cascadia Mono, Consolas" TextWrapping="Wrap" MaxHeight="220"/>
+                        <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto">
+                            <TextBlock x:Name="DetailsText" Style="{StaticResource Text.Muted}"
+                                       FontFamily="Cascadia Mono, Consolas" TextWrapping="Wrap"/>
+                        </ScrollViewer>
                         <Button x:Name="CopyButton" Content="Copy details" Style="{StaticResource Button.Secondary}"
                                 HorizontalAlignment="Left" Padding="10,4" Margin="0,8,0,0"
                                 FontSize="{DynamicResource Font.Size.Small}" Click="OnCopyDetailsClick"/>

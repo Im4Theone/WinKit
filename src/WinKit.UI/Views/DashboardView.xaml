@@ -13,7 +13,6 @@
             <Setter Property="Margin" Value="0,0,12,12"/>
         </Style>
         <Style x:Key="QuickActionCard" TargetType="Border" BasedOn="{StaticResource Card.Interactive}">
-            <Setter Property="Width" Value="216"/>
             <Setter Property="Margin" Value="0,0,12,12"/>
         </Style>
     </UserControl.Resources>
@@ -98,7 +97,7 @@
             </WrapPanel>
 
             <TextBlock Text="Quick actions" Style="{StaticResource Text.Title}" Margin="0,16,0,12"/>
-            <WrapPanel>
+            <UniformGrid Columns="2" Rows="2" HorizontalAlignment="Left">
                 <Border Style="{StaticResource QuickActionCard}">
                     <Border.InputBindings>
                         <MouseBinding MouseAction="LeftClick" Command="{Binding RunDiagnosticsCommand}"/>
@@ -143,43 +142,50 @@
                         <TextBlock Text="Processes, startup apps, and services" Style="{StaticResource Text.Secondary}"/>
                     </StackPanel>
                 </Border>
-            </WrapPanel>
+            </UniformGrid>
 
             <TextBlock Text="Recent activity" Style="{StaticResource Text.Title}" Margin="0,16,0,12"/>
             <Border Style="{StaticResource Card}" Padding="0" MaxWidth="620" HorizontalAlignment="Left">
-                <ItemsControl ItemsSource="{Binding ActivityEntries}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type core:ActivityEntry}">
-                            <Grid Margin="16,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Ellipse Grid.Column="0" Width="6" Height="6" Margin="0,0,10,0" VerticalAlignment="Center"
-                                         Fill="{DynamicResource Brush.TextMuted}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat={}{0:t}}" Style="{StaticResource Text.Muted}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.Style>
-                        <Style TargetType="ItemsControl">
-                            <Style.Triggers>
-                                <Trigger Property="HasItems" Value="False">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ItemsControl">
-                                                <TextBlock Text="No activity yet. Actions you take in WinKit will show up here."
-                                                           Style="{StaticResource Text.Muted}" Margin="16,14"/>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ItemsControl.Style>
-                </ItemsControl>
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding RecentActivityEntries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type core:ActivityEntry}">
+                                <Grid Margin="16,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Ellipse Grid.Column="0" Width="6" Height="6" Margin="0,0,10,0" VerticalAlignment="Center"
+                                             Fill="{DynamicResource Brush.TextMuted}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat={}{0:t}}" Style="{StaticResource Text.Muted}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.Style>
+                            <Style TargetType="ItemsControl">
+                                <Style.Triggers>
+                                    <Trigger Property="HasItems" Value="False">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ItemsControl">
+                                                    <TextBlock Text="No activity yet. Actions you take in WinKit will show up here."
+                                                               Style="{StaticResource Text.Muted}" Margin="16,14"/>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
+                    </ItemsControl>
+                    <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource Brush.Border}" Padding="16,10"
+                            Visibility="{Binding HasMoreActivity, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button Content="Show more" Style="{StaticResource Button.Secondary}" Padding="12,6"
+                                HorizontalAlignment="Left" Command="{Binding ShowMoreActivityCommand}"/>
+                    </Border>
+                </StackPanel>
             </Border>
         </StackPanel>
     </ScrollViewer>

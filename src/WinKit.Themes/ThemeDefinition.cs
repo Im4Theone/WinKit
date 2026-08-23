@@ -1,13 +1,5 @@
 namespace WinKit.Themes;
 
-public enum MaterialPreference
-{
-    Auto,
-    Mica,
-    Acrylic,
-    Solid
-}
-
 public enum UiDensity
 {
     Comfortable,
@@ -52,7 +44,6 @@ public sealed class ThemeDefinition
     public double CornerRadius { get; set; } = 6;
     public double SidebarWidth { get; set; } = 232;
     public double FontScale { get; set; } = 1.0;
-    public MaterialPreference Material { get; set; } = MaterialPreference.Auto;
     public AnimationIntensity AnimationIntensity { get; set; } = AnimationIntensity.Full;
 
     public ThemeDefinition Clone()
@@ -82,7 +73,6 @@ public sealed class ThemeDefinition
             CornerRadius = CornerRadius,
             SidebarWidth = SidebarWidth,
             FontScale = FontScale,
-            Material = Material,
             AnimationIntensity = AnimationIntensity
         };
     }

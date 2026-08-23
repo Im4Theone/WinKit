@@ -17,6 +17,7 @@ public sealed class UpdateCheckResult
     public required UpdateCheckStatus Status { get; init; }
     public string? LatestVersion { get; init; }
     public string? ReleaseUrl { get; init; }
+    public string? ReleaseNotes { get; init; }
     public string? InstallerAssetUrl { get; init; }
     public string? InstallerChecksumAssetUrl { get; init; }
     public string? PortableAssetUrl { get; init; }

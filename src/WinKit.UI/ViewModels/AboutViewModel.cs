@@ -41,6 +41,25 @@ public sealed partial class AboutViewModel : ObservableObject
     [ObservableProperty]
     private bool _updateAvailable;
 
+    /// <summary>
+    /// Called when the user acts on an update-available notification: seeds the page
+    /// with the already-known result (no need to re-check) and immediately opens the
+    /// same changelog confirmation the manual "Update" button uses.
+    /// </summary>
+    public async Task ShowPendingUpdateAsync(UpdateCheckResult result)
+    {
+        _lastCheckResult = result;
+        UpdateAvailable = result.Status == UpdateCheckStatus.UpdateAvailable;
+        UpdateStatusText = UpdateAvailable
+            ? $"WinKit {result.LatestVersion} is available."
+            : "You're on the latest version.";
+
+        if (UpdateAvailable)
+        {
+            await InstallUpdateAsync();
+        }
+    }
+
     [RelayCommand]
     private async Task CheckForUpdatesAsync()
     {
@@ -77,12 +96,7 @@ public sealed partial class AboutViewModel : ObservableObject
             return;
         }
 
-        var confirmed = _dialogService.Confirm(new ConfirmationRequest
-        {
-            Title = "Update WinKit",
-            Message = $"Download and install WinKit {_lastCheckResult.LatestVersion}? Your settings, themes, and activity history are preserved. WinKit will restart automatically.",
-            ConfirmText = "Update"
-        });
+        var confirmed = _dialogService.ShowUpdateConfirmation(_lastCheckResult.LatestVersion ?? "", _lastCheckResult.ReleaseNotes);
 
         if (!confirmed)
         {

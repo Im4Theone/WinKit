@@ -9,5 +9,5 @@ public interface IActivityLogService
 
     Task LoadAsync();
 
-    void Record(string title, ActivityKind kind = ActivityKind.Info, string? detail = null);
+    void Record(string title, ActivityKind kind = ActivityKind.Info, string? detail = null, ActivityCategory category = ActivityCategory.Action);
 }

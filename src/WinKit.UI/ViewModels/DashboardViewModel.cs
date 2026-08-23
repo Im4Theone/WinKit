@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,10 +15,13 @@ namespace WinKit.UI.ViewModels;
 
 public sealed partial class DashboardViewModel : ObservableObject, IAsyncInitializable
 {
+    private const int RecentActivityLimit = 5;
+
     private readonly IUserProfileService _profileService;
     private readonly ISystemInfoService _systemInfoService;
     private readonly IDiagnosticsRunner _diagnosticsRunner;
     private readonly INavigationService _navigationService;
+    private readonly ReadOnlyObservableCollection<ActivityEntry> _activityEntries;
 
     public DashboardViewModel(
         IUserProfileService profileService,
@@ -30,7 +34,9 @@ public sealed partial class DashboardViewModel : ObservableObject, IAsyncInitial
         _systemInfoService = systemInfoService;
         _diagnosticsRunner = diagnosticsRunner;
         _navigationService = navigationService;
-        ActivityEntries = activityLogService.Entries;
+        _activityEntries = activityLogService.Entries;
+        ((INotifyCollectionChanged)_activityEntries).CollectionChanged += (_, _) => RefreshRecentActivity();
+        RefreshRecentActivity();
 
         UpdateGreeting();
 
@@ -47,7 +53,10 @@ public sealed partial class DashboardViewModel : ObservableObject, IAsyncInitial
         uptimeTimer.Start();
     }
 
-    public ReadOnlyObservableCollection<ActivityEntry> ActivityEntries { get; }
+    public ObservableCollection<ActivityEntry> RecentActivityEntries { get; } = new();
+
+    [ObservableProperty]
+    private bool _hasMoreActivity;
 
     [ObservableProperty]
     private string _greetingTitle = string.Empty;
@@ -112,6 +121,20 @@ public sealed partial class DashboardViewModel : ObservableObject, IAsyncInitial
         };
         GreetingTitle = string.IsNullOrWhiteSpace(name) ? $"{period}!" : $"{period}, {name}";
     }
+
+    private void RefreshRecentActivity()
+    {
+        RecentActivityEntries.Clear();
+        foreach (var entry in _activityEntries.Take(RecentActivityLimit))
+        {
+            RecentActivityEntries.Add(entry);
+        }
+
+        HasMoreActivity = _activityEntries.Count > RecentActivityLimit;
+    }
+
+    [RelayCommand]
+    private void ShowMoreActivity() => _navigationService.NavigateTo<ActivityViewModel>();
 
     [RelayCommand]
     private void RunDiagnostics() => _navigationService.NavigateTo<DiagnosticsViewModel>();

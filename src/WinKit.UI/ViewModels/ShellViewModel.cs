@@ -22,6 +22,7 @@ public sealed partial class ShellViewModel : ObservableObject
             new() { Title = "Cleanup", Glyph = "Icon.Cleanup", TargetViewModelType = typeof(CleanupViewModel) },
             new() { Title = "Diagnostics", Glyph = "Icon.Diagnostics", TargetViewModelType = typeof(DiagnosticsViewModel) },
             new() { Title = "App", IsHeader = true },
+            new() { Title = "Activity", Glyph = "Icon.Activity", TargetViewModelType = typeof(ActivityViewModel) },
             new() { Title = "Settings", Glyph = "Icon.Settings", TargetViewModelType = typeof(SettingsViewModel) },
             new() { Title = "About", Glyph = "Icon.About", TargetViewModelType = typeof(AboutViewModel) },
         };

@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<CleanupViewModel>();
         services.AddTransient<DiagnosticsViewModel>();
         services.AddTransient<AboutViewModel>();
+        services.AddTransient<ActivityViewModel>();
 
         services.AddTransient<ProcessManagerViewModel>();
         services.AddTransient<StartupManagerViewModel>();

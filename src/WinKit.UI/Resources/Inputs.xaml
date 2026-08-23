@@ -18,7 +18,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Theme.CornerRadius}">
+                            CornerRadius="{DynamicResource Theme.CornerRadiusSmall}">
                         <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"
                                       VerticalAlignment="Center"/>
                     </Border>
@@ -43,7 +43,7 @@
                     <Border Background="{DynamicResource Brush.Surface}"
                             BorderBrush="{DynamicResource Brush.Border}"
                             BorderThickness="1"
-                            CornerRadius="{DynamicResource Theme.CornerRadius}">
+                            CornerRadius="{DynamicResource Theme.CornerRadiusSmall}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
