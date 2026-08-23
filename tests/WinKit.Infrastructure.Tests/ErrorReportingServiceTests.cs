@@ -75,18 +75,6 @@ public sealed class ErrorReportingServiceTests
     }
 
     [Fact]
-    public async Task SendReportAsync_WithUndeployedPlaceholderEndpoint_FailsGracefullyWithoutThrowing()
-    {
-        var service = new ErrorReportingService(new HttpClient());
-        var report = service.CreateReport(new Exception("test"), "Test");
-
-        var result = await service.SendReportAsync(report);
-
-        Assert.Equal(ErrorReportSendStatus.Failed, result.Status);
-        Assert.NotNull(result.ErrorMessage);
-    }
-
-    [Fact]
     public void ToReportText_IncludesAllFieldsInReadableForm()
     {
         var report = new DiagnosticReport

@@ -11,10 +11,9 @@ namespace WinKit.Infrastructure;
 
 public sealed class ErrorReportingService : IErrorReportingService
 {
-    // Set this to the deployed Cloudflare Worker's URL (see backend/error-report-worker).
-    // Report sending fails gracefully (caught, surfaced to the user, retryable) until this
-    // points at a real deployment.
-    private const string ReportEndpoint = "https://REPLACE-WITH-YOUR-WORKER-URL.workers.dev/report";
+    // Deployed Cloudflare Worker (see backend/error-report-worker). Report sending fails
+    // gracefully (caught, surfaced to the user, retryable) if this is ever unreachable.
+    private const string ReportEndpoint = "https://winkit-error-reports.kaloyankrastev2013.workers.dev/report";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -46,11 +45,6 @@ public sealed class ErrorReportingService : IErrorReportingService
 
     public async Task<ErrorReportSendResult> SendReportAsync(DiagnosticReport report, CancellationToken cancellationToken = default)
     {
-        if (ReportEndpoint.Contains("REPLACE-WITH-YOUR-WORKER-URL", StringComparison.Ordinal))
-        {
-            return ErrorReportSendResult.Failed("The error-reporting backend hasn't been deployed yet.");
-        }
-
         try
         {
             var payload = new

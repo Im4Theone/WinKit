@@ -5,7 +5,7 @@ compatibility_date = "2026-01-01"
 # Create with: wrangler kv namespace create REPORTS
 # then replace the id below with the one it prints.
 kv_namespaces = [
-  { binding = "REPORTS", id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID" }
+  { binding = "REPORTS", id = "71908c4a875b43b884856b0dd17c07a4" }
 ]
 
 # PULL_API_KEY is a secret, not a var — set it with:
