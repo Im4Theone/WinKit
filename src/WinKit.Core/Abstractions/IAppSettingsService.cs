@@ -11,6 +11,9 @@ public interface IAppSettingsService
     bool NotificationsEnabled { get; set; }
     string ThemeName { get; set; }
     string? AccentOverrideHex { get; set; }
+    bool AutoCheckForUpdates { get; set; }
+    string? SkippedUpdateVersion { get; set; }
+    DateTimeOffset? LastUpdateCheckUtc { get; set; }
 
     event EventHandler? SettingsChanged;
 

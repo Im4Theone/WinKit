@@ -37,6 +37,7 @@ public sealed class ThemeApplier
         SetColor(resources, "Color.TextMuted", colors.TextMuted);
         SetColor(resources, "Color.Accent", colors.Accent);
         SetColor(resources, "Color.AccentHover", colors.AccentHover);
+        SetColor(resources, "Color.OnAccent", colors.OnAccent);
         SetColor(resources, "Color.Success", colors.Success);
         SetColor(resources, "Color.Warning", colors.Warning);
         SetColor(resources, "Color.Error", colors.Error);

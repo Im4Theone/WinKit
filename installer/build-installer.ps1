@@ -55,4 +55,9 @@ if ($LASTEXITCODE -ne 0) {
     throw "ISCC compilation failed"
 }
 
+$setupPath = Join-Path $PSScriptRoot "output\WinKitSetup-$Version.exe"
+$hash = (Get-FileHash -Path $setupPath -Algorithm SHA256).Hash
+Set-Content -Path "$setupPath.sha256" -Value $hash -NoNewline -Encoding ascii
+
 Write-Host "Installer build complete: installer\output\WinKitSetup-$Version.exe"
+Write-Host "Checksum: $hash"

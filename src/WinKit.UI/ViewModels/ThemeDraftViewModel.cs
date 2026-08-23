@@ -29,6 +29,7 @@ public sealed class ThemeDraftViewModel : ObservableObject
         _textMutedHex = source.Colors.TextMuted;
         _accentHex = source.Colors.Accent;
         _accentHoverHex = source.Colors.AccentHover;
+        _onAccentHex = source.Colors.OnAccent;
         _successHex = source.Colors.Success;
         _warningHex = source.Colors.Warning;
         _errorHex = source.Colors.Error;
@@ -72,6 +73,9 @@ public sealed class ThemeDraftViewModel : ObservableObject
 
     private string _accentHoverHex;
     public string AccentHoverHex { get => _accentHoverHex; set { if (SetProperty(ref _accentHoverHex, value)) Notify(); } }
+
+    private string _onAccentHex;
+    public string OnAccentHex { get => _onAccentHex; set { if (SetProperty(ref _onAccentHex, value)) Notify(); } }
 
     private string _successHex;
     public string SuccessHex { get => _successHex; set { if (SetProperty(ref _successHex, value)) Notify(); } }
@@ -122,6 +126,7 @@ public sealed class ThemeDraftViewModel : ObservableObject
             TextMuted = TextMutedHex,
             Accent = AccentHex,
             AccentHover = AccentHoverHex,
+            OnAccent = OnAccentHex,
             Success = SuccessHex,
             Warning = WarningHex,
             Error = ErrorHex,
@@ -143,7 +148,7 @@ public sealed class ThemeDraftViewModel : ObservableObject
         // Only push a live preview once every color field is a well-formed hex value;
         // this keeps mid-typing states from flashing an invalid theme onto the whole app.
         string[] colors = { BackgroundHex, SurfaceHex, SurfaceElevatedHex, BorderHex, TextPrimaryHex,
-            TextSecondaryHex, TextMutedHex, AccentHex, AccentHoverHex, SuccessHex, WarningHex, ErrorHex, UpdateHex };
+            TextSecondaryHex, TextMutedHex, AccentHex, AccentHoverHex, OnAccentHex, SuccessHex, WarningHex, ErrorHex, UpdateHex };
 
         if (colors.All(c => HexPattern.IsMatch(c)))
         {

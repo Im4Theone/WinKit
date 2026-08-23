@@ -8,7 +8,7 @@
 
 #define MyAppName "WinKit"
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.0"
+  #define MyAppVersion "1.0.1"
 #endif
 #define MyAppPublisher "WinKit"
 #define MyAppExeName "WinKit.exe"
@@ -50,7 +50,20 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall; Check: ShouldLaunchAfterInstall
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
+
+[Code]
+// Interactive installs keep launching WinKit as before. A plain silent install
+// (e.g. scripted testing) does not auto-launch, same as before. The auto-updater
+// (WinKit.Infrastructure.UpdateService) passes /launchafterinstall=1 specifically
+// so a silent update still relaunches WinKit afterward.
+function ShouldLaunchAfterInstall: Boolean;
+begin
+  if WizardSilent then
+    Result := ExpandConstant('{param:launchafterinstall|0}') = '1'
+  else
+    Result := True;
+end;

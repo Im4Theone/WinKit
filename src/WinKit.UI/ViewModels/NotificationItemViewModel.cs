@@ -2,6 +2,8 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinKit.Core.Models;
+using WinKit.Themes;
+using WinKit.UI.Theming;
 
 namespace WinKit.UI.ViewModels;
 
@@ -22,6 +24,10 @@ public sealed partial class NotificationItemViewModel : ObservableObject
         _action = request.Action;
         _onDismiss = onDismiss;
 
+        // Read once at creation rather than tracking live theme changes — a toast
+        // is short-lived, so it doesn't need to react to a mid-life intensity edit.
+        AnimationsEnabled = AnimationProfile.CurrentIntensity != AnimationIntensity.Off;
+
         if (request.AutoDismissAfter is { } delay)
         {
             _remaining = delay;
@@ -39,6 +45,7 @@ public sealed partial class NotificationItemViewModel : ObservableObject
     public string? Description { get; }
     public NotificationSeverity Severity { get; }
     public string? ActionText { get; }
+    public bool AnimationsEnabled { get; }
 
     [ObservableProperty]
     private bool _isVisible = true;
@@ -98,7 +105,11 @@ public sealed partial class NotificationItemViewModel : ObservableObject
 
         _timer?.Stop();
         IsVisible = false;
-        await Task.Delay(160);
+        if (AnimationsEnabled)
+        {
+            await Task.Delay(160);
+        }
+
         _onDismiss(this);
     }
 

@@ -11,6 +11,7 @@
     "textMuted": "#727B89",
     "accent": "#4FA8E0",
     "accentHover": "#6DBBEB",
+    "onAccent": "#FFFFFF",
     "success": "#4ADE80",
     "warning": "#FBBF24",
     "error": "#F87171",

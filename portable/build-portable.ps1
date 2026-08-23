@@ -1,8 +1,10 @@
 #Requires -Version 5.1
 <#
-Publishes WinKit as a self-contained win-x64 Release build and zips it
-into a portable, no-install distribution. Version defaults to the value
-in WinKit.UI.csproj so the archive name stays in sync with the app.
+Publishes WinKit (plus its WinKit.Updater helper) as a self-contained win-x64
+Release build and zips it into a portable, no-install distribution, alongside
+a .sha256 checksum the auto-updater verifies before applying an update.
+Version defaults to the value in WinKit.UI.csproj so the archive name stays
+in sync with the app.
 #>
 param(
     [string]$Version
@@ -12,6 +14,7 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $uiProject = Join-Path $repoRoot "src\WinKit.UI\WinKit.UI.csproj"
+$updaterProject = Join-Path $repoRoot "src\WinKit.Updater\WinKit.Updater.csproj"
 $publishDir = Join-Path $repoRoot "publish\win-x64"
 $outputDir = Join-Path $PSScriptRoot "output"
 
@@ -34,6 +37,12 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed"
 }
 
+Write-Host "Publishing WinKit.Updater helper..."
+dotnet publish $updaterProject -c Release -r win-x64 --self-contained true -o $publishDir
+if ($LASTEXITCODE -ne 0) {
+    throw "dotnet publish (WinKit.Updater) failed"
+}
+
 if (-not (Test-Path $outputDir)) {
     New-Item -ItemType Directory -Path $outputDir | Out-Null
 }
@@ -46,4 +55,8 @@ if (Test-Path $zipPath) {
 Write-Host "Creating portable archive..."
 Compress-Archive -Path (Join-Path $publishDir "*") -DestinationPath $zipPath -CompressionLevel Optimal
 
+$hash = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash
+Set-Content -Path "$zipPath.sha256" -Value $hash -NoNewline -Encoding ascii
+
 Write-Host "Portable build complete: portable\output\WinKit-$Version-win-x64-portable.zip"
+Write-Host "Checksum: $hash"

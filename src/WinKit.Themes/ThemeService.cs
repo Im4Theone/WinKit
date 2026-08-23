@@ -134,7 +134,7 @@ public sealed partial class ThemeService : IThemeService
         {
             theme.Colors.Background, theme.Colors.Surface, theme.Colors.SurfaceElevated, theme.Colors.Border,
             theme.Colors.TextPrimary, theme.Colors.TextSecondary, theme.Colors.TextMuted, theme.Colors.Accent,
-            theme.Colors.AccentHover, theme.Colors.Success, theme.Colors.Warning, theme.Colors.Error, theme.Colors.Update
+            theme.Colors.AccentHover, theme.Colors.OnAccent, theme.Colors.Success, theme.Colors.Warning, theme.Colors.Error, theme.Colors.Update
         };
 
         if (colors.Any(c => string.IsNullOrWhiteSpace(c) || !HexColorPattern.IsMatch(c)))

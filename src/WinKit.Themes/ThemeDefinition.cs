@@ -32,6 +32,7 @@ public sealed class ThemeColors
     public string TextMuted { get; set; } = "#6F6F76";
     public string Accent { get; set; } = "#4C8DFF";
     public string AccentHover { get; set; } = "#669DFF";
+    public string OnAccent { get; set; } = "#FFFFFF";
     public string Success { get; set; } = "#4ADE80";
     public string Warning { get; set; } = "#FBBF24";
     public string Error { get; set; } = "#F87171";
@@ -71,6 +72,7 @@ public sealed class ThemeDefinition
                 TextMuted = Colors.TextMuted,
                 Accent = Colors.Accent,
                 AccentHover = Colors.AccentHover,
+                OnAccent = Colors.OnAccent,
                 Success = Colors.Success,
                 Warning = Colors.Warning,
                 Error = Colors.Error,

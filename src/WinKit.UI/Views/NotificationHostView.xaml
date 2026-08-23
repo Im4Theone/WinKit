@@ -33,33 +33,59 @@
         </Style>
 
         <!--
-            Opacity is driven entirely by this DataTrigger pair rather than a Binding,
-            so the fade-in on arrival and fade-out on Dismiss share one mechanism and
-            never fight over which value "wins" once a Storyboard has run.
+            Opacity is driven entirely by these triggers rather than a Binding, so
+            the fade-in on arrival and fade-out on Dismiss share one mechanism and
+            never fight over which value "wins" once a Storyboard has run. Split on
+            AnimationsEnabled (theme Animation Intensity == Off) so "Off" jumps the
+            opacity instantly instead of animating — Duration itself can't be a
+            DynamicResource here (WPF freezes Storyboards used inside a shared
+            Style, which rejects any dynamic expression on a Freezable property).
         -->
         <Style x:Key="NotificationCard" TargetType="Border">
             <Setter Property="Opacity" Value="0"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsVisible}" Value="True">
-                    <DataTrigger.EnterActions>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsVisible}" Value="True"/>
+                        <Condition Binding="{Binding AnimationsEnabled}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.EnterActions>
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1"
                                                   Duration="0:0:0.16"/>
                             </Storyboard>
                         </BeginStoryboard>
-                    </DataTrigger.EnterActions>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsVisible}" Value="False">
-                    <DataTrigger.EnterActions>
+                    </MultiDataTrigger.EnterActions>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsVisible}" Value="False"/>
+                        <Condition Binding="{Binding AnimationsEnabled}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.EnterActions>
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0"
                                                   Duration="0:0:0.16"/>
                             </Storyboard>
                         </BeginStoryboard>
-                    </DataTrigger.EnterActions>
-                </DataTrigger>
+                    </MultiDataTrigger.EnterActions>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsVisible}" Value="True"/>
+                        <Condition Binding="{Binding AnimationsEnabled}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Opacity" Value="1"/>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsVisible}" Value="False"/>
+                        <Condition Binding="{Binding AnimationsEnabled}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Opacity" Value="0"/>
+                </MultiDataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>

@@ -118,6 +118,11 @@
                                     <TextBlock Text="Accent hover" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
+                                    <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding OnAccentHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
+                                    <TextBox Style="{StaticResource HexBox}" Text="{Binding OnAccentHex, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Text on accent" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,10">
                                     <Border Width="20" Height="20" CornerRadius="4" Margin="0,0,8,0" Background="{Binding SuccessHex, Converter={StaticResource HexToBrushConverter}}" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"/>
                                     <TextBox Style="{StaticResource HexBox}" Text="{Binding SuccessHex, UpdateSourceTrigger=PropertyChanged}"/>
                                     <TextBlock Text="Success" Style="{StaticResource Text.Muted}" VerticalAlignment="Center" Margin="6,0,0,0"/>
@@ -226,13 +231,21 @@
                         <TextBlock Grid.Column="0" Text="Start with Windows" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
                         <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding StartWithWindows}"/>
                     </Grid>
-                    <Grid>
+                    <Grid Style="{StaticResource SettingRow}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Notifications" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
                         <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding NotificationsEnabled}"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Automatically check for updates" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                        <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AutoCheckForUpdates}"/>
                     </Grid>
                 </StackPanel>
             </Border>

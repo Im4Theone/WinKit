@@ -96,6 +96,15 @@ public sealed partial class SettingsViewModel : ObservableObject, IAsyncInitiali
         _ = _settingsService.SaveAsync();
     }
 
+    [ObservableProperty]
+    private bool _autoCheckForUpdates;
+
+    partial void OnAutoCheckForUpdatesChanged(bool value)
+    {
+        _settingsService.AutoCheckForUpdates = value;
+        _ = _settingsService.SaveAsync();
+    }
+
     public async Task InitializeAsync()
     {
         RefreshThemeList();
@@ -107,6 +116,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IAsyncInitiali
         StartMinimized = _settingsService.StartMinimized;
         StartWithWindows = _autoStartService.IsEnabled();
         NotificationsEnabled = _settingsService.NotificationsEnabled;
+        AutoCheckForUpdates = _settingsService.AutoCheckForUpdates;
         await Task.CompletedTask;
     }
 
@@ -197,8 +207,12 @@ public sealed partial class SettingsViewModel : ObservableObject, IAsyncInitiali
             await _themeService.DeleteCustomThemeAsync(_editingOriginalName);
         }
 
-        RefreshThemeList();
+        // Suppression must be in place *before* RefreshThemeList(), not after: clearing
+        // and repopulating ThemeNames resets the ComboBox's SelectedItem binding, which
+        // would otherwise fire OnSelectedThemeNameChanged with a stale/blank selection
+        // and apply the wrong (often built-in) theme for an instant right as Save completes.
         _suppressThemeSelectionApply = true;
+        RefreshThemeList();
         SelectedThemeName = definition.Name;
         _suppressThemeSelectionApply = false;
 
@@ -226,7 +240,9 @@ public sealed partial class SettingsViewModel : ObservableObject, IAsyncInitiali
             return;
         }
 
+        _suppressThemeSelectionApply = true;
         RefreshThemeList();
+        _suppressThemeSelectionApply = false;
         SelectedThemeName = imported.Name;
         _notificationService.Show(new NotificationRequest { Title = "Theme imported", Description = imported.Name, Severity = NotificationSeverity.Success });
     }
@@ -282,7 +298,9 @@ public sealed partial class SettingsViewModel : ObservableObject, IAsyncInitiali
         }
 
         await _themeService.DeleteCustomThemeAsync(theme.Name);
+        _suppressThemeSelectionApply = true;
         RefreshThemeList();
+        _suppressThemeSelectionApply = false;
         await ResetThemeAsync();
     }
 

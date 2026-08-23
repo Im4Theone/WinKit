@@ -19,11 +19,29 @@
             </StackPanel>
         </Border>
 
-        <Border Style="{StaticResource Card}">
+        <Border Style="{StaticResource Card}" Margin="0,0,0,16">
             <StackPanel>
                 <TextBlock Text="Privacy" Style="{StaticResource Text.Title}" Margin="0,0,0,8"/>
-                <TextBlock Text="No account required. No backend. No telemetry by default. No permanent background process."
+                <TextBlock Text="No account required. No telemetry. Crash reports are only ever sent when you explicitly click &quot;Send to Developers&quot; — nothing is sent automatically. No permanent background process."
                            Style="{StaticResource Text.Secondary}" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Updates" Style="{StaticResource Text.Title}" Margin="0,0,0,8"/>
+                <TextBlock Text="{Binding UpdateStatusText}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Content="Check for Updates" Style="{StaticResource Button.Secondary}" Padding="14,7"
+                            Command="{Binding CheckForUpdatesCommand}"
+                            IsEnabled="{Binding IsCheckingForUpdates, Converter={StaticResource InverseBooleanConverter}}"/>
+                    <Button Content="Update" Style="{StaticResource Button.Primary}" Padding="14,7" Margin="10,0,0,0"
+                            Command="{Binding InstallUpdateCommand}"
+                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <Button Content="Skip this version" Style="{StaticResource Button.Secondary}" Padding="14,7" Margin="10,0,0,0"
+                            Command="{Binding SkipThisVersionCommand}"
+                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
             </StackPanel>
         </Border>
     </StackPanel>

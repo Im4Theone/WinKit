@@ -13,6 +13,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IElevationService, ElevationService>();
         services.AddSingleton<IAppSettingsService, AppSettingsService>();
         services.AddSingleton<IAutoStartService, AutoStartService>();
+        services.AddSingleton(_ => new HttpClient { Timeout = TimeSpan.FromSeconds(15) });
+        services.AddSingleton<IErrorReportingService, ErrorReportingService>();
+        services.AddSingleton<IUpdateService, UpdateService>();
         return services;
     }
 }

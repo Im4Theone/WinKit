@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Media;
 using WinKit.Themes;
 using WinKit.UI.Theming;
 using WinKit.UI.ViewModels;
@@ -23,8 +24,33 @@ public partial class MainWindow : Window
     private void ApplyWindowMaterial()
     {
         var theme = _themeService.Current;
-        var isDark = theme.Name != "Light";
-        DwmWindowMaterial.Apply(this, theme.Material, isDark);
+        var isDark = IsDarkBackground(theme.Colors.Background);
+        var materialApplied = DwmWindowMaterial.Apply(this, theme.Material, isDark);
+
+        // DwmWindowMaterial makes the native composition surface transparent so
+        // Mica/Acrylic can show through; RootGrid's own opaque background would
+        // otherwise paint straight over it. Clearing it reverts to the normal
+        // DynamicResource-bound background when no material is actually active
+        // (older Windows builds, MaterialPreference.Solid, or a failed apply).
+        if (materialApplied)
+        {
+            RootGrid.Background = Brushes.Transparent;
+        }
+        else
+        {
+            RootGrid.ClearValue(BackgroundProperty);
+        }
+    }
+
+    private static bool IsDarkBackground(string backgroundHex)
+    {
+        if (ColorConverter.ConvertFromString(backgroundHex) is not Color color)
+        {
+            return true;
+        }
+
+        var luminance = (0.299 * color.R + 0.587 * color.G + 0.114 * color.B) / 255.0;
+        return luminance < 0.5;
     }
 
     private void OnMinimizeClick(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;

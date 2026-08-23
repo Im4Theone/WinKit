@@ -11,6 +11,9 @@ public sealed class AppSettingsService : IAppSettingsService
         public bool NotificationsEnabled { get; set; } = true;
         public string ThemeName { get; set; } = "Midnight";
         public string? AccentOverrideHex { get; set; }
+        public bool AutoCheckForUpdates { get; set; } = true;
+        public string? SkippedUpdateVersion { get; set; }
+        public DateTimeOffset? LastUpdateCheckUtc { get; set; }
     }
 
     private SettingsData _data = new();
@@ -45,6 +48,24 @@ public sealed class AppSettingsService : IAppSettingsService
     {
         get => _data.AccentOverrideHex;
         set { _data.AccentOverrideHex = value; RaiseChanged(); }
+    }
+
+    public bool AutoCheckForUpdates
+    {
+        get => _data.AutoCheckForUpdates;
+        set { _data.AutoCheckForUpdates = value; RaiseChanged(); }
+    }
+
+    public string? SkippedUpdateVersion
+    {
+        get => _data.SkippedUpdateVersion;
+        set { _data.SkippedUpdateVersion = value; RaiseChanged(); }
+    }
+
+    public DateTimeOffset? LastUpdateCheckUtc
+    {
+        get => _data.LastUpdateCheckUtc;
+        set { _data.LastUpdateCheckUtc = value; RaiseChanged(); }
     }
 
     public async Task LoadAsync()
