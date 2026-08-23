@@ -2,9 +2,9 @@
 
 All notable changes to WinKit are documented in this file.
 
-## 1.0.1 — 2026-08-23
+## 1.1.0 — 2026-08-23
 
-Maintenance and reliability release.
+Adds error reporting and auto-updates, plus reliability fixes found through real use.
 
 ### Fixed
 - Custom theme saving could crash with a `FileNotFoundException` under concurrent writes (e.g. rapid settings changes while saving a theme). Persistence is now serialized per file with atomic writes and automatic recovery from a corrupted file.
