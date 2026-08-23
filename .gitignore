@@ -15,6 +15,9 @@ publish-*/
 ## Installer build output
 installer/output/
 
+## Portable build output
+portable/output/
+
 ## Rider / VS temp
 .vs/
 .idea/
