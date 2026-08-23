@@ -23,5 +23,8 @@ portable/output/
 .idea/
 *.DotSettings.user
 
+## Claude Code local session/tool state — not project config
+.claude/
+
 ## Logs
 *.log
