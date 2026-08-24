@@ -53,16 +53,19 @@ public sealed class UpdateService : IUpdateService
             }
 
             var assets = release.Assets ?? new List<GitHubAsset>();
+            var installer = FindAsset(assets, n => n.StartsWith("WinKitSetup-", StringComparison.OrdinalIgnoreCase) && n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase));
+            var portable = FindAsset(assets, n => n.StartsWith("WinKit-", StringComparison.OrdinalIgnoreCase) && n.EndsWith("-portable.zip", StringComparison.OrdinalIgnoreCase));
+
             return new UpdateCheckResult
             {
                 Status = UpdateCheckStatus.UpdateAvailable,
                 LatestVersion = latestVersionText,
                 ReleaseUrl = release.HtmlUrl,
                 ReleaseNotes = release.Body,
-                InstallerAssetUrl = FindAsset(assets, n => n.StartsWith("WinKitSetup-", StringComparison.OrdinalIgnoreCase) && n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)),
-                InstallerChecksumAssetUrl = FindAsset(assets, n => n.StartsWith("WinKitSetup-", StringComparison.OrdinalIgnoreCase) && n.EndsWith(".exe.sha256", StringComparison.OrdinalIgnoreCase)),
-                PortableAssetUrl = FindAsset(assets, n => n.StartsWith("WinKit-", StringComparison.OrdinalIgnoreCase) && n.EndsWith("-portable.zip", StringComparison.OrdinalIgnoreCase)),
-                PortableChecksumAssetUrl = FindAsset(assets, n => n.StartsWith("WinKit-", StringComparison.OrdinalIgnoreCase) && n.EndsWith("-portable.zip.sha256", StringComparison.OrdinalIgnoreCase))
+                InstallerAssetUrl = installer?.BrowserDownloadUrl,
+                InstallerSha256 = ParseSha256Digest(installer?.Digest),
+                PortableAssetUrl = portable?.BrowserDownloadUrl,
+                PortableSha256 = ParseSha256Digest(portable?.Digest)
             };
         }
         catch (HttpRequestException ex)
@@ -107,13 +110,13 @@ public sealed class UpdateService : IUpdateService
 
     private async Task<UpdateApplyResult> ApplyViaInstallerAsync(UpdateCheckResult update, CancellationToken cancellationToken)
     {
-        if (update.InstallerAssetUrl is null || update.InstallerChecksumAssetUrl is null)
+        if (update.InstallerAssetUrl is null || update.InstallerSha256 is null)
         {
             return FailedApply("This release doesn't include an installer download.");
         }
 
         var installerPath = await DownloadToTempFileAsync(update.InstallerAssetUrl, $"WinKitSetup-{update.LatestVersion}.exe", cancellationToken);
-        if (!await VerifyChecksumAsync(installerPath, update.InstallerChecksumAssetUrl, cancellationToken))
+        if (!await VerifyChecksumAsync(installerPath, update.InstallerSha256, cancellationToken))
         {
             TryDelete(installerPath);
             return FailedApply("The downloaded installer failed checksum verification.");
@@ -133,7 +136,7 @@ public sealed class UpdateService : IUpdateService
 
     private async Task<UpdateApplyResult> ApplyViaPortableUpdaterAsync(UpdateCheckResult update, CancellationToken cancellationToken)
     {
-        if (update.PortableAssetUrl is null || update.PortableChecksumAssetUrl is null)
+        if (update.PortableAssetUrl is null || update.PortableSha256 is null)
         {
             return FailedApply("This release doesn't include a portable download.");
         }
@@ -146,7 +149,7 @@ public sealed class UpdateService : IUpdateService
         }
 
         var zipPath = await DownloadToTempFileAsync(update.PortableAssetUrl, $"WinKit-{update.LatestVersion}-portable.zip", cancellationToken);
-        if (!await VerifyChecksumAsync(zipPath, update.PortableChecksumAssetUrl, cancellationToken))
+        if (!await VerifyChecksumAsync(zipPath, update.PortableSha256, cancellationToken))
         {
             TryDelete(zipPath);
             return FailedApply("The downloaded update failed checksum verification.");
@@ -197,20 +200,25 @@ public sealed class UpdateService : IUpdateService
         return tempPath;
     }
 
-    private async Task<bool> VerifyChecksumAsync(string filePath, string checksumUrl, CancellationToken cancellationToken)
+    private static async Task<bool> VerifyChecksumAsync(string filePath, string expectedHash, CancellationToken cancellationToken)
     {
-        var checksumText = await _httpClient.GetStringAsync(checksumUrl, cancellationToken);
-        var expectedHash = checksumText.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(expectedHash))
-        {
-            return false;
-        }
-
         await using var stream = File.OpenRead(filePath);
         var actualHashBytes = await SHA256.HashDataAsync(stream, cancellationToken);
         var actualHash = Convert.ToHexString(actualHashBytes);
 
         return string.Equals(expectedHash, actualHash, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>GitHub's asset digest arrives as "sha256:&lt;hex&gt;"; the hex part is what we compare against.</summary>
+    private static string? ParseSha256Digest(string? digest)
+    {
+        if (digest is null)
+        {
+            return null;
+        }
+
+        const string prefix = "sha256:";
+        return digest.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ? digest[prefix.Length..] : null;
     }
 
     private static void TryDelete(string path)
@@ -225,8 +233,8 @@ public sealed class UpdateService : IUpdateService
         }
     }
 
-    private static string? FindAsset(List<GitHubAsset> assets, Func<string, bool> nameMatches) =>
-        assets.FirstOrDefault(a => a.Name is not null && nameMatches(a.Name))?.BrowserDownloadUrl;
+    private static GitHubAsset? FindAsset(List<GitHubAsset> assets, Func<string, bool> nameMatches) =>
+        assets.FirstOrDefault(a => a.Name is not null && nameMatches(a.Name));
 
     private static Version GetCurrentVersion() =>
         Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(0, 0, 0);
@@ -261,5 +269,9 @@ public sealed class UpdateService : IUpdateService
 
         [JsonPropertyName("browser_download_url")]
         public string? BrowserDownloadUrl { get; set; }
+
+        /// <summary>GitHub-computed digest, formatted "sha256:&lt;hex&gt;".</summary>
+        [JsonPropertyName("digest")]
+        public string? Digest { get; set; }
     }
 }

@@ -56,8 +56,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $setupPath = Join-Path $PSScriptRoot "output\WinKitSetup-$Version.exe"
+
+# GitHub computes and serves a SHA256 digest for every uploaded release asset, so a
+# separate .sha256 sidecar file isn't needed — the auto-updater reads that digest
+# directly from the Releases API. Printed here only as a local sanity check.
 $hash = (Get-FileHash -Path $setupPath -Algorithm SHA256).Hash
-Set-Content -Path "$setupPath.sha256" -Value $hash -NoNewline -Encoding ascii
 
 Write-Host "Installer build complete: installer\output\WinKitSetup-$Version.exe"
 Write-Host "Checksum: $hash"

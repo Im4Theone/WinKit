@@ -55,8 +55,10 @@ if (Test-Path $zipPath) {
 Write-Host "Creating portable archive..."
 Compress-Archive -Path (Join-Path $publishDir "*") -DestinationPath $zipPath -CompressionLevel Optimal
 
+# GitHub computes and serves a SHA256 digest for every uploaded release asset, so a
+# separate .sha256 sidecar file isn't needed — the auto-updater reads that digest
+# directly from the Releases API. Printed here only as a local sanity check.
 $hash = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash
-Set-Content -Path "$zipPath.sha256" -Value $hash -NoNewline -Encoding ascii
 
 Write-Host "Portable build complete: portable\output\WinKit-$Version-win-x64-portable.zip"
 Write-Host "Checksum: $hash"

@@ -2,6 +2,14 @@
 
 All notable changes to WinKit are documented in this file.
 
+## 1.1.2 — 2026-08-24
+
+Auto-updater simplification — no visible change, but the update pipeline is more robust.
+
+### Changed
+- The auto-updater now verifies downloads against the SHA256 digest GitHub already computes for every release asset, instead of fetching a separate `.sha256` file. One fewer request per update, and no chance of a sidecar file ever drifting from the actual asset.
+- Release builds no longer generate `.sha256` sidecar files — GitHub's own per-asset digest is the source of truth.
+
 ## 1.1.1 — 2026-08-23
 
 Bug fixes: Activity page and window dragging, plus removal of a window material setting that never actually worked.
