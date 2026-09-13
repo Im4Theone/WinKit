@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WinKit — Windows administration, without the clutter.</title>
+  <meta name="description" content="WinKit is a lightweight Windows toolkit for system information, diagnostics, maintenance, and administrative utilities. Windows 10 and 11, x64." />
+
+  <link rel="icon" href="assets/icon-64.png" sizes="64x64" />
+  <link rel="apple-touch-icon" href="assets/icon-256.png" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="WinKit" />
+  <meta property="og:description" content="Windows administration, without the clutter." />
+  <meta property="og:url" content="https://im4theone.github.io/winkit/" />
+  <meta property="og:image" content="https://im4theone.github.io/winkit/assets/winkit-dashboard.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- ============ Navigation ============ -->
+  <header class="nav" id="nav">
+    <div class="wrap nav-inner">
+      <a class="nav-brand" href="https://im4theone.github.io/">
+        <span class="nav-brand-owner">Kaloyan K.</span>
+        <span class="nav-brand-sep" aria-hidden="true">/</span>
+        <span class="nav-brand-app">WinKit</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+        <a href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- ============ Hero ============ -->
+    <section class="hero" id="top" aria-label="WinKit">
+      <div class="wrap">
+        <h1 class="reveal">WinKit</h1>
+        <p class="hero-lede reveal">Windows administration, without the clutter.</p>
+
+        <div class="hero-actions reveal">
+          <a class="btn" href="#download">Download</a>
+          <a class="link-underline" href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+        </div>
+
+        <p class="hero-meta reveal">Version 1.1.2 &nbsp;·&nbsp; Windows 10 / 11 &nbsp;·&nbsp; x64</p>
+      </div>
+    </section>
+
+    <!-- ============ Product screenshot ============ -->
+    <section class="shot-section" aria-label="WinKit interface">
+      <div class="wrap">
+        <figure class="shot reveal">
+          <img
+            src="assets/winkit-dashboard.png"
+            alt="The WinKit dashboard, showing a system overview with CPU, memory, GPU, storage, network, Windows version and uptime, alongside quick actions for diagnostics and cleanup."
+            width="1180" height="760" decoding="async" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============ Features ============ -->
+    <section class="features" id="features" aria-labelledby="features-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">Features</p>
+        <h2 id="features-title" class="reveal">Everything Windows keeps<br />in a dozen different places.</h2>
+
+        <div class="feature-grid">
+          <article class="feature reveal">
+            <h3>System information</h3>
+            <p>CPU, memory, GPU, storage, network, Windows build and uptime in one overview — instead of Settings, Task Manager and <span class="mono">winver</span>.</p>
+          </article>
+
+          <article class="feature reveal">
+            <h3>Diagnostics</h3>
+            <p>A one-click pass over connectivity, firewall and update health, reported in plain language rather than error codes.</p>
+          </article>
+
+          <article class="feature reveal">
+            <h3>Processes &amp; services</h3>
+            <p>A live process list with auto-refresh and freeze / unfreeze, plus service and startup entry management in the same window.</p>
+          </article>
+
+          <article class="feature reveal">
+            <h3>Network tools</h3>
+            <p>Ping, traceroute, DNS lookup and IP configuration, next to maintenance actions like flushing DNS and resetting adapters.</p>
+          </article>
+
+          <article class="feature reveal">
+            <h3>Cleanup</h3>
+            <p>Scan temporary and cache locations, see what each category actually holds, and reclaim only the space you choose to.</p>
+          </article>
+
+          <article class="feature reveal">
+            <h3>Administrative utilities</h3>
+            <p>Installed applications with clean uninstall, an environment variables editor and a hosts file editor — elevated only when a task needs it.</p>
+          </article>
+        </div>
+
+        <p class="features-note reveal">
+          Four built-in themes with custom theme import, plus adjustable density, corner radius and font scale.
+          Settings and activity stay on the machine under <span class="mono">%LOCALAPPDATA%\WinKit</span> — no account, no cloud sync, no telemetry.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ Made with ============ -->
+    <section class="made-with" aria-labelledby="made-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">Made with</p>
+        <p id="made-title" class="tech-list reveal">
+          <span class="tech-item">C#</span><span class="tech-sep">·</span><span class="tech-item">Windows API</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ Downloads ============ -->
+    <section class="download" id="download" aria-labelledby="download-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">Download</p>
+        <h2 id="download-title" class="reveal">Version 1.1.2</h2>
+
+        <div class="download-grid">
+          <article class="download-card reveal">
+            <h3>Portable x64</h3>
+            <p>Unzip and run. Nothing is installed, nothing is registered.</p>
+            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/1.1.2/WinKit-1.1.2-win-x64-portable.zip">Download .zip</a>
+            <p class="download-size">56 MB</p>
+          </article>
+
+          <article class="download-card reveal">
+            <h3>Installer x64</h3>
+            <p>Installs to Program Files with a Start Menu shortcut and an uninstaller.</p>
+            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/1.1.2/WinKitSetup-1.1.2.exe">Download .exe</a>
+            <p class="download-size">42 MB</p>
+          </article>
+        </div>
+
+        <p class="download-meta reveal">
+          Windows 10 / 11 &nbsp;·&nbsp; x64
+          <span class="download-meta-sub">Self-contained build — no separate runtime install. Updates are checked against GitHub Releases.</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ GitHub ============ -->
+    <section class="source" aria-labelledby="source-title">
+      <div class="wrap">
+        <h2 id="source-title" class="reveal">Source</h2>
+        <p class="source-lede reveal">Issues, the full changelog and every previous release live on GitHub.</p>
+        <a class="source-link reveal" href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">View on GitHub <span class="source-arrow" aria-hidden="true"></span></a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ Footer ============ -->
+  <footer aria-label="Footer">
+    <div class="wrap footer-inner">
+      <span class="footer-brand">WinKit</span>
+
+      <nav class="footer-links" aria-label="Footer">
+        <a href="https://im4theone.github.io/">Portfolio</a>
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+        <a href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://github.com/Im4Theone/WinKit/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">Changelog</a>
+      </nav>
+
+      <span class="footer-copyright">&copy; <span id="year"></span> Kaloyan K.</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
