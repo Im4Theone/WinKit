@@ -1,0 +1,686 @@
+/* ==========================================================================
+   WinKit — product page
+   Vanilla CSS, no build step, no framework.
+   Tokens deliberately mirror im4theone.github.io so this page reads as the
+   same site. Light-only. Typography, whitespace and hierarchy carry it.
+   ========================================================================== */
+
+/* ---------- 1. Reset ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------- 2. Tokens ---------- */
+
+:root {
+  /* Color — light only */
+  --bg: #ffffff;
+  --bg-alt: #fbfbfd;
+  --text: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.14);
+  --focus-ring: #1d1d1f;
+
+  /* Type */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Spacing — 8px base unit */
+  --space-1: 0.5rem;   /* 8px */
+  --space-2: 1rem;     /* 16px */
+  --space-3: 1.5rem;   /* 24px */
+  --space-4: 2rem;     /* 32px */
+  --space-5: 3rem;     /* 48px */
+  --space-6: 4.5rem;   /* 72px */
+  --space-7: 7rem;     /* 112px */
+  --space-8: 9.5rem;   /* 152px */
+
+  /* Layout */
+  --container-w: 1120px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 200ms;
+  --dur-base: 420ms;
+  --dur-slow: 800ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- 3. Base / typography ---------- */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  color: var(--text);
+}
+
+h1 {
+  font-size: clamp(3.25rem, 6vw + 1.5rem, 7rem);
+  letter-spacing: -0.04em;
+}
+
+h2 {
+  font-size: clamp(2rem, 2.4vw + 1.1rem, 3.25rem);
+}
+
+h3 {
+  font-size: 1.25rem;
+  letter-spacing: -0.015em;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--text);
+}
+
+::selection {
+  background: var(--text);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: var(--space-2);
+  z-index: 300;
+  background: var(--text);
+  color: var(--bg);
+  padding: var(--space-1) var(--space-2);
+  border-radius: 6px;
+  font-weight: 600;
+  transition: top var(--dur-fast) var(--ease);
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+/* ---------- 4. Layout utilities ---------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--container-w);
+  margin-inline: auto;
+  padding-inline: var(--space-3);
+}
+
+main section {
+  padding-block: var(--space-8);
+}
+
+.eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-3);
+}
+
+/* ---------- 5. Shared components ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding: 0.7rem 1.35rem;
+  border-radius: 980px;
+  transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.btn:hover {
+  opacity: 0.82;
+}
+
+.btn:active {
+  transform: scale(0.985);
+}
+
+.link-underline {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text);
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 2px;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.link-underline:hover {
+  border-color: var(--text);
+}
+
+/* ---------- 6. Reveal on scroll ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- 7. Navigation ---------- */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease),
+    backdrop-filter var(--dur-base) var(--ease);
+}
+
+.nav.is-scrolled {
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-bottom-color: var(--line);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+}
+
+.nav-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.nav-brand-owner {
+  color: var(--text-tertiary);
+  font-weight: 500;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.nav-brand:hover .nav-brand-owner {
+  color: var(--text-secondary);
+}
+
+.nav-brand-sep {
+  color: var(--line-strong);
+  font-weight: 400;
+}
+
+.nav-brand-app {
+  color: var(--text);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.nav-links a {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.nav-links a:hover {
+  color: var(--text);
+}
+
+/* ---------- 8. Hero ---------- */
+
+.hero {
+  padding-top: var(--space-7);
+  padding-bottom: var(--space-6);
+}
+
+.hero h1 {
+  margin-bottom: var(--space-3);
+}
+
+.hero-lede {
+  font-size: clamp(1.25rem, 1.1vw + 1rem, 1.75rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: var(--text-secondary);
+  max-width: 22ch;
+  margin-bottom: var(--space-5);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.hero-meta {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+}
+
+/* ---------- 9. Product screenshot ---------- */
+
+.shot-section {
+  padding-top: 0 !important;
+  padding-bottom: var(--space-8) !important;
+}
+
+.shot {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--bg-alt);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 12px 28px -12px rgba(0, 0, 0, 0.16),
+    0 40px 80px -40px rgba(0, 0, 0, 0.22);
+}
+
+.shot img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1180 / 760;
+  object-fit: cover;
+}
+
+/* Screenshot leads with a slightly deeper, slower entrance than body copy. */
+.shot.reveal {
+  transform: translateY(32px) scale(0.992);
+}
+
+.shot.reveal.is-visible {
+  transform: translateY(0) scale(1);
+}
+
+/* ---------- 10. Features ---------- */
+
+.features {
+  background: var(--bg-alt);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.features h2 {
+  max-width: 20ch;
+  margin-bottom: var(--space-6);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: var(--space-5);
+}
+
+.feature {
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.feature h3 {
+  margin-bottom: var(--space-1);
+}
+
+.feature p {
+  font-size: 1rem;
+  max-width: 34ch;
+}
+
+.features-note {
+  margin-top: var(--space-6);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+  font-size: 0.9375rem;
+  color: var(--text-tertiary);
+  max-width: 72ch;
+}
+
+/* ---------- 11. Made with ---------- */
+
+.made-with {
+  background: var(--bg);
+}
+
+.tech-list {
+  font-size: clamp(1.375rem, 1.8vw + 0.8rem, 2.125rem);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  overflow-wrap: break-word;
+}
+
+.tech-item {
+  color: var(--text);
+}
+
+.tech-sep {
+  color: var(--text-tertiary);
+  margin-inline: 0.35em;
+}
+
+/* ---------- 12. Downloads ---------- */
+
+.download {
+  background: var(--bg-alt);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.download h2 {
+  margin-bottom: var(--space-6);
+}
+
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.download-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: var(--space-4);
+  transition: border-color var(--dur-base) var(--ease);
+}
+
+.download-card:hover {
+  border-color: var(--line-strong);
+}
+
+.download-card h3 {
+  margin-bottom: var(--space-1);
+}
+
+.download-card p {
+  font-size: 1rem;
+  max-width: 34ch;
+  margin-bottom: var(--space-4);
+}
+
+.download-card .btn {
+  margin-top: auto;
+}
+
+.download-size {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  margin-top: var(--space-2);
+  margin-bottom: 0 !important;
+}
+
+.download-meta {
+  margin-top: var(--space-5);
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+.download-meta-sub {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  max-width: 60ch;
+}
+
+/* ---------- 13. Source ---------- */
+
+.source {
+  background: var(--bg);
+}
+
+.source h2 {
+  margin-bottom: var(--space-2);
+}
+
+.source-lede {
+  font-size: 1.0625rem;
+  max-width: 46ch;
+  margin-bottom: var(--space-5);
+}
+
+.source-link {
+  display: inline-block;
+  font-size: clamp(1.375rem, 1.6vw + 0.7rem, 1.875rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 3px;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.source-link:hover {
+  border-color: var(--text);
+}
+
+.source-arrow {
+  display: inline-block;
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.source-link:hover .source-arrow {
+  transform: translateX(4px);
+}
+
+/* ---------- 14. Footer ---------- */
+
+footer {
+  border-top: 1px solid var(--line);
+  padding-block: var(--space-4);
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.footer-brand {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+.footer-links a {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.footer-links a:hover {
+  color: var(--text);
+}
+
+.footer-copyright {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+}
+
+/* ---------- 15. Responsive ---------- */
+
+@media (max-width: 900px) {
+  main section {
+    padding-block: var(--space-7);
+  }
+
+  .shot-section {
+    padding-bottom: var(--space-7) !important;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: var(--space-4);
+  }
+
+  .feature p {
+    max-width: 40ch;
+  }
+
+  .features h2 {
+    margin-bottom: var(--space-5);
+  }
+
+  .download h2 {
+    margin-bottom: var(--space-5);
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 16px;
+  }
+
+  main section {
+    padding-block: var(--space-6);
+  }
+
+  .hero {
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-5);
+  }
+
+  .hero-lede {
+    max-width: 18ch;
+    margin-bottom: var(--space-4);
+  }
+
+  .hero-actions {
+    gap: var(--space-3);
+  }
+
+  .shot-section {
+    padding-bottom: var(--space-6) !important;
+  }
+
+  .shot {
+    border-radius: 10px;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature p {
+    max-width: 46ch;
+  }
+
+  .download-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .download-card {
+    padding: var(--space-3);
+  }
+
+  .nav-links {
+    gap: var(--space-3);
+  }
+
+  .nav-links a {
+    font-size: 0.875rem;
+  }
+
+  .nav-brand-owner,
+  .nav-brand-sep {
+    display: none;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 380px) {
+  .nav-links {
+    gap: var(--space-2);
+  }
+}
