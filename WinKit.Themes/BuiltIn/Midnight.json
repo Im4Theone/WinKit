@@ -1,0 +1,25 @@
+{
+  "name": "Midnight",
+  "isBuiltIn": true,
+  "colors": {
+    "background": "#101012",
+    "surface": "#151517",
+    "surfaceElevated": "#1A1A1D",
+    "border": "#252529",
+    "textPrimary": "#F5F5F7",
+    "textSecondary": "#A1A1A8",
+    "textMuted": "#6F6F76",
+    "accent": "#4C8DFF",
+    "accentHover": "#669DFF",
+    "onAccent": "#FFFFFF",
+    "success": "#4ADE80",
+    "warning": "#FBBF24",
+    "error": "#F87171",
+    "update": "#53B3D4"
+  },
+  "density": "Comfortable",
+  "cornerRadius": 6,
+  "sidebarWidth": 232,
+  "fontScale": 1.0,
+  "animationIntensity": "Full"
+}

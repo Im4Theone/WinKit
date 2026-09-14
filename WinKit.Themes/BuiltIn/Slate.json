@@ -1,0 +1,25 @@
+{
+  "name": "Slate",
+  "isBuiltIn": true,
+  "colors": {
+    "background": "#12151A",
+    "surface": "#181C22",
+    "surfaceElevated": "#1E232B",
+    "border": "#2A303A",
+    "textPrimary": "#F1F3F6",
+    "textSecondary": "#A6AEBB",
+    "textMuted": "#727B89",
+    "accent": "#4FA8E0",
+    "accentHover": "#6DBBEB",
+    "onAccent": "#FFFFFF",
+    "success": "#4ADE80",
+    "warning": "#FBBF24",
+    "error": "#F87171",
+    "update": "#53B3D4"
+  },
+  "density": "Comfortable",
+  "cornerRadius": 8,
+  "sidebarWidth": 236,
+  "fontScale": 1.0,
+  "animationIntensity": "Full"
+}

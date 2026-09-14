@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WinKit.Core\WinKit.Core.csproj" />
+    <ProjectReference Include="..\WinKit.Infrastructure\WinKit.Infrastructure.csproj" />
+    <ProjectReference Include="..\WinKit.Cleanup\WinKit.Cleanup.csproj" />
+    <ProjectReference Include="..\WinKit.Network\WinKit.Network.csproj" />
+    <ProjectReference Include="..\WinKit.System\WinKit.System.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.0" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

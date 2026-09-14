@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <AssemblyName>WinKit.Updater</AssemblyName>
+    <RootNamespace>WinKit.Updater</RootNamespace>
+    <Description>Small helper process that applies a WinKit portable update after WinKit exits.</Description>
+  </PropertyGroup>
+
+</Project>
