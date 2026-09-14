@@ -1,0 +1,136 @@
+<UserControl x:Class="WinKit.UI.Views.NotificationHostView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WinKit.UI.ViewModels"
+             xmlns:core="clr-namespace:WinKit.Core.Models;assembly=WinKit.Core"
+             IsHitTestVisible="True"
+             d:DataContext="{d:DesignInstance vm:NotificationHostViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008/design"
+             mc:Ignorable="d" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+
+    <UserControl.Resources>
+        <Style x:Key="SeverityBar" TargetType="Border">
+            <Setter Property="Width" Value="3"/>
+            <Setter Property="CornerRadius" Value="1.5"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Severity}" Value="{x:Static core:NotificationSeverity.Success}">
+                    <Setter Property="Background" Value="{DynamicResource Brush.Success}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Severity}" Value="{x:Static core:NotificationSeverity.Error}">
+                    <Setter Property="Background" Value="{DynamicResource Brush.Error}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Severity}" Value="{x:Static core:NotificationSeverity.Warning}">
+                    <Setter Property="Background" Value="{DynamicResource Brush.Warning}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Severity}" Value="{x:Static core:NotificationSeverity.Update}">
+                    <Setter Property="Background" Value="{DynamicResource Brush.Update}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Severity}" Value="{x:Static core:NotificationSeverity.Info}">
+                    <Setter Property="Background" Value="{DynamicResource Brush.TextMuted}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!--
+            Opacity is driven entirely by these triggers rather than a Binding, so
+            the fade-in on arrival and fade-out on Dismiss share one mechanism and
+            never fight over which value "wins" once a Storyboard has run. Split on
+            AnimationsEnabled (theme Animation Intensity == Off) so "Off" jumps the
+            opacity instantly instead of animating — Duration itself can't be a
+            DynamicResource here (WPF freezes Storyboards used inside a shared
+            Style, which rejects any dynamic expression on a Freezable property).
+        -->
+        <Style x:Key="NotificationCard" TargetType="Border">
+            <Setter Property="Opacity" Value="0"/>
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsVisible}" Value="True"/>
+                        <Condition Binding="{Binding AnimationsEnabled}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1"
+                                                  Duration="0:0:0.16"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </MultiDataTrigger.EnterActions>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsVisible}" Value="False"/>
+                        <Condition Binding="{Binding AnimationsEnabled}" Value="True"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0"
+                                                  Duration="0:0:0.16"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </MultiDataTrigger.EnterActions>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsVisible}" Value="True"/>
+                        <Condition Binding="{Binding AnimationsEnabled}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Opacity" Value="1"/>
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsVisible}" Value="False"/>
+                        <Condition Binding="{Binding AnimationsEnabled}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Opacity" Value="0"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <ItemsControl ItemsSource="{Binding Items}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Orientation="Vertical"/>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="{x:Type vm:NotificationItemViewModel}">
+                <Border Width="340" Margin="0,0,0,10" Padding="14,12"
+                        Style="{StaticResource NotificationCard}"
+                        Background="{DynamicResource Brush.SurfaceElevated}"
+                        BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                        CornerRadius="{DynamicResource Theme.CornerRadius}"
+                        MouseEnter="Card_MouseEnter" MouseLeave="Card_MouseLeave">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" ShadowDepth="6" Opacity="0.3" Color="Black"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource SeverityBar}" VerticalAlignment="Stretch"/>
+                        <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Title}"/>
+                            <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Secondary}"
+                                       Margin="0,4,0,0" Visibility="{Binding Description, Converter={StaticResource NullToVisibilityConverter}}"/>
+                            <Button Content="{Binding ActionText}" Command="{Binding InvokeActionCommand}"
+                                    Style="{StaticResource Button.Secondary}" HorizontalAlignment="Left"
+                                    Padding="10,4" Margin="0,8,0,0" FontSize="{DynamicResource Font.Size.Small}"
+                                    Visibility="{Binding ActionText, Converter={StaticResource NullToVisibilityConverter}}"/>
+                        </StackPanel>
+                        <Button Grid.Column="2" Command="{Binding DismissCommand}" Style="{StaticResource CaptionButton}"
+                                Width="22" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,-4,-6,0">
+                            <Path Style="{StaticResource Icon.Path}" Width="10" Height="10"
+                                  Stroke="{DynamicResource Brush.TextSecondary}" Data="{StaticResource Icon.Close}"/>
+                        </Button>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

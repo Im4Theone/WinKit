@@ -23,7 +23,6 @@ Production hardening pass across the whole app, plus the installer and portable 
 ### Packaging
 - Both the installer and portable build are self-contained, ReadyToRun win-x64 builds - no separate .NET runtime install required either way.
 
-
 ## 1.1.2 — 2026-08-24
 
 Auto-updater simplification — no visible change, but the update pipeline is more robust.

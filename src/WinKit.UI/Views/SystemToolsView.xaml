@@ -1,0 +1,52 @@
+<UserControl x:Class="WinKit.UI.Views.SystemToolsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WinKit.UI.ViewModels"
+             xmlns:st="clr-namespace:WinKit.UI.ViewModels.SystemTools"
+             xmlns:sub="clr-namespace:WinKit.UI.Views.SystemTools"
+             d:DataContext="{d:DesignInstance vm:SystemToolsViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008/design"
+             mc:Ignorable="d" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+
+    <UserControl.Resources>
+        <DataTemplate DataType="{x:Type st:ProcessManagerViewModel}"><sub:ProcessManagerView/></DataTemplate>
+        <DataTemplate DataType="{x:Type st:StartupManagerViewModel}"><sub:StartupManagerView/></DataTemplate>
+        <DataTemplate DataType="{x:Type st:ServicesManagerViewModel}"><sub:ServicesManagerView/></DataTemplate>
+        <DataTemplate DataType="{x:Type st:InstalledAppsViewModel}"><sub:InstalledAppsView/></DataTemplate>
+        <DataTemplate DataType="{x:Type st:EnvironmentVariablesViewModel}"><sub:EnvironmentVariablesView/></DataTemplate>
+        <DataTemplate DataType="{x:Type st:HostsFileViewModel}"><sub:HostsFileView/></DataTemplate>
+        <DataTemplate DataType="{x:Type st:SystemInformationViewModel}"><sub:SystemInformationView/></DataTemplate>
+    </UserControl.Resources>
+
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Text="System" Style="{StaticResource Text.Display}" Margin="28,22,28,4"/>
+
+        <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,0,0,1" Margin="28,10,28,0">
+            <ItemsControl ItemsSource="{Binding Tabs}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:ToolTabItem}">
+                        <Border Padding="4,0,4,10" Margin="0,0,20,0" BorderThickness="0,0,0,2" x:Name="Indicator" BorderBrush="Transparent">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftClick"
+                                              Command="{Binding DataContext.SelectTabCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              CommandParameter="{Binding}"/>
+                            </Border.InputBindings>
+                            <TextBlock Text="{Binding Title}" Cursor="Hand" x:Name="Label" Style="{StaticResource Text.Secondary}"/>
+                        </Border>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="Indicator" Property="BorderBrush" Value="{DynamicResource Brush.Accent}"/>
+                                <Setter TargetName="Label" Property="Style" Value="{StaticResource Text.Base}"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+
+        <ContentControl Content="{Binding SelectedTab.ViewModel}" Margin="28,16,28,20"/>
+    </DockPanel>
+</UserControl>

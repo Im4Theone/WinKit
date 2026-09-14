@@ -1,0 +1,145 @@
+<UserControl x:Class="WinKit.UI.Views.DiagnosticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WinKit.UI.ViewModels"
+             xmlns:core="clr-namespace:WinKit.Core.Models;assembly=WinKit.Core"
+             d:DataContext="{d:DesignInstance vm:DiagnosticsViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008/design"
+             mc:Ignorable="d" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+
+    <DockPanel Margin="28,22,28,20">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Diagnostics" Style="{StaticResource Text.Display}"/>
+                <TextBlock Text="Analyze your system for configuration, integrity, performance, and maintenance issues."
+                           Style="{StaticResource Text.Secondary}" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <Button Content="Cancel" Command="{Binding CancelScanCommand}" Style="{StaticResource Button.Secondary}"
+                        Padding="14,7" Margin="0,0,8,0"
+                        Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Content="Run Diagnostics" Command="{Binding RunCommand}" Style="{StaticResource Button.Primary}" Padding="16,8"/>
+            </StackPanel>
+        </Grid>
+
+        <Border DockPanel.Dock="Top" Style="{StaticResource Card}" Margin="0,0,0,16" MaxWidth="760" HorizontalAlignment="Left"
+                Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Running diagnostics..." Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Results.Count, StringFormat={}({0} checks completed)}"
+                           Style="{StaticResource Text.Muted}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <Border DockPanel.Dock="Top" Style="{StaticResource Card}" Margin="0,0,0,16" MaxWidth="760" HorizontalAlignment="Left"
+                Visibility="{Binding ShowSummary, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
+                                <Setter Property="Text" Value="{Binding IssueCount, StringFormat={}{0} issue(s) found}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsHealthy}" Value="True">
+                                        <Setter Property="Text" Value="No issues found. Your system is running normally."/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource Text.Muted}" Margin="0,4,0,0">
+                        <Run Text="{Binding PassedCount, Mode=OneWay, StringFormat={}{0} passed}"/>
+                        <Run Text=" · "/>
+                        <Run Text="{Binding WarningCount, Mode=OneWay, StringFormat={}{0} warnings}"/>
+                        <Run Text=" · "/>
+                        <Run Text="{Binding FailedCount, Mode=OneWay, StringFormat={}{0} failed}"/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <CheckBox Content="Show only issues" IsChecked="{Binding ShowOnlyIssues}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                    <Button Content="Review Issues" Command="{Binding ReviewIssuesCommand}" Style="{StaticResource Button.Secondary}" Padding="14,7"
+                            Visibility="{Binding IsHealthy, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding ResultsView}" MaxWidth="760" HorizontalAlignment="Left" Name="ResultsList">
+                <ItemsControl.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Muted}"
+                                           FontWeight="SemiBold" Margin="2,14,0,6"/>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ItemsControl.GroupStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:DiagnosticCheckItemViewModel}">
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Ellipse Grid.Column="0" Width="10" Height="10" Margin="0,4,12,0" VerticalAlignment="Top"
+                                         Fill="{Binding Result.Status, Converter={StaticResource DiagnosticStatusToBrushConverter}}"/>
+
+                                <StackPanel Grid.Column="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Result.Name}" Style="{StaticResource Text.Title}"/>
+                                        <TextBlock Text="{Binding Result.Status, Converter={StaticResource DiagnosticStatusToLabelConverter}}"
+                                                   FontWeight="SemiBold" FontSize="{DynamicResource Font.Size.Small}"
+                                                   Foreground="{Binding Result.Status, Converter={StaticResource DiagnosticStatusToBrushConverter}}"
+                                                   VerticalAlignment="Center" Margin="10,2,0,0"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Result.Summary}" Style="{StaticResource Text.Secondary}" Margin="0,2,0,0"/>
+                                    <TextBlock Text="{Binding Result.RecommendedAction}" Style="{StaticResource Text.Muted}" Margin="0,6,0,0"
+                                               Visibility="{Binding Result.RecommendedAction, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                    <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource Text.Muted}" Margin="0,6,0,0"
+                                               Visibility="{Binding StatusMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                                    <Expander Header="Technical details" Margin="0,8,0,0" FontSize="{DynamicResource Font.Size.Small}"
+                                              Visibility="{Binding Result.TechnicalDetail, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <TextBlock Text="{Binding Result.TechnicalDetail}" Style="{StaticResource Text.Muted}"
+                                                   FontFamily="Consolas" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                    </Expander>
+                                </StackPanel>
+
+                                <Button Grid.Column="2" Padding="12,6" VerticalAlignment="Top" Margin="12,0,0,0"
+                                        Visibility="{Binding Result.FixAction, Converter={StaticResource NullToVisibilityConverter}}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
+                                            <Setter Property="Content" Value="{Binding Result.FixAction.Label}"/>
+                                            <Setter Property="Command" Value="{Binding DataContext.ActCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                                            <Setter Property="IsEnabled" Value="{Binding DataContext.IsFixRunning, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource InverseBooleanConverter}}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                                    <Setter Property="Content" Value="Cancel"/>
+                                                    <Setter Property="Command" Value="{Binding DataContext.CancelFixCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                                    <Setter Property="IsEnabled" Value="True"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

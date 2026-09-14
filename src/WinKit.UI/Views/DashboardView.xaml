@@ -1,0 +1,195 @@
+<UserControl x:Class="WinKit.UI.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WinKit.UI.ViewModels"
+             xmlns:core="clr-namespace:WinKit.Core.Models;assembly=WinKit.Core"
+             d:DataContext="{d:DesignInstance vm:DashboardViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008/design"
+             mc:Ignorable="d" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+
+    <UserControl.Resources>
+        <Style x:Key="OverviewCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Width" Value="216"/>
+            <Setter Property="Margin" Value="0,0,12,12"/>
+        </Style>
+        <Style x:Key="QuickActionCard" TargetType="Border" BasedOn="{StaticResource Card.Interactive}">
+            <Setter Property="Margin" Value="0,0,12,12"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="28,22,28,28">
+        <StackPanel MaxWidth="1000" HorizontalAlignment="Left">
+
+            <TextBlock Text="{Binding GreetingTitle}" Style="{StaticResource Text.Display}"/>
+            <StackPanel Orientation="Horizontal" Margin="0,6,0,28">
+                <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,8,0">
+                    <Ellipse.Style>
+                        <Style TargetType="Ellipse">
+                            <Setter Property="Fill" Value="{DynamicResource Brush.TextMuted}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusIsHealthy}" Value="True">
+                                    <Setter Property="Fill" Value="{DynamicResource Brush.Success}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding StatusIsHealthy}" Value="False">
+                                    <Setter Property="Fill" Value="{DynamicResource Brush.Warning}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Ellipse.Style>
+                </Ellipse>
+                <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource Text.Secondary}"/>
+            </StackPanel>
+
+            <TextBlock Text="System overview" Style="{StaticResource Text.Title}" Margin="0,0,0,12"/>
+            <WrapPanel>
+                <Border Style="{StaticResource OverviewCard}">
+                    <StackPanel>
+                        <TextBlock Text="CPU" Style="{StaticResource Text.Muted}"/>
+                        <TextBlock Text="{Binding Overview.Cpu.UsagePercent, StringFormat={}{0:0}%}" Style="{StaticResource Text.Heading}"/>
+                        <TextBlock Text="{Binding Overview.Cpu.Name}" Style="{StaticResource Text.Secondary}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource OverviewCard}">
+                    <StackPanel>
+                        <TextBlock Text="Memory" Style="{StaticResource Text.Muted}"/>
+                        <TextBlock Text="{Binding Overview.Memory.UsagePercent, StringFormat={}{0:0}%}" Style="{StaticResource Text.Heading}"/>
+                        <TextBlock Style="{StaticResource Text.Secondary}">
+                            <Run Text="{Binding Overview.Memory.UsedGb, Mode=OneWay, StringFormat={}{0:0.#}}"/>
+                            <Run Text="/"/>
+                            <Run Text="{Binding Overview.Memory.TotalGb, Mode=OneWay, StringFormat={}{0:0.#} GB}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource OverviewCard}">
+                    <StackPanel>
+                        <TextBlock Text="GPU" Style="{StaticResource Text.Muted}"/>
+                        <TextBlock Text="{Binding Overview.Gpu.Name}" Style="{StaticResource Text.Title}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource OverviewCard}">
+                    <StackPanel>
+                        <TextBlock Text="Storage" Style="{StaticResource Text.Muted}"/>
+                        <TextBlock Text="{Binding PrimaryStorage.UsagePercent, StringFormat={}{0:0}%}" Style="{StaticResource Text.Heading}"/>
+                        <TextBlock Style="{StaticResource Text.Secondary}">
+                            <Run Text="{Binding PrimaryStorage.FreeGb, Mode=OneWay, StringFormat={}{0:0} GB}"/>
+                            <Run Text="free"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource OverviewCard}">
+                    <StackPanel>
+                        <TextBlock Text="Network" Style="{StaticResource Text.Muted}"/>
+                        <TextBlock Style="{StaticResource Text.Title}" Margin="0,4,0,0">
+                            <Run Text="{Binding Overview.Network.IsConnected, Mode=OneWay, Converter={StaticResource ConnectedTextConverter}}"/>
+                        </TextBlock>
+                        <TextBlock Text="{Binding Overview.Network.AdapterName}" Style="{StaticResource Text.Secondary}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource OverviewCard}">
+                    <StackPanel>
+                        <TextBlock Text="Windows version" Style="{StaticResource Text.Muted}"/>
+                        <TextBlock Text="{Binding Overview.WindowsVersion}" Style="{StaticResource Text.Title}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource OverviewCard}">
+                    <StackPanel>
+                        <TextBlock Text="System uptime" Style="{StaticResource Text.Muted}"/>
+                        <TextBlock Text="{Binding UptimeText}" Style="{StaticResource Text.Title}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+
+            <TextBlock Text="Quick actions" Style="{StaticResource Text.Title}" Margin="0,16,0,12"/>
+            <UniformGrid Columns="2" Rows="2" HorizontalAlignment="Left">
+                <Border Style="{StaticResource QuickActionCard}">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding RunDiagnosticsCommand}"/>
+                    </Border.InputBindings>
+                    <StackPanel>
+                        <Path Data="{StaticResource Icon.Diagnostics}" Style="{StaticResource Icon.Path}"
+                              Stroke="{DynamicResource Brush.Accent}" HorizontalAlignment="Left"/>
+                        <TextBlock Text="Run Diagnostics" Style="{StaticResource Text.Title}" Margin="0,10,0,0"/>
+                        <TextBlock Text="Check connectivity, firewall, and updates" Style="{StaticResource Text.Secondary}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource QuickActionCard}">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding CleanTemporaryFilesCommand}"/>
+                    </Border.InputBindings>
+                    <StackPanel>
+                        <Path Data="{StaticResource Icon.Cleanup}" Style="{StaticResource Icon.Path}"
+                              Stroke="{DynamicResource Brush.Accent}" HorizontalAlignment="Left"/>
+                        <TextBlock Text="Clean Temporary Files" Style="{StaticResource Text.Title}" Margin="0,10,0,0"/>
+                        <TextBlock Text="Free up space from temp and cache files" Style="{StaticResource Text.Secondary}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource QuickActionCard}">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding NetworkTestCommand}"/>
+                    </Border.InputBindings>
+                    <StackPanel>
+                        <Path Data="{StaticResource Icon.Network}" Style="{StaticResource Icon.Path}"
+                              Stroke="{DynamicResource Brush.Accent}" HorizontalAlignment="Left"/>
+                        <TextBlock Text="Network Test" Style="{StaticResource Text.Title}" Margin="0,10,0,0"/>
+                        <TextBlock Text="Ping, DNS lookup, and traceroute tools" Style="{StaticResource Text.Secondary}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource QuickActionCard}">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding SystemInformationCommand}"/>
+                    </Border.InputBindings>
+                    <StackPanel>
+                        <Path Data="{StaticResource Icon.System}" Style="{StaticResource Icon.Path}"
+                              Stroke="{DynamicResource Brush.Accent}" HorizontalAlignment="Left"/>
+                        <TextBlock Text="System Information" Style="{StaticResource Text.Title}" Margin="0,10,0,0"/>
+                        <TextBlock Text="Processes, startup apps, and services" Style="{StaticResource Text.Secondary}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <TextBlock Text="Recent activity" Style="{StaticResource Text.Title}" Margin="0,16,0,12"/>
+            <Border Style="{StaticResource Card}" Padding="0" MaxWidth="620" HorizontalAlignment="Left">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding RecentActivityEntries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type core:ActivityEntry}">
+                                <Grid Margin="16,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Ellipse Grid.Column="0" Width="6" Height="6" Margin="0,0,10,0" VerticalAlignment="Center"
+                                             Fill="{DynamicResource Brush.TextMuted}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.Base}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat={}{0:t}}" Style="{StaticResource Text.Muted}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.Style>
+                            <Style TargetType="ItemsControl">
+                                <Style.Triggers>
+                                    <Trigger Property="HasItems" Value="False">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ItemsControl">
+                                                    <TextBlock Text="No activity yet. Actions you take in WinKit will show up here."
+                                                               Style="{StaticResource Text.Muted}" Margin="16,14"/>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
+                    </ItemsControl>
+                    <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource Brush.Border}" Padding="16,10"
+                            Visibility="{Binding HasMoreActivity, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button Content="Show more" Style="{StaticResource Button.Secondary}" Padding="12,6"
+                                HorizontalAlignment="Left" Command="{Binding ShowMoreActivityCommand}"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

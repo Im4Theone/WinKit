@@ -1,0 +1,48 @@
+<UserControl x:Class="WinKit.UI.Views.AboutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WinKit.UI.ViewModels"
+             d:DataContext="{d:DesignInstance vm:AboutViewModel}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008/design"
+             mc:Ignorable="d" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+
+    <StackPanel Margin="28,22,28,20" MaxWidth="560" HorizontalAlignment="Left">
+        <TextBlock Text="WinKit" Style="{StaticResource Text.Display}"/>
+        <TextBlock Text="{Binding Version, StringFormat=Version {0}}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,20"/>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <StackPanel>
+                <TextBlock Text="A lightweight Windows toolkit for system information, diagnostics, cleanup, and networking."
+                           Style="{StaticResource Text.Base}" TextWrapping="Wrap"/>
+                <TextBlock Text="Every action WinKit takes is a real, explainable operation — no fake optimizations, no invented performance claims."
+                           Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+            <StackPanel>
+                <TextBlock Text="Privacy" Style="{StaticResource Text.Title}" Margin="0,0,0,8"/>
+                <TextBlock Text="No account required. No telemetry. Crash reports are only ever sent when you explicitly click &quot;Send to Developers&quot; — nothing is sent automatically. No permanent background process."
+                           Style="{StaticResource Text.Secondary}" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Updates" Style="{StaticResource Text.Title}" Margin="0,0,0,8"/>
+                <TextBlock Text="{Binding UpdateStatusText}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Content="Check for Updates" Style="{StaticResource Button.Secondary}" Padding="14,7"
+                            Command="{Binding CheckForUpdatesCommand}"
+                            IsEnabled="{Binding IsCheckingForUpdates, Converter={StaticResource InverseBooleanConverter}}"/>
+                    <Button Content="Update" Style="{StaticResource Button.Primary}" Padding="14,7" Margin="10,0,0,0"
+                            Command="{Binding InstallUpdateCommand}"
+                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <Button Content="Skip this version" Style="{StaticResource Button.Secondary}" Padding="14,7" Margin="10,0,0,0"
+                            Command="{Binding SkipThisVersionCommand}"
+                            Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
