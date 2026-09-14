@@ -2,6 +2,28 @@
 
 All notable changes to WinKit are documented in this file.
 
+## 1.2.0 — 2026-09-14
+
+Production hardening pass across the whole app, plus the installer and portable build scripts.
+
+### Fixed
+- Elevated actions (Diagnostics repairs, Network Maintenance, the update installer, Restart as Administrator) could freeze the entire UI thread while a UAC prompt was on screen, since the elevated process launch ran directly on the calling thread instead of off it.
+- A Diagnostics repair (e.g. the DISM/SFC Windows Integrity fix) had no way to be cancelled once started.
+- Two Diagnostics fixes, or a scan and a fix, could run concurrently with no guard.
+- The Windows Integrity check and its repair both parsed DISM/SFC console output for English phrases, which would misreport on any non-English Windows install; now reported as Not Applicable instead of guessing.
+- The Disk Space check used percentage-only thresholds, which could flag a large drive with hundreds of GB free as "low on space"; now uses absolute free space.
+- The Driver check treated "not currently connected" (a normal state for any USB/dock device that isn't plugged in) as a warning.
+- The Dashboard and Process Manager kept polling (WMI queries, full process enumeration) every few seconds for the entire app session, even after navigating away from the page.
+- The Diagnostics "Show only issues" filter was bound to the wrong collection and silently had no effect.
+
+### Added
+- Installer (`installer/WinKit.iss`, built via `installer/Publish-Installer.ps1`) and portable (`portable/Publish-Portable.ps1`) build scripts, producing the self-contained `WinKitSetup-<version>.exe` and `WinKit-<version>-portable.zip` assets the auto-updater already looked for.
+- Diagnostics results are now ordered by what needs attention first (failed, then warning, then informational/passed) within each category, instead of raw check order.
+
+### Packaging
+- Both the installer and portable build are self-contained, ReadyToRun win-x64 builds - no separate .NET runtime install required either way.
+
+
 ## 1.1.2 — 2026-08-24
 
 Auto-updater simplification — no visible change, but the update pipeline is more robust.
