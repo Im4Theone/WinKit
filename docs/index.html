@@ -52,7 +52,7 @@
           <a class="link-underline" href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">View on GitHub</a>
         </div>
 
-        <p class="hero-meta reveal">Version 1.2 &nbsp;·&nbsp; Windows 10 / 11 &nbsp;·&nbsp; x64</p>
+        <p class="hero-meta reveal">Version 2.0.0 &nbsp;·&nbsp; Windows 10 / 11 &nbsp;·&nbsp; x64</p>
       </div>
     </section>
 
@@ -62,8 +62,8 @@
         <figure class="shot reveal">
           <img
             src="assets/winkit-dashboard.png"
-            alt="The WinKit dashboard, showing a system overview with CPU, memory, GPU, storage, network, Windows version and uptime, alongside quick actions for diagnostics and cleanup."
-            width="1180" height="760" decoding="async" />
+            alt="The WinKit dashboard in the Dusk theme: usage meters for CPU, memory and storage, cards for GPU, network and Windows version with uptime, quick actions for diagnostics, cleanup, network tests and system information, and a recent activity list."
+            width="1182" height="853" decoding="async" />
         </figure>
       </div>
     </section>
@@ -77,17 +77,17 @@
         <div class="feature-grid">
           <article class="feature reveal">
             <h3>System information</h3>
-            <p>CPU, memory, GPU, storage, network, Windows build and uptime in one overview — instead of Settings, Task Manager and <span class="mono">winver</span>.</p>
+            <p>CPU, memory, GPU, storage, network, Windows build and uptime in one overview, with usage meters that change colour as they fill — instead of Settings, Task Manager and <span class="mono">winver</span>.</p>
           </article>
 
           <article class="feature reveal">
             <h3>Diagnostics</h3>
-            <p>A one-click pass over connectivity, firewall and update health, reported in plain language rather than error codes.</p>
+            <p>Eleven checks across connectivity, drivers, disk health, services and Windows Update, reported in plain language rather than error codes — with a one-click fix wherever one exists.</p>
           </article>
 
           <article class="feature reveal">
             <h3>Processes &amp; services</h3>
-            <p>A live process list with auto-refresh and freeze / unfreeze, plus service and startup entry management in the same window.</p>
+            <p>A live process list with real memory and CPU for every process and freeze / unfreeze, plus service and startup entry management in the same window.</p>
           </article>
 
           <article class="feature reveal">
@@ -97,7 +97,7 @@
 
           <article class="feature reveal">
             <h3>Cleanup</h3>
-            <p>Scan temporary and cache locations, see what each category actually holds, and reclaim only the space you choose to.</p>
+            <p>Scan temporary files, the thumbnail and Windows Update caches and the Recycle Bin, see what each category actually holds, and reclaim only the space you choose to.</p>
           </article>
 
           <article class="feature reveal">
@@ -107,7 +107,7 @@
         </div>
 
         <p class="features-note reveal">
-          Four built-in themes with custom theme import, plus adjustable density, corner radius and font scale.
+          Six built-in themes — the warm, flat Dusk by default — with custom theme import and export, plus adjustable density, corner radius and font scale. Ctrl+1 to Ctrl+8 jump between pages.
           Settings and activity stay on the machine under <span class="mono">%LOCALAPPDATA%\WinKit</span> — no account, no cloud sync, no telemetry.
         </p>
       </div>
@@ -118,7 +118,7 @@
       <div class="wrap">
         <p class="eyebrow reveal">Made with</p>
         <p id="made-title" class="tech-list reveal">
-          <span class="tech-item">C#</span><span class="tech-sep">·</span><span class="tech-item">Windows API</span>
+          <span class="tech-item">C++</span><span class="tech-sep">·</span><span class="tech-item">Windows API</span><span class="tech-sep">·</span><span class="tech-item">WebView2</span><span class="tech-sep">·</span><span class="tech-item">HTML / CSS / JS</span>
         </p>
       </div>
     </section>
@@ -127,27 +127,27 @@
     <section class="download" id="download" aria-labelledby="download-title">
       <div class="wrap">
         <p class="eyebrow reveal">Download</p>
-        <h2 id="download-title" class="reveal">Version 1.2</h2>
+        <h2 id="download-title" class="reveal">Version 2.0.0</h2>
 
         <div class="download-grid">
           <article class="download-card reveal">
             <h3>Portable x64</h3>
-            <p>Unzip and run. Nothing is installed, nothing is registered.</p>
-            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/1.2/WinKit-1.2.0-portable.zip">Download .zip</a>
-            <p class="download-size">57 MB</p>
+            <p>One small file. Download and run it — nothing is installed, nothing is registered.</p>
+            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/2.0.0/WinKit-2.0.0-portable.exe">Download .exe</a>
+            <p class="download-size">1.2 MB &nbsp;·&nbsp; <a class="link-underline" href="https://github.com/Im4Theone/WinKit/releases/download/2.0.0/WinKit-2.0.0-portable.zip">or as .zip</a></p>
           </article>
 
           <article class="download-card reveal">
             <h3>Installer x64</h3>
-            <p>Installs to Program Files with a Start Menu shortcut and an uninstaller.</p>
-            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/1.2/WinKitSetup-1.2.0.exe">Download .exe</a>
-            <p class="download-size">43 MB</p>
+            <p>Installs to Program Files with a Start Menu shortcut, an uninstaller and in-app updates.</p>
+            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/2.0.0/WinKitSetup-2.0.0.exe">Download .exe</a>
+            <p class="download-size">2.4 MB</p>
           </article>
         </div>
 
         <p class="download-meta reveal">
-          Windows 10 / 11 &nbsp;·&nbsp; x64
-          <span class="download-meta-sub">Self-contained build — no separate runtime install. Updates are checked against GitHub Releases.</span>
+          Windows 10 (1809 or later) / 11 &nbsp;·&nbsp; x64
+          <span class="download-meta-sub">No .NET runtime to install. Needs the Microsoft Edge WebView2 Runtime, which Windows 11 and current Windows 10 already include. Updates are checked against GitHub Releases.</span>
         </p>
       </div>
     </section>

@@ -347,7 +347,7 @@ main section {
 .shot img {
   width: 100%;
   height: auto;
-  aspect-ratio: 1180 / 760;
+  aspect-ratio: 1182 / 853;
   object-fit: cover;
 }
 
