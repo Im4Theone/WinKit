@@ -2,6 +2,30 @@
 
 All notable changes to WinKit are documented in this file.
 
+## 2.0.0 — 2026-10-09
+
+WinKit is rebuilt as a native Windows app: a single `WinKit.exe` (C++ backend, HTML/CSS/JS interface in an embedded Microsoft Edge WebView2 window) with no .NET runtime. All tools, settings and saved data carry over from 1.x. See `RELEASE_NOTES.md` for the full list.
+
+### Added
+- New default theme **Dusk** (warm, flat, hairline-bordered cards) and its light companion **Dawn**; six built-in themes in total. Existing users on the old default (Midnight) are moved to Dusk once; other choices are kept.
+- Keyboard shortcuts Ctrl+1 to Ctrl+8 for the main pages.
+- Dashboard usage meters that turn amber and red as they fill.
+- Colour-coded ping and traceroute latency, and IPv6 and DNS servers in IP Configuration.
+- Diagnostics: a "Check as Administrator" action for the Windows integrity check, and a real connection test when ping is blocked.
+- Cleanup: a size bar per category.
+
+### Changed
+- The process list reads memory and CPU for every process from the system process table, so protected Windows services no longer show 0 B and 0%.
+- The update installer and portable updater are built by `release.bat` (Inno Setup `installer.iss` plus a portable exe and zip).
+
+### Fixed
+- The Windows integrity check no longer reports false corruption when WinKit runs without administrator rights.
+- The Startup list no longer shows the hidden `desktop.ini` file as a startup program.
+- Diagnostics Fix buttons now reach the right fixer.
+- Cleaning temp files from Diagnostics refuses unsafe folders such as the user profile or a drive root.
+- Cleanup no longer shows stale results after leaving the page during a scan.
+- Several smaller fixes: unquoted uninstall paths with spaces, the network adapter shown on the dashboard, theme names that clash with built-in themes, keyboard focus on start, and display scaling when moving between monitors.
+
 ## 1.2.0 — 2026-09-14
 
 Production hardening pass across the whole app, plus the installer and portable build scripts.
