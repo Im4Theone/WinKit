@@ -2,7 +2,7 @@
 
 Files: `mod_infra.h` (native, `Mod_Infra` + `Updater_Main`), `js/core.js` (`window.WK`). UI developers need only this file and the header comment of `core.js`.
 
-Persisted files (same names/JSON as the C# app, under `%LOCALAPPDATA%\WinKit`): `settings.json` (PascalCase keys), `profile.json`, `activity.json`, `Themes\<name>.json` (camelCase, string enums), `Logs\crash.log`.
+Persisted files (same names/JSON as the C# app, under `%LOCALAPPDATA%\WinKit`): `settings.json` (PascalCase keys), `profile.json`, `activity.json`, `window.json` (window position, size and maximised flag, written by the host when the window closes and applied on the next start if the position is still on a connected screen), `Themes\<name>.json` (camelCase, string enums), `Logs\crash.log`.
 
 ## 1. Bridge
 JS -> host: `chrome.webview.postMessage(JSON.stringify({id:"7", cmd:"store_read", name:"settings"}))`. All args are flat strings (`true`/`false`, numbers as text, objects JSON-stringified). Reply: `{id, ok:true, data:<json value>}` or `{id, ok:false, error:"msg"}`. Events: `{event:"update_progress", data:{...}}`. `WK.native(cmd,args)` does this; `WK.on(event, fn)` receives events. Reserved arg names: `id`, `cmd`. Without `chrome.webview` (plain browser) core.js uses localStorage mocks (`WK.mock` to override).
@@ -29,11 +29,12 @@ JS -> host: `chrome.webview.postMessage(JSON.stringify({id:"7", cmd:"store_read"
 | `error_report_send` | the 9 report fields (no `text`) | `{ok:true,errorMessage:null}` or `{ok:false,errorMessage}`. POST to `https://winkit-error-reports.kaloyankrastev2013.workers.dev/report`, camelCase JSON, only those 9 fields. No redaction exists in the C# and none was added |
 | `open_url` | `url` (http/https only) | `true` |
 | `open_folder` | `path` or `@data`/`@logs`/`@themes`/`@downloads` | `true` |
-| `reveal_in_explorer` | `path` (file selects it) | `true` |
+| `reveal_in_explorer` | `path` (file selects it; `%VAR%` references are expanded) | `true`, or an error if the path does not exist |
 | `clipboard_set` | `text` | `true` (fallback; `WK.shell.copy` prefers navigator.clipboard) |
 | `import_file_dialog` | `title, filter` (`Name (*.json)\|*.json`) | `{path,text}` or `null` if cancelled |
 | `export_file_dialog` | `title, filter, defaultName, defaultExt, text` | saved path, or `null` if cancelled |
 | `set_window_material` | `mode` = `dark`\|`light` (optional `,mica`/`,acrylic`/`,tabbed`/`,none`) | `true` -> `HostSetMaterial` |
+| `set_window_title` | `title` (max 120 chars) | `true` -> `HostSetTitle`; the page sets it to "<Page> - WinKit" on every navigation. |
 | `set_title_bar_colors` | `dark`, `caption`, `text`, `border` (`#RRGGBB` or empty = default) | `true` -> `HostSetTitleBarColors` |
 
 Native events: `update_progress` -> `{stage:"download"|"verify"|"extract"|"launch", received, total, percent}` (bytes; percent 0-100).
@@ -53,7 +54,7 @@ Layout: `--wk-radius` (CornerRadius px), `--wk-radius-sm` (min(r,12)), `--wk-sid
 Built-in themes (exact JSON): Carbon (Compact, r4, sidebar 224), Light, Midnight (default, r6, 232), Slate (r8, 236). Lists show `System` first (follows Windows light/dark: Light or Midnight), then built-ins, then custom. Unknown theme name falls back to Carbon (C# behaviour).
 
 ## 5. Updater switch
-`WinKit.exe --apply-update "<stagingDir>" "<installDir>" <pid>` -> in `wWinMain`, before any window/WebView: `return Updater_Main(GetCommandLineW());`. A standalone `WinKit.Updater.exe` (if shipped in the install dir, used first, like the C#) takes exactly `"<stagingDir>" "<installDir>" <pid>` (switch optional). Otherwise the native update code starts a private copy of the host exe from `%TEMP%\WinKitUpdate\updater-*.exe` with the switch. It waits up to 30 s for `<pid>`, sleeps 500 ms, copies all files in parallel (2-8 threads, 5 retries, a locked running exe is renamed aside), deletes staging, relaunches `<installDir>\WinKit.exe`; returns 0, or 1 after logging to crash.log and still relaunching.
+`WinKit.exe --apply-update "<stagingDir>" "<installDir>" <pid> ["<exeName>"]` -> in `wWinMain`, before any window/WebView: `return Updater_Main(GetCommandLineW());`. A standalone `WinKit.Updater.exe` (if shipped in the install dir, used first, like the C#) takes exactly `"<stagingDir>" "<installDir>" <pid>` (switch optional). Otherwise the native update code starts a private copy of the host exe from `%TEMP%\WinKitUpdate\updater-*.exe` with the switch. It waits up to 30 s for `<pid>`, sleeps 500 ms, copies all files in parallel (2-8 threads, 5 retries, a locked running exe is renamed aside), deletes staging, relaunches `<installDir>\WinKit.exe`; returns 0, or 1 after logging to crash.log and still relaunching.
 
 ## 6. WK public API
 Full list with signatures is the header comment of `js/core.js`. Auto-init at load; `await WK.ready` (`{onboardingCompleted}`). Summary of behaviours the UI relies on:
@@ -92,3 +93,5 @@ On open call `await WK.settings.refreshFromSystem()` (re-reads the real auto-sta
 - Error report has no redaction rules because the C# has none; JS stack traces are sent as-is.
 - Update download URLs/hashes are not trusted from JS: the native side keeps the last `update_check` result and only downloads https URLs on github.com / githubusercontent.com.
 - Rename-save of a theme where only the letter case changes no longer deletes the file it just wrote (the C# would).
+
+Note (portable updates): the optional 4th argument is the file name of the running exe (for example `WinKit-2.0.0-portable.exe`). The update's `WinKit.exe` replaces the file under that name and the updater relaunches it, so a renamed portable copy is updated in place instead of leaving a second `WinKit.exe` beside it. A name containing a path separator, or not ending in `.exe`, is ignored.

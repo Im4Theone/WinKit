@@ -7,7 +7,9 @@
   const css = `
 .cln-wrap{display:flex;flex-direction:column;height:100%;min-height:380px}
 .cln-sub{margin:4px 0 18px}
-.cln-list{flex:1;min-height:0;overflow:auto;max-width:700px;padding-right:4px}
+.cln-link{padding:3px 4px;border:0;background:transparent;color:var(--wk-accent);font-weight:400;font-size:inherit}
+.cln-link:hover:not(:disabled){text-decoration:underline;background:transparent;border:0}
+.cln-list{flex:1;min-height:0;overflow:auto;max-width:700px}
 .cln-item{display:grid;grid-template-columns:auto 1fr auto;column-gap:14px;align-items:start;margin-bottom:10px;cursor:pointer}
 .cln-item.off .cln-size{color:var(--wk-text-muted)}
 .cln-item input{margin-top:3px}
@@ -53,7 +55,7 @@
 
       root.append(el('div', { class: 'cln-wrap' },
         el('h1', { class: 'wk-display', text: 'Cleanup' }),
-        el('div', { class: 'wk-secondary cln-sub', text: 'Review what each category will remove before cleaning up.' }),
+        el('div', { class: 'wk-secondary cln-sub' }, 'Review what each category will remove before cleaning up. ', el('button', { class: 'cln-link', type: 'button', text: 'See what else is using space', onclick: () => WK.nav.go('system', { tab: 'disk' }) })),
         status, list, foot));
 
       const selected = () => items.filter(i => i.selected);
@@ -77,7 +79,7 @@
         }
         const maxBytes = Math.max(1, ...items.map(i => Number(i.scan.sizeBytes) || 0));
         list.replaceChildren(...items.map(it => {
-          const s = it.scan, cb = el('input', { type: 'checkbox', checked: it.selected, disabled: isCleaning, onclick: (e) => e.stopPropagation(),
+          const s = it.scan, cb = el('input', { type: 'checkbox', 'aria-label': s.displayName, checked: it.selected, disabled: isCleaning, onclick: (e) => e.stopPropagation(),
             onchange: () => { it.selected = cb.checked; card.classList.toggle('off', !it.selected); renderFoot(); } });
           const loc = (s.locations && s.locations[0]) || '';
           const badges = [];

@@ -11,6 +11,7 @@
 .dg-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;max-width:760px}
 .dg-head .dg-titles{flex:1;min-width:0}
 .dg-head .dg-sub{margin-top:4px}
+.dg-last{margin-top:4px}
 .dg-btns{display:flex;gap:8px;flex:none}
 .dg-btns button{padding:8px 16px}
 .dg-card{margin-bottom:16px}
@@ -57,7 +58,7 @@
       // ---- model ----
       let items = [];                 // {result, busy, statusMessage, open, el, parts, log:[]}
       let running = false, fixRunning = false, acting = false, hasRun = false, showOnlyIssues = false;
-      let currentCheck = null, total = 11;
+      let currentCheck = null, total = 11, lastRunAt = 0, tickTimer = null;
       const unsubs = [];
 
       const isIssue = (it) => it.result.status === 'Warning' || it.result.status === 'Failed';
@@ -69,12 +70,13 @@
 
       // ---- static DOM ----
       const runBtn = el('button', { class: 'primary', text: 'Run Diagnostics', onclick: () => run() });
+      const lastTxt = el('div', { class: 'wk-muted dg-last' });
       const cancelBtn = el('button', { text: 'Cancel', class: 'wk-hide', onclick: () => { WK.native('diag_cancel', { target: 'scan' }).catch(() => {}); } });
       const head = el('div', { class: 'dg-head' },
         el('div', { class: 'dg-titles' },
           el('h1', { class: 'wk-display', text: 'Diagnostics' }),
-          el('div', { class: 'wk-secondary dg-sub', text: 'Analyze your system for configuration, integrity, performance, and maintenance issues.' })),
-        el('div', { class: 'dg-btns' }, cancelBtn, runBtn));
+          el('div', { class: 'wk-secondary dg-sub', text: 'Analyze your system for configuration, integrity, performance, and maintenance issues.' }), lastTxt),
+        el('div', { class: 'dg-btns' }, cancelBtn, el('button', { text: 'Export report', title: 'Save a plain-text summary of this PC to share with someone who is helping you', onclick: () => WK.report.open() }), runBtn));
 
       const runTitle = el('span', { text: 'Running diagnostics...' });
       const runCount = el('span', { class: 'wk-muted' });
@@ -167,6 +169,8 @@
         runCur.classList.toggle('wk-hide', !currentCheck);
       }
 
+      const ago = (ms) => { const s = Math.round(ms / 1000), m = Math.round(s / 60), h = Math.round(m / 60); return s < 45 ? 'just now' : m < 2 ? 'a minute ago' : m < 60 ? m + ' minutes ago' : h === 1 ? 'an hour ago' : h + ' hours ago'; };
+      function renderLast() { lastTxt.textContent = running ? '' : lastRunAt ? 'Last run ' + ago(Date.now() - lastRunAt) + '. Results stay here until you run it again.' : ''; }
       // ---- scan ----
       function setResults(results) {
         const old = new Map(items.map((i) => [i.result.checkId, i]));
@@ -174,7 +178,7 @@
       }
       async function run() {
         if (running || fixRunning) return;
-        running = true; items = []; currentCheck = null; updateAllItems(); renderList();
+        running = true; items = []; currentCheck = null; updateAllItems(); renderList(); renderLast();
         let res = null, err = null;
         try { res = await WK.native('diag_run_all'); } catch (e) { err = e; }
         running = false; currentCheck = null;
@@ -188,12 +192,12 @@
         if (cancelled) {
           WK.activity.record('Diagnostics scan cancelled', 'Info');
         } else {
-          hasRun = true;
+          hasRun = true; lastRunAt = Date.now();
           const n = issueCount();
           if (n === 0) WK.activity.record('Diagnostics completed - no issues found', 'Success');
-          else WK.activity.record('Diagnostics completed - ' + n + ' issue(s) found', 'Warning');
+          else WK.activity.record('Diagnostics completed - ' + n + (n === 1 ? ' issue' : ' issues') + ' found', 'Warning');
         }
-        updateAllItems(); renderList();
+        updateAllItems(); renderList(); renderLast();
       }
 
       // ---- actions ----
@@ -272,13 +276,15 @@
 
       renderList();
       return {
-        show() {
+        show(opts) {
           subscribe();
-          if (!running && !fixRunning) return run();
-          // scan/fix still in flight from an earlier visit: just redraw
-          renderList();
+          clearInterval(tickTimer); tickTimer = setInterval(renderLast, 30000);
+          // Scan on first visit, when asked ({run:true} from the dashboard / quick open) or when the results are stale; otherwise show them.
+          const stale = !lastRunAt || Date.now() - lastRunAt > 10 * 60 * 1000;
+          if (!running && !fixRunning && ((opts && opts.run) || stale)) return run();
+          renderList(); renderLast();
         },
-        hide() { unsubscribe(); }
+        hide() { unsubscribe(); clearInterval(tickTimer); tickTimer = null; }
       };
     }
   });

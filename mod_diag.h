@@ -226,6 +226,12 @@ inline std::vector<ws> RegStringValueNames(HKEY root, const ws &sub) {
 }
 
 // ---- file system --------------------------------------------------------------------
+// Paths of 240+ characters need the \\?\ prefix for the Win32 file APIs (temp folders can nest deeper than MAX_PATH).
+inline ws Lp(const ws &p) {
+    if (p.size() < 240 || p.compare(0, 4, L"\\\\?\\") == 0) return p;
+    if (p.compare(0, 2, L"\\\\") == 0) return L"\\\\?\\UNC\\" + p.substr(2);
+    return L"\\\\?\\" + p;
+}
 inline long long ScanDirBytes(const ws &root0, volatile LONG *abort) {
     long long total = 0;
     ws root = root0; while (root.size() > 3 && root.back() == L'\\') root.pop_back();
@@ -235,7 +241,7 @@ inline long long ScanDirBytes(const ws &root0, volatile LONG *abort) {
         if (abort && *abort) return total;
         ws dir = stack.back(); stack.pop_back();
         WIN32_FIND_DATAW fd;
-        HANDLE h = FindFirstFileExW((dir + L"\\*").c_str(), FindExInfoBasic, &fd, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH);
+        HANDLE h = FindFirstFileExW(Lp(dir + L"\\*").c_str(), FindExInfoBasic, &fd, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH);
         if (h == INVALID_HANDLE_VALUE) continue;
         do {
             if (fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) continue;
@@ -432,16 +438,17 @@ inline Res Check_Drivers(volatile LONG *) {
         r.summary = problems.size() == 1 ? ws(L"1 device is reporting a configuration problem.")
                                          : SNum((long long)problems.size()) + L" devices are reporting configuration problems.";
         ws d; for (auto &l : problems) d += l + kNL;
-        if (!benign.empty()) d += L"Also disabled or not connected: " + SNum((long long)benign.size()) + L" device(s)." + kNL;
+        if (!benign.empty()) d += L"Also disabled or not connected: " + Pl((long long)benign.size(), L"device", L"devices") + L"." + kNL;
         r.detail = Trim(d);
-        r.rec = L"Open Device Manager to review the affected device(s) and update or reinstall their drivers.";
+        r.rec = L"Open Device Manager to review the affected devices and update or reinstall their drivers.";
         r.fix.has = true; r.fix.label = L"Open Device Manager"; r.fix.kind = L"Fix";
         r.fix.confirm = L"This opens the built-in Windows Device Manager so you can review the affected devices.";
         return r;
     }
     if (!benign.empty()) {
         r.status = L"Informational";
-        r.summary = SNum((long long)benign.size()) + L" device(s) are disabled or not currently connected.";
+        r.summary = benign.size() == 1 ? ws(L"1 device is disabled or not currently connected.")
+                                       : SNum((long long)benign.size()) + L" devices are disabled or not currently connected.";
         r.detail = Join(benign, kNL); return r;
     }
     r.status = L"Passed"; r.summary = L"All devices are working correctly."; return r;
@@ -484,7 +491,10 @@ inline Res Check_Startup(volatile LONG *) {
         r.fix.confirm = L"This opens Startup Manager, where you can disable individual entries.";
         return r;
     }
-    r.status = L"Passed"; r.summary = SNum((long long)en.size()) + L" program(s) launch at startup - a normal amount."; return r;
+    r.status = L"Passed";
+    r.summary = en.empty() ? ws(L"No programs launch at startup.") : en.size() == 1 ? ws(L"1 program launches at startup - a normal amount.")
+                                                                    : SNum((long long)en.size()) + L" programs launch at startup - a normal amount.";
+    return r;
 }
 
 // number of products in root\SecurityCenter2 for a class; -1 if unavailable (treated as "covered")
@@ -522,9 +532,9 @@ inline Res Check_Services(volatile LONG *) {
     r.summary = problems.size() == 1 ? ws(L"1 important service needs attention.")
                                      : SNum((long long)problems.size()) + L" important services need attention.";
     r.detail = Join(problems, kNL);
-    r.rec = L"Open Services in System Tools to review and start the affected service(s).";
+    r.rec = L"Open Services in System Tools to review and start the affected services.";
     r.fix.has = true; r.fix.label = L"Review Services"; r.fix.kind = L"Review";
-    r.fix.confirm = L"This opens the Services tool, where you can start the affected service(s) yourself.";
+    r.fix.confirm = L"This opens the Services tool, where you can start the affected services yourself.";
     return r;
 }
 
@@ -798,12 +808,12 @@ inline FixRes Fix_Drivers(const ws &, volatile LONG *) {
 // ---- TempFiles ----------------------------------------------------------------------
 struct DelStats { long long bytes = 0; int removed = 0, skipped = 0; };
 inline void TryDeleteFile(const ws &path, long long len, DelStats &s) {
-    SetFileAttributesW(path.c_str(), FILE_ATTRIBUTE_NORMAL);
-    if (DeleteFileW(path.c_str())) { s.bytes += len; s.removed++; } else s.skipped++;
+    SetFileAttributesW(Lp(path).c_str(), FILE_ATTRIBUTE_NORMAL);
+    if (DeleteFileW(Lp(path).c_str())) { s.bytes += len; s.removed++; } else s.skipped++;
 }
 inline void DeleteDirRecursive(const ws &dir, DelStats &s, int depth) {
     std::vector<std::pair<ws, long long>> files; std::vector<ws> subs, links;
-    WIN32_FIND_DATAW fd; HANDLE h = FindFirstFileW((dir + L"\\*").c_str(), &fd);
+    WIN32_FIND_DATAW fd; HANDLE h = FindFirstFileW(Lp(dir + L"\\*").c_str(), &fd);
     if (h == INVALID_HANDLE_VALUE) { s.skipped++; return; }
     do {
         if (wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0) continue;
@@ -815,14 +825,14 @@ inline void DeleteDirRecursive(const ws &dir, DelStats &s, int depth) {
     } while (FindNextFileW(h, &fd));
     FindClose(h);
     for (auto &f : files) TryDeleteFile(f.first, f.second, s);
-    for (auto &l : links) RemoveDirectoryW(l.c_str());
+    for (auto &l : links) RemoveDirectoryW(Lp(l).c_str());
     if (depth < 100) for (auto &d : subs) DeleteDirRecursive(d, s, depth + 1);
-    RemoveDirectoryW(dir.c_str());          // only succeeds when empty
+    RemoveDirectoryW(Lp(dir).c_str());          // only succeeds when empty
 }
 inline void DeleteDirContents(const ws &root0, DelStats &s) {
     ws root = root0; while (root.size() > 3 && root.back() == L'\\') root.pop_back();
     if (!DirExists(root)) return;
-    WIN32_FIND_DATAW fd; HANDLE h = FindFirstFileW((root + L"\\*").c_str(), &fd);
+    WIN32_FIND_DATAW fd; HANDLE h = FindFirstFileW(Lp(root + L"\\*").c_str(), &fd);
     if (h == INVALID_HANDLE_VALUE) return;
     std::vector<WIN32_FIND_DATAW> entries;
     do { if (wcscmp(fd.cFileName, L".") && wcscmp(fd.cFileName, L"..")) entries.push_back(fd); } while (FindNextFileW(h, &fd));
@@ -830,7 +840,7 @@ inline void DeleteDirContents(const ws &root0, DelStats &s) {
     for (auto &e : entries) {
         ws full = root + L"\\" + e.cFileName;
         if (e.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-            if (e.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) RemoveDirectoryW(full.c_str());
+            if (e.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) RemoveDirectoryW(Lp(full).c_str());
             else DeleteDirRecursive(full, s, 0);
         } else TryDeleteFile(full, ((long long)e.nFileSizeHigh << 32) | e.nFileSizeLow, s);
     }
@@ -844,11 +854,10 @@ inline FixRes Fix_TempFiles(const ws &id, volatile LONG *cancel) {
     FixProgress(id, L"Removing Windows temporary files...");
     DeleteDirContents(WindowsTempDir(), s);
     double gb = (double)s.bytes / 1024.0 / 1024.0 / 1024.0;
-    ws value = L"Removed " + SNum(s.removed) + L" file(s), freeing " + FmtTrim(gb, 2) + L" GB.";
+    ws value = L"Removed " + Pl(s.removed, L"file", L"files") + L", freeing " + FmtTrim(gb, 2) + L" GB.";
     ws note;
     if (s.skipped > 0)
-        note = IsAdmin() ? SNum(s.skipped) + L" item(s) were in use and were skipped."
-                         : SNum(s.skipped) + L" item(s) were in use or protected and were skipped. To remove protected system files, go to Settings > Advanced > Run as Administrator.";
+        note = SkippedNote(s.skipped, IsAdmin());
     return FixOk(value, note);
 }
 

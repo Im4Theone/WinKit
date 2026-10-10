@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WinKit — Windows administration, without the clutter.</title>
-  <meta name="description" content="WinKit is a lightweight Windows toolkit for system information, diagnostics, maintenance, and administrative utilities. Windows 10 and 11, x64." />
+  <title>WinKit: Windows administration, without the clutter.</title>
+  <meta name="description" content="WinKit is a small, calm Windows toolkit: system overview, diagnostics, disk usage, Wi-Fi and network tools, cleanup and more. One file under 1 MB, no account, no telemetry. Windows 10 and 11, x64." />
 
   <link rel="icon" href="assets/icon-64.png" sizes="64x64" />
   <link rel="apple-touch-icon" href="assets/icon-256.png" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="WinKit" />
-  <meta property="og:description" content="Windows administration, without the clutter." />
-  <meta property="og:url" content="https://im4theone.github.io/winkit/" />
-  <meta property="og:image" content="https://im4theone.github.io/winkit/assets/winkit-dashboard.png" />
+  <meta property="og:description" content="Windows administration, without the clutter. One file under 1 MB." />
+  <meta property="og:url" content="https://im4theone.github.io/WinKit/" />
+  <meta property="og:image" content="https://im4theone.github.io/WinKit/assets/shot-dashboard.png" />
   <meta name="twitter:card" content="summary_large_image" />
 
   <link rel="stylesheet" href="style.css" />
@@ -32,7 +32,10 @@
       </a>
 
       <nav class="nav-links" aria-label="Primary">
+        <a href="#whats-new">What's new</a>
+        <a href="#tour">Tour</a>
         <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
         <a href="#download">Download</a>
         <a href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">GitHub</a>
       </nav>
@@ -46,13 +49,14 @@
       <div class="wrap">
         <h1 class="reveal">WinKit</h1>
         <p class="hero-lede reveal">Windows administration, without the clutter.</p>
+        <p class="hero-sub reveal">A small, calm toolkit to see what your PC is doing, find what is wrong and fix it. Disk usage, Wi-Fi, diagnostics, cleanup and more, in one file under 1&nbsp;MB.</p>
 
         <div class="hero-actions reveal">
-          <a class="btn" href="#download">Download</a>
-          <a class="link-underline" href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+          <a class="btn" href="#download">Download 2.1.0</a>
+          <a class="link-underline" href="#whats-new">See what's new</a>
         </div>
 
-        <p class="hero-meta reveal">Version 2.0.0 &nbsp;·&nbsp; Windows 10 / 11 &nbsp;·&nbsp; x64</p>
+        <p class="hero-meta reveal">Version 2.1.0 &nbsp;·&nbsp; Windows 10 / 11 &nbsp;·&nbsp; x64 &nbsp;·&nbsp; Free</p>
       </div>
     </section>
 
@@ -61,10 +65,106 @@
       <div class="wrap">
         <figure class="shot reveal">
           <img
-            src="assets/winkit-dashboard.png"
-            alt="The WinKit dashboard in the Dusk theme: usage meters for CPU, memory and storage, cards for GPU, network and Windows version with uptime, quick actions for diagnostics, cleanup, network tests and system information, and a recent activity list."
-            width="1182" height="853" decoding="async" />
+            src="assets/shot-dashboard.png"
+            alt="The WinKit dashboard in the Dusk theme: usage meters for CPU, memory and storage, GPU, network and Windows cards, a hardware health section with drive free space and battery health, and quick actions."
+            width="1280" height="820" />
         </figure>
+      </div>
+    </section>
+
+    <!-- ============ Facts ============ -->
+    <section class="facts" aria-label="At a glance">
+      <div class="wrap">
+        <dl class="facts-grid">
+          <div class="fact reveal"><dt>Under 1&nbsp;MB</dt><dd>One portable file. Nothing to install.</dd></div>
+          <div class="fact reveal"><dt>No account</dt><dd>No telemetry, no cloud, no ads.</dd></div>
+          <div class="fact reveal"><dt>Honest</dt><dd>Every action is real and explained first.</dd></div>
+          <div class="fact reveal"><dt>Six themes</dt><dd>Dusk and Dawn by default, plus your own.</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ============ What's new ============ -->
+    <section class="whatsnew" id="whats-new" aria-labelledby="new-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">New in 2.1.0</p>
+        <h2 id="new-title" class="reveal">Find the problem,<br />not just the symptoms.</h2>
+
+        <div class="new-grid">
+          <article class="new-card reveal">
+            <h3>Disk usage</h3>
+            <p>Pick a drive and click through the biggest folders and files to see where your space went. It only reads. It never deletes.</p>
+          </article>
+          <article class="new-card reveal">
+            <h3>Wi-Fi and connection test</h3>
+            <p>Signal, channel, speed and security, plus a one-click test that says whether the problem is your PC, your router, your provider or DNS.</p>
+          </article>
+          <article class="new-card reveal">
+            <h3>Health report</h3>
+            <p>Save a plain-text summary of your PC to send to whoever is helping you. Names and addresses stay out unless you tick a box.</p>
+          </article>
+          <article class="new-card reveal">
+            <h3>Hardware health</h3>
+            <p>Free space for every drive and, on laptops, battery charge and how much of its original capacity is left.</p>
+          </article>
+          <article class="new-card reveal">
+            <h3>Open ports</h3>
+            <p>Every open port and connection with the program that owns it. See what is using port 3000 or talking to the internet.</p>
+          </article>
+          <article class="new-card reveal">
+            <h3>Right-click menus</h3>
+            <p>Copy, show in folder, search online and end process, right where you need them. Click an address or value to copy it.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Tour ============ -->
+    <section class="tour" id="tour" aria-labelledby="tour-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">Tour</p>
+        <h2 id="tour-title" class="reveal">A closer look.</h2>
+
+        <div class="tour-tabs reveal" role="tablist" aria-label="Screenshots">
+          <button role="tab" id="tab-dash" aria-controls="panel-dash" aria-selected="true">Dashboard</button>
+          <button role="tab" id="tab-disk" aria-controls="panel-disk" aria-selected="false" tabindex="-1">Disk usage</button>
+          <button role="tab" id="tab-wifi" aria-controls="panel-wifi" aria-selected="false" tabindex="-1">Wi-Fi</button>
+          <button role="tab" id="tab-conn" aria-controls="panel-conn" aria-selected="false" tabindex="-1">Connection test</button>
+          <button role="tab" id="tab-diag" aria-controls="panel-diag" aria-selected="false" tabindex="-1">Diagnostics</button>
+          <button role="tab" id="tab-menu" aria-controls="panel-menu" aria-selected="false" tabindex="-1">Right-click</button>
+          <button role="tab" id="tab-dawn" aria-controls="panel-dawn" aria-selected="false" tabindex="-1">Light theme</button>
+        </div>
+
+        <div class="tour-panels reveal">
+          <figure class="tour-panel" id="panel-dash" role="tabpanel" aria-labelledby="tab-dash">
+            <img src="assets/shot-dashboard.png" width="1280" height="820" loading="lazy" decoding="async" alt="The dashboard with usage meters, hardware health and quick actions." />
+            <figcaption>The dashboard shows the state of your PC at a glance, and warns when a drive is nearly full or a battery is wearing out.</figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-disk" role="tabpanel" aria-labelledby="tab-disk">
+            <img src="assets/shot-disk.png" width="1280" height="820" loading="lazy" decoding="async" alt="Disk usage listing the biggest folders on drive C with size bars." />
+            <figcaption>Disk usage lists the biggest folders and files with a size bar. Click a folder to look inside. Nothing is ever deleted from here.</figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-wifi" role="tabpanel" aria-labelledby="tab-wifi">
+            <img src="assets/shot-wifi.png" width="1280" height="820" loading="lazy" decoding="async" alt="Wi-Fi details showing signal, channel, link speed, security and nearby networks." />
+            <figcaption>Wi-Fi details show signal, band, channel, speed and security, with plain advice when the signal is weak or the channel is crowded.</figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-conn" role="tabpanel" aria-labelledby="tab-conn">
+            <img src="assets/shot-conntest.png" width="1280" height="820" loading="lazy" decoding="async" alt="The connection test passing every step: adapter, router, internet and name lookup." />
+            <figcaption>The connection test checks each step between your PC and the internet, then tells you where the problem is and what to try.</figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-diag" role="tabpanel" aria-labelledby="tab-diag">
+            <img src="assets/shot-diagnostics.png" width="1280" height="820" loading="lazy" decoding="async" alt="Diagnostics results with warnings and one-click fixes." />
+            <figcaption>Eleven checks in plain language, with a one-click fix where one exists. Export the results as a report to share.</figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-menu" role="tabpanel" aria-labelledby="tab-menu">
+            <img src="assets/shot-menu.png" width="1280" height="820" loading="lazy" decoding="async" alt="A right-click menu on a process offering copy, show in File Explorer, search online and end process." />
+            <figcaption>Right-click a process, service, startup item or port for the actions you would otherwise hunt for.</figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-dawn" role="tabpanel" aria-labelledby="tab-dawn">
+            <img src="assets/shot-dawn.png" width="1280" height="820" loading="lazy" decoding="async" alt="The dashboard in the light Dawn theme." />
+            <figcaption>Six built-in themes. Dawn is the light companion to Dusk, and Auto follows Windows.</figcaption>
+          </figure>
+        </div>
       </div>
     </section>
 
@@ -76,40 +176,90 @@
 
         <div class="feature-grid">
           <article class="feature reveal">
-            <h3>System information</h3>
-            <p>CPU, memory, GPU, storage, network, Windows build and uptime in one overview, with usage meters that change colour as they fill — instead of Settings, Task Manager and <span class="mono">winver</span>.</p>
+            <h3>System overview</h3>
+            <p>CPU, memory, GPU, storage, network, Windows build and uptime in one place, with meters that change colour as they fill. Instead of Settings, Task Manager and <span class="mono">winver</span>.</p>
           </article>
 
           <article class="feature reveal">
             <h3>Diagnostics</h3>
-            <p>Eleven checks across connectivity, drivers, disk health, services and Windows Update, reported in plain language rather than error codes — with a one-click fix wherever one exists.</p>
+            <p>Eleven checks across connectivity, drivers, disk health, services and Windows Update, reported in plain language rather than error codes, with a one-click fix wherever one exists.</p>
           </article>
 
           <article class="feature reveal">
             <h3>Processes &amp; services</h3>
-            <p>A live process list with real memory and CPU for every process and freeze / unfreeze, plus service and startup entry management in the same window.</p>
+            <p>A live process list with real memory and CPU for every process, sorted by memory like Task Manager, plus services and startup items in the same window.</p>
+          </article>
+
+          <article class="feature reveal">
+            <h3>Disk usage</h3>
+            <p>See what is taking your space, drive by drive and folder by folder. Junctions and cloud-only files are not counted twice, and the scan can be cancelled any time.</p>
           </article>
 
           <article class="feature reveal">
             <h3>Network tools</h3>
-            <p>Ping, traceroute, DNS lookup and IP configuration, next to maintenance actions like flushing DNS and resetting adapters.</p>
+            <p>Ping, traceroute, DNS lookup, IP configuration, open ports, Wi-Fi details and a connection test, next to maintenance actions like flushing DNS and resetting adapters.</p>
           </article>
 
           <article class="feature reveal">
             <h3>Cleanup</h3>
-            <p>Scan temporary files, the thumbnail and Windows Update caches and the Recycle Bin, see what each category actually holds, and reclaim only the space you choose to.</p>
+            <p>Scan temporary files, the thumbnail and Windows Update caches and the Recycle Bin, see what each category holds, and reclaim only the space you choose to.</p>
           </article>
 
           <article class="feature reveal">
             <h3>Administrative utilities</h3>
-            <p>Installed applications with clean uninstall, an environment variables editor and a hosts file editor — elevated only when a task needs it.</p>
+            <p>Installed applications with clean uninstall, an environment variables editor and a hosts file editor, elevated only when a task needs it.</p>
+          </article>
+
+          <article class="feature reveal">
+            <h3>Health report</h3>
+            <p>One plain-text summary of your PC for a friend, a forum or a support desk. Computer name, addresses and Wi-Fi names are left out unless you include them.</p>
+          </article>
+
+          <article class="feature reveal">
+            <h3>Made to be used</h3>
+            <p>Quick Open jumps to any page or action. Every list is searchable, values copy with a click, and the window reopens exactly where you left it.</p>
           </article>
         </div>
+      </div>
+    </section>
 
-        <p class="features-note reveal">
-          Six built-in themes — the warm, flat Dusk by default — with custom theme import and export, plus adjustable density, corner radius and font scale. Ctrl+1 to Ctrl+8 jump between pages.
-          Settings and activity stay on the machine under <span class="mono">%LOCALAPPDATA%\WinKit</span> — no account, no cloud sync, no telemetry.
-        </p>
+    <!-- ============ Principles ============ -->
+    <section class="principles" aria-labelledby="principles-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">Principles</p>
+        <h2 id="principles-title" class="reveal">Small, private, honest.</h2>
+
+        <div class="principle-grid">
+          <article class="principle reveal">
+            <h3>Small on purpose</h3>
+            <p>The whole app is one executable under 1&nbsp;MB. It idles at almost no CPU, and stops polling entirely while minimised.</p>
+          </article>
+          <article class="principle reveal">
+            <h3>Private by default</h3>
+            <p>Settings and history stay on your machine under <span class="mono">%LOCALAPPDATA%\WinKit</span>. No account, no cloud sync, no telemetry. Crash reports are only sent if you press Send.</p>
+          </article>
+          <article class="principle reveal">
+            <h3>No fake optimisation</h3>
+            <p>Every action is a real, explainable operation. Anything destructive asks first, and WinKit never follows a link or junction out of the folder it was asked to clean.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Keyboard ============ -->
+    <section class="keys" id="keys" aria-labelledby="keys-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">Keyboard</p>
+        <h2 id="keys-title" class="reveal">Everything is a few keys away.</h2>
+
+        <ul class="key-list reveal">
+          <li><span class="key-combo"><kbd>Ctrl</kbd><kbd>K</kbd></span><span>Quick Open: jump to any page, tab or action</span></li>
+          <li><span class="key-combo"><kbd>Ctrl</kbd><kbd>F</kbd></span><span>Search the current list</span></li>
+          <li><span class="key-combo"><kbd>Ctrl</kbd><kbd>R</kbd></span><span>Refresh</span></li>
+          <li><span class="key-combo"><kbd>Ctrl</kbd><kbd>1</kbd>&ndash;<kbd>8</kbd></span><span>Go to a main page</span></li>
+          <li><span class="key-combo"><kbd>Ctrl</kbd><kbd>B</kbd></span><span>Hide or show the sidebar</span></li>
+          <li><span class="key-combo"><kbd>Ctrl</kbd><kbd>,</kbd></span><span>Settings</span></li>
+        </ul>
       </div>
     </section>
 
@@ -123,32 +273,79 @@
       </div>
     </section>
 
+    <!-- ============ FAQ ============ -->
+    <section class="faq" id="faq" aria-labelledby="faq-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">FAQ</p>
+        <h2 id="faq-title" class="reveal">Questions, answered.</h2>
+
+        <div class="faq-list reveal">
+          <details>
+            <summary>Windows says the publisher is unknown. Is it safe?</summary>
+            <p>WinKit is not code-signed yet, so Windows SmartScreen may show an "unknown publisher" notice the first time you run it. The source code is public on GitHub, and every download has a SHA-256 checksum you can verify below.</p>
+          </details>
+          <details>
+            <summary>Does it need administrator rights?</summary>
+            <p>No. It starts as a normal app. A few actions, such as resetting the network stack or editing the hosts file, ask Windows for approval when you use them. Checks that need those rights say so instead of guessing.</p>
+          </details>
+          <details>
+            <summary>What does it send over the internet?</summary>
+            <p>Nothing on its own, apart from an optional check for new versions against GitHub Releases, which you can turn off. There is no account and no telemetry.</p>
+          </details>
+          <details>
+            <summary>Portable or installer?</summary>
+            <p>The portable file runs from anywhere and leaves nothing behind. The installer adds a Start Menu shortcut and an uninstaller, and both update themselves from GitHub Releases after a checksum check.</p>
+          </details>
+          <details>
+            <summary>It says WebView2 is missing.</summary>
+            <p>WinKit's interface uses the Microsoft Edge WebView2 Runtime, which Windows 11 and current Windows 10 already include. If yours is missing, WinKit offers the official download link.</p>
+          </details>
+          <details>
+            <summary>Where is my data stored, and how do I remove it?</summary>
+            <p>Settings, themes and history live in <span class="mono">%LOCALAPPDATA%\WinKit</span>. Delete that folder to remove everything. The installer's uninstaller also removes the start-with-Windows entry.</p>
+          </details>
+          <details>
+            <summary>Does it replace Task Manager?</summary>
+            <p>It covers a lot of the same ground in a calmer window, and adds disk usage, Wi-Fi, diagnostics and a health report. It does not try to be a performance profiler.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ Downloads ============ -->
     <section class="download" id="download" aria-labelledby="download-title">
       <div class="wrap">
         <p class="eyebrow reveal">Download</p>
-        <h2 id="download-title" class="reveal">Version 2.0.0</h2>
+        <h2 id="download-title" class="reveal">Version 2.1.0</h2>
 
         <div class="download-grid">
           <article class="download-card reveal">
             <h3>Portable x64</h3>
-            <p>One small file. Download and run it — nothing is installed, nothing is registered.</p>
-            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/2.0.0/WinKit-2.0.0-portable.exe">Download .exe</a>
-            <p class="download-size">1.2 MB &nbsp;·&nbsp; <a class="link-underline" href="https://github.com/Im4Theone/WinKit/releases/download/2.0.0/WinKit-2.0.0-portable.zip">or as .zip</a></p>
+            <p>One small file. Download and run it. Nothing is installed, nothing is registered.</p>
+            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/2.1.0/WinKit-2.1.0-portable.exe">Download .exe</a>
+            <p class="download-size">0.85 MB &nbsp;·&nbsp; <a class="link-underline" href="https://github.com/Im4Theone/WinKit/releases/download/2.1.0/WinKit-2.1.0-portable.zip">or as .zip</a></p>
           </article>
 
           <article class="download-card reveal">
             <h3>Installer x64</h3>
             <p>Installs to Program Files with a Start Menu shortcut, an uninstaller and in-app updates.</p>
-            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/2.0.0/WinKitSetup-2.0.0.exe">Download .exe</a>
+            <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/2.1.0/WinKitSetup-2.1.0.exe">Download .exe</a>
             <p class="download-size">2.4 MB</p>
           </article>
         </div>
 
         <p class="download-meta reveal">
           Windows 10 (1809 or later) / 11 &nbsp;·&nbsp; x64
-          <span class="download-meta-sub">No .NET runtime to install. Needs the Microsoft Edge WebView2 Runtime, which Windows 11 and current Windows 10 already include. Updates are checked against GitHub Releases.</span>
+          <span class="download-meta-sub">No .NET runtime to install. Needs the Microsoft Edge WebView2 Runtime, which Windows 11 and current Windows 10 already include. Upgrades from 2.0 and 1.x keep your settings, themes and history.</span>
         </p>
+
+        <details class="checksums reveal">
+          <summary>SHA-256 checksums</summary>
+          <p>Check a download in PowerShell with <span class="mono">Get-FileHash .\WinKit-2.1.0-portable.exe</span> and compare it with the matching line below.</p>
+          <pre class="mono">dc7556eaf011f5ae21077e9b7baa79f648977956d10eff28c1319d096a380664  WinKit-2.1.0-portable.exe
+992f0cc654523eb7e0bb00f880fd2cd42e9b94bbc6af6626416dab3e809511d6  WinKit-2.1.0-portable.zip
+ff6c639e0f85cfd15d476b01a353abe0d4d509fc92b2a3b7bb2baf5b3d60ff0e  WinKitSetup-2.1.0.exe</pre>
+        </details>
       </div>
     </section>
 
@@ -171,6 +368,7 @@
       <nav class="footer-links" aria-label="Footer">
         <a href="https://im4theone.github.io/">Portfolio</a>
         <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
         <a href="#download">Download</a>
         <a href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="https://github.com/Im4Theone/WinKit/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">Changelog</a>

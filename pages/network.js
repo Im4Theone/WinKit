@@ -1,6 +1,6 @@
 /* pages/network.js - Network tool page (port of NetworkToolsView + Ping/DnsLookup/Traceroute/IpConfiguration/NetworkMaintenance view models).
  * Tabs (same order as NetworkToolsViewModel): Ping, DNS Lookup, Traceroute, IP Configuration, Maintenance.
- * Deep link: WK.nav.go('network', { tab: 'ping' | 'dns' | 'traceroute' | 'ipconfig' | 'maintenance' }).  Opening the page without a tab selects Ping
+ * Deep link: WK.nav.go('network', { tab: 'ping' | 'dns' | 'traceroute' | 'ipconfig' | 'ports' | 'wifi' | 'conntest' | 'maintenance' }).  Opening the page without a tab selects Ping
  * (the C# calls SelectFirstTab on every navigation). Running pings/traces are NOT cancelled when the page is left (the C# view models live on). */
 (function () {
   'use strict';
@@ -38,6 +38,42 @@
 .net-mcard .net-act{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
 .net-mcard .net-act button{padding:7px 14px;margin-left:auto}
 .net-top-right{display:flex;justify-content:flex-end;margin-bottom:12px}
+.wf-bars{display:inline-flex;align-items:flex-end;gap:2px;height:16px;vertical-align:middle}
+.wf-bars i{width:4px;border-radius:1px;background:rgba(var(--wk-text-primary-rgb),.2)}
+.wf-bars i.on{background:var(--wk-success)}
+.wf-bars.fair i.on{background:var(--wk-warning)}.wf-bars.weak i.on{background:var(--wk-error)}
+.wf-hero{display:flex;align-items:center;gap:12px}
+.wf-hero .wf-bars{height:24px}.wf-hero .wf-bars i{width:6px}
+.wf-note{margin-top:12px;padding:9px 12px;border-radius:var(--wk-radius-sm);background:rgba(var(--wk-warning-rgb),.12);color:var(--wk-text-primary)}
+.wf-note.bad{background:rgba(var(--wk-error-rgb),.12)}
+.wf-nets{padding:0;overflow:hidden;margin-top:12px}
+.wf-net{display:grid;grid-template-columns:22px minmax(0,1fr) 120px 150px;column-gap:12px;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(var(--wk-border-rgb),.7)}
+.wf-net:last-child{border-bottom:0}
+.wf-net.me{background:rgba(var(--wk-accent-rgb),.1)}
+.wf-net .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wf-head{padding:10px 16px;border-bottom:1px solid var(--wk-border);color:var(--wk-text-muted);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.wf-saved{margin-top:12px}.wf-saved summary{cursor:pointer;color:var(--wk-text-secondary)}
+.wf-saved ul{margin:8px 0 0;padding-left:20px;color:var(--wk-text-secondary)}
+.ct-verdict{margin-bottom:14px}
+.ct-verdict .wk-title{margin-bottom:4px}
+.ct-verdict.ok{border-left:3px solid var(--wk-success)}.ct-verdict.warn{border-left:3px solid var(--wk-warning)}.ct-verdict.fail{border-left:3px solid var(--wk-error)}
+.ct-steps{padding:0;overflow:hidden}
+.ct-step{display:grid;grid-template-columns:26px minmax(0,1fr);column-gap:12px;padding:12px 16px;border-bottom:1px solid rgba(var(--wk-border-rgb),.7)}
+.ct-step:last-child{border-bottom:0}
+.ct-ic{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:rgba(var(--wk-text-primary-rgb),.1);color:var(--wk-text-muted)}
+.ct-step.ok .ct-ic{background:rgba(var(--wk-success-rgb),.18);color:var(--wk-success)}
+.ct-step.warn .ct-ic{background:rgba(var(--wk-warning-rgb),.2);color:var(--wk-warning)}
+.ct-step.fail .ct-ic{background:rgba(var(--wk-error-rgb),.2);color:var(--wk-error)}
+.ct-step .wk-spin{margin:3px}
+.ct-acts{display:flex;gap:8px;margin-top:10px}
+.net-pwrap{padding:0;overflow:hidden}
+.net-pwrap .net-scroll{max-height:max(200px,calc(100vh - 290px))}
+table.net-ports td,table.net-ports th{padding-left:12px;padding-right:12px;white-space:nowrap}
+.net-bar .wk-seg button{padding:6px 12px}
+.net-pbar .wk-search{flex:1 1 120px;min-width:120px;max-width:260px}
+.net-pbar .wk-search input{width:100%}
+.net-pbar .wk-seg{flex:none}
+.net-pbar .wk-secondary{white-space:nowrap}
 .net-top-right button{padding:7px 14px}
 `;
   document.head.appendChild(el('style', { 'data-for': 'net', text: css }));
@@ -193,11 +229,11 @@
         el('div', { class: 'net-head' }, el('div', { class: 'wk-title', text: a.name || '' }), el('span', { class: 'net-pill' + (a.isUp ? ' up' : ''), text: a.isUp ? 'Connected' : 'Not connected' })),
         el('div', { class: 'wk-muted', style: 'margin-top:2px', text: a.description || '' }),
         el('dl', { class: 'net-kv' },
-          el('dt', { text: 'IPv4' }), el('dd', { class: 'selectable', text: first(a.ipv4Addresses) }),
-          el('dt', { text: 'MAC address' }), el('dd', { class: 'selectable', text: a.macAddress == null ? '' : a.macAddress }),
-          el('dt', { text: 'IPv6' }), el('dd', { class: 'selectable', text: first(a.ipv6Addresses) }),
-          el('dt', { text: 'Gateway' }), el('dd', { class: 'selectable', text: first(a.gateways) }),
-          el('dt', { text: 'DNS servers' }), el('dd', { class: 'selectable', text: a.dnsServers && a.dnsServers.length ? a.dnsServers.join(', ') : '-' }),
+          el('dt', { text: 'IPv4' }), el('dd', { class: 'selectable', 'data-copy': '', title: 'Click to copy', text: first(a.ipv4Addresses) }),
+          el('dt', { text: 'MAC address' }), el('dd', { class: 'selectable', 'data-copy': '', title: 'Click to copy', text: a.macAddress == null ? '' : a.macAddress }),
+          el('dt', { text: 'IPv6' }), el('dd', { class: 'selectable', 'data-copy': '', title: 'Click to copy', text: first(a.ipv6Addresses) }),
+          el('dt', { text: 'Gateway' }), el('dd', { class: 'selectable', 'data-copy': '', title: 'Click to copy', text: first(a.gateways) }),
+          el('dt', { text: 'DNS servers' }), el('dd', { class: 'selectable', 'data-copy': '', title: 'Click to copy', text: a.dnsServers && a.dnsServers.length ? a.dnsServers.join(', ') : '-' }),
           el('dt', { text: 'DHCP' }), el('dd', { text: a.dhcpEnabled ? 'Enabled' : 'Disabled' })));
     }
     async function refresh() {
@@ -254,9 +290,188 @@
     return {};
   }
 
+
+  // ---------------------------------------------------------------- Ports
+  function portsTab(panel) {
+    let all = [], loaded = false, loading = false, query = '', mode = 'listening';
+    const MAX = 400, count = el('span', { class: 'wk-secondary' }), tbody = el('tbody');
+    const search = WK.ui.search(q => { query = q; paint(); }, 'Search ports');
+    const btn = el('button', { text: 'Refresh', onclick: () => refresh() });
+    const seg = el('div', { class: 'wk-seg' });
+    [['listening', 'Listening'], ['connected', 'Connected'], ['all', 'All']].forEach(([id, label]) => {
+      seg.append(el('button', { text: label, class: id === mode ? 'on' : '', onclick: (e) => { mode = id; [...seg.children].forEach(b => b.classList.toggle('on', b === e.currentTarget)); paint(); } }));
+    });
+    const th = (t) => el('th', { text: t });
+    const table = el('table', { class: 'wk-table net-ports' }, el('thead', null, el('tr', null, ['Program', 'PID', 'Protocol', 'Local address', 'Remote address', 'State'].map(th))), tbody);
+    const fmt = (a, p) => (a.indexOf(':') >= 0 ? '[' + a + ']' : a) + ':' + p;
+    function paint() {
+      const rows = all.filter(r => (mode === 'all' || (mode === 'listening') === (r.state === 'Listening')) && (mode !== 'connected' || r.proto === 'TCP') &&
+        (!query || WK.ui.matches(r.process + ' ' + r.pid + ' ' + r.proto + ' ' + r.local + ' ' + r.localPort + ' ' + r.remote + ' ' + r.remotePort + ' ' + r.state, query)));
+      const nm = (r) => r.process || '￿';                                  // unnamed owners (closing connections) go last
+      rows.sort((a, b) => (mode === 'connected' ? nm(a).localeCompare(nm(b)) : a.localPort - b.localPort) || nm(a).localeCompare(nm(b)) || a.localPort - b.localPort);
+      count.textContent = rows.length + (rows.length === 1 ? ' entry' : ' entries');
+      const shown = rows.slice(0, MAX);
+      const menu = (r) => [{ label: 'Copy local address', run: () => WK.ui.copy(fmt(r.local, r.localPort)) }, { label: 'Copy port', run: () => WK.ui.copy(r.localPort) },
+        { label: 'Copy remote address', disabled: !r.remote, run: () => WK.ui.copy(fmt(r.remote, r.remotePort)) }, { label: 'Copy PID', disabled: !r.pid, run: () => WK.ui.copy(r.pid) }, { sep: true },
+        { label: 'Search online for "' + (r.process || 'this program') + '"', disabled: !r.process, run: () => WK.ui.searchWeb(r.process + ' process') }];
+      tbody.replaceChildren(...shown.map(r => { const tr = el('tr', null,
+        el('td', { text: r.process || (r.pid ? '' : '-'), title: r.process }), el('td', { text: r.pid || '-' }), el('td', { text: r.proto }),
+        el('td', { class: 'selectable', text: fmt(r.local, r.localPort), 'data-copy': String(r.localPort), title: 'Click to copy the port' }),
+        el('td', { class: 'selectable', text: r.remote ? fmt(r.remote, r.remotePort) : '-' }),
+        el('td', { text: r.state })); WK.ui.contextMenu(tr, () => menu(r)); return tr; }));
+      if (!shown.length) tbody.append(el('tr', null, el('td', { colspan: 6, class: 'wk-empty', text: query ? 'Nothing matches "' + query + '".' : 'Nothing to show here.' })));
+      else if (rows.length > MAX) tbody.append(el('tr', null, el('td', { colspan: 6, class: 'wk-empty', text: 'Showing the first ' + MAX + '. Use the search box to narrow the list.' })));
+    }
+    async function refresh() {
+      if (loading) return; loading = true; loaded = true; btn.disabled = true;
+      try { const r = await WK.native('ports_list'); all = Array.isArray(r) ? r : []; paint(); }
+      catch (e) { WK.alert("Couldn't read open ports", errText(e)); }
+      finally { loading = false; btn.disabled = false; }
+    }
+    panel.append(el('div', { class: 'net-bar net-pbar' }, search.el, seg, count, el('span', { style: 'flex:1' }), btn),
+      el('div', { class: 'wk-card flat net-pwrap' }, el('div', { class: 'net-scroll' }, table)));
+    return { show() { if (!loaded) refresh(); } };
+  }
+
+
+  // ---------------------------------------------------------------- Wi-Fi
+  const bars = (pct, big) => {
+    const n = pct >= 75 ? 4 : pct >= 50 ? 3 : pct >= 25 ? 2 : pct > 0 ? 1 : 0;
+    return el('span', { class: 'wf-bars' + (pct < 30 ? ' weak' : pct < 55 ? ' fair' : '') }, [1, 2, 3, 4].map(i => el('i', { class: i <= n ? 'on' : '', style: 'height:' + (big ? 6 + i * 4 : 4 + i * 3) + 'px' })));
+  };
+  const quality = (p) => p >= 80 ? 'Excellent' : p >= 60 ? 'Good' : p >= 40 ? 'Fair' : 'Weak';
+  function wifiTab(panel) {
+    let loaded = false, loading = false;
+    const btn = el('button', { text: 'Refresh', onclick: () => refresh(false) });
+    const scanBtn = el('button', { text: 'Scan for networks', title: 'Ask the adapter to look for networks again (takes a few seconds)', onclick: () => refresh(true) });
+    const body = el('div');
+    panel.append(el('div', { class: 'net-top-right' }, scanBtn, el('span', { style: 'width:8px' }), btn), body);
+    const kv = (rows) => el('dl', { class: 'net-kv' }, rows.filter(Boolean).flatMap(([k, v, copy]) => [el('dt', { text: k }), el('dd', copy ? { class: 'selectable', 'data-copy': '', title: 'Click to copy', text: v } : { text: v })]));
+    function adapterView(ad) {
+      const out = [], c = ad.connection;
+      if (c) {
+        const s = c.signal || 0, notes = [];
+        out.push(el('div', { class: 'wk-card net-adapter' },
+          el('div', { class: 'net-head' }, el('div', { class: 'wf-hero' }, bars(s, true), el('div', null, el('div', { class: 'wk-title', text: c.ssid }), el('div', { class: 'wk-muted', text: ad.description }))), el('span', { class: 'net-pill up', text: 'Connected' })),
+          kv([['Signal', quality(s) + ' - ' + s + '%' + (c.rssiDbm != null ? ' (' + c.rssiDbm + ' dBm)' : '')],
+            c.band ? ['Band and channel', c.band + ', channel ' + c.channel + ' (' + c.frequencyMhz + ' MHz)'] : null,
+            ['Link speed', 'Download ' + c.rxMbps + ' Mbps, upload ' + c.txMbps + ' Mbps'],
+            c.phy ? ['Wi-Fi standard', c.phy] : null, ['Security', c.security], ['Access point', c.bssid, true], c.profile && c.profile !== c.ssid ? ['Saved as', c.profile] : null])));
+        if (c.weakSecurity) notes.push(['bad', 'This network uses weak or outdated security (' + c.security + '). Anyone nearby may be able to read your traffic. Switch the router to WPA2 or WPA3 if you can.']);
+        if (s < 40) notes.push(['', 'The signal is weak. Moving closer to the router, or away from walls and other electronics, usually helps. A 5 GHz network is faster but reaches less far than 2.4 GHz.']);
+        if (c.band === '2.4 GHz' && c.othersOnChannel >= 3) notes.push(['', c.othersOnChannel + ' other access points share your channel, which can slow the connection down. Try channel 1, 6 or 11 on the router, or use a 5 GHz network.']);
+        else if (c.othersOnChannel >= 6) notes.push(['', c.othersOnChannel + ' other access points share your channel. Choosing a less busy channel on the router may help.']);
+        notes.forEach(([k, t]) => out.push(el('div', { class: 'wf-note' + (k ? ' ' + k : ''), text: t })));
+      } else {
+        out.push(el('div', { class: 'wk-card net-adapter' }, el('div', { class: 'net-head' }, el('div', null, el('div', { class: 'wk-title', text: ad.description }), el('div', { class: 'wk-muted', text: 'Wi-Fi adapter' })), el('span', { class: 'net-pill', text: ad.state })),
+          el('div', { class: 'wk-secondary', style: 'margin-top:10px', text: ad.state === 'Not connected' ? 'This adapter is not connected to a Wi-Fi network right now.' : 'This adapter is ' + ad.state.toLowerCase() + '.' })));
+      }
+      const nets = ad.networks || [];
+      const list = el('div', { class: 'wk-card flat wf-nets' }, el('div', { class: 'wf-head', text: 'Nearby networks' }));
+      if (nets.length) nets.forEach(n => list.append(el('div', { class: 'wf-net' + (n.connected ? ' me' : '') }, bars(n.signal),
+        el('div', { class: 'nm', title: n.ssid }, n.ssid, n.connected ? el('span', { class: 'wk-muted', text: '  connected' }) : n.saved ? el('span', { class: 'wk-muted', text: '  saved' }) : null),
+        el('div', { class: 'wk-secondary', text: n.channel ? n.band + ', ch ' + n.channel : '' }), el('div', { class: 'wk-secondary', text: n.secure ? n.security : 'Open (no password)' }))));
+      else list.append(el('div', { class: 'wk-empty', text: 'No networks found. Press "Scan for networks". If the list stays empty, Windows may be hiding nearby networks because Location access is turned off (Settings, Privacy and security, Location).' }));
+      out.push(list);
+      const prof = ad.profiles || [];
+      if (prof.length) out.push(el('details', { class: 'wf-saved' }, el('summary', { text: 'Saved networks (' + prof.length + ')' }), el('ul', null, prof.map(p => el('li', { text: p })))));
+      return out;
+    }
+    async function refresh(rescan) {
+      if (loading) return; loading = true; loaded = true; btn.disabled = scanBtn.disabled = true;
+      body.replaceChildren(el('div', { class: 'net-hint wk-muted' }, el('span', { class: 'wk-spin' }), rescan ? ' Looking for networks...' : ' Reading Wi-Fi details...'));
+      try {
+        const r = await WK.native('wifi_info', { rescan: rescan ? 'true' : 'false' });
+        if (!r || !r.available) body.replaceChildren(el('div', { class: 'wk-card wk-secondary', text: (r && r.reason) || 'Wi-Fi details are not available.' }));
+        else body.replaceChildren(...r.adapters.flatMap(adapterView));
+      } catch (e) { body.replaceChildren(); WK.alert("Couldn't read Wi-Fi details", errText(e)); }
+      finally { loading = false; btn.disabled = scanBtn.disabled = false; }
+    }
+    return { show() { if (!loaded) refresh(false); } };
+  }
+
+  // ---------------------------------------------------------------- Connection test
+  function connTab(panel) {
+    let running = false, stop = false, curOp = null;
+    const run = el('button', { class: 'primary', text: 'Run test', onclick: go });
+    const stopBtn = el('button', { class: 'wk-hide', text: 'Stop', onclick: () => { stop = true; if (curOp) WK.native('ping_cancel', { opId: curOp }).catch(() => {}); } });
+    const verdict = el('div', { class: 'wk-card ct-verdict wk-hide' });
+    const steps = el('div', { class: 'wk-card flat ct-steps' });
+    const hint = el('div', { class: 'net-hint wk-muted', text: 'Checks each step between this PC and the internet (adapter, router, internet, name lookup) and tells you where a problem is. It takes about 15 seconds.' });
+    panel.append(el('div', { class: 'net-bar' }, run, stopBtn), hint, verdict, steps);
+    const ICONS = { ok: '\u2713', warn: '!', fail: '\u2715', skip: '\u2013' };
+    function step(title) {
+      const ic = el('span', { class: 'ct-ic' }, el('span', { class: 'wk-spin' })), detail = el('div', { class: 'wk-secondary' }, 'Checking...'), row = el('div', { class: 'ct-step' }, ic, el('div', null, el('div', { style: 'font-weight:600', text: title }), detail));
+      steps.append(row);
+      return (state, text) => { row.className = 'ct-step ' + state; ic.replaceChildren(document.createTextNode(ICONS[state] || '')); detail.textContent = text; };
+    }
+    const jitter = (rs) => { const v = rs.filter(r => r.status === 'Success').map(r => r.rttMs); if (v.length < 2) return 0; let s = 0; for (let i = 1; i < v.length; i++) s += Math.abs(v[i] - v[i - 1]); return s / (v.length - 1); };
+    async function ping(host) {
+      curOp = newOp('ct');
+      try { return await WK.native('ping_run', { host, count: 6, opId: curOp, timeoutMs: 1500, intervalMs: 200 }); } finally { curOp = null; }
+    }
+    const stat = (r) => { const loss = r.sent ? Math.round(100 * r.lost / r.sent) : 100; return { loss, avg: r.avgMs == null ? null : Number(r.avgMs), jit: jitter(r.replies || []) }; };
+    const fmtStat = (s) => s.loss === 100 ? 'No replies' : s.avg.toFixed(0) + ' ms average, ' + s.loss + '% lost' + (s.jit >= 1 ? ', ' + s.jit.toFixed(0) + ' ms jitter' : '');
+    function showVerdict(kind, title, text, acts) {
+      verdict.className = 'wk-card ct-verdict ' + kind;
+      verdict.replaceChildren(...[el('div', { class: 'wk-title', text: title }), el('div', { class: 'wk-secondary', text }),
+        acts && acts.length ? el('div', { class: 'ct-acts' }, acts.map(([t, f]) => el('button', { text: t, onclick: f }))) : null].filter(Boolean));
+    }
+    async function go() {
+      if (running) return;
+      running = true; stop = false; run.disabled = true; stopBtn.classList.remove('wk-hide'); hint.classList.add('wk-hide'); verdict.classList.add('wk-hide'); steps.replaceChildren();
+      const toWifi = ['Wi-Fi details', () => WK.nav.go('network', { tab: 'wifi' })], toMaint = ['Network maintenance', () => WK.nav.go('network', { tab: 'maintenance' })];
+      const result = { kind: 'ok', title: 'Your connection looks healthy', text: '', acts: [] };
+      try {
+        // 1. adapter
+        const s1 = step('Network adapter'); let adapters = [];
+        try { adapters = (await WK.native('ipcfg_get')) || []; } catch (_) { /* handled below */ }
+        const ad = adapters.find(a => a.isUp && (a.ipv4Addresses || []).length && (a.gateways || []).some(g => /^\d+\.\d+\.\d+\.\d+$/.test(g))) || adapters.find(a => a.isUp && (a.ipv4Addresses || []).length);
+        if (!ad) { s1('fail', 'No connected network adapter was found.'); Object.assign(result, { kind: 'fail', title: 'This PC is not connected to a network', text: 'Plug in a network cable or connect to Wi-Fi, then run the test again.', acts: [toWifi] }); throw 0; }
+        const isWifi = /wi-?fi|wireless|wlan|802\.11/i.test(ad.name + ' ' + ad.description);
+        s1('ok', ad.name + ' (' + ad.ipv4Addresses[0] + ')');
+        const gw = (ad.gateways || []).find(g => /^\d+\.\d+\.\d+\.\d+$/.test(g));
+        if (stop) throw 0;
+        // 2. router
+        const s2 = step(gw ? 'Router (' + gw + ')' : 'Router'); let wifiSignal = null;
+        if (isWifi) { try { const w = await WK.native('wifi_info'); const c = w && w.adapters && w.adapters.map(x => x.connection).find(Boolean); if (c) wifiSignal = c.signal; } catch (_) { /* optional */ } }
+        let g = null;
+        if (!gw) { s2('warn', 'This connection has no router address, so this step was skipped.'); }
+        else {
+          g = stat(await ping(gw)); if (stop) throw 0;
+          if (g.loss === 100) { s2('fail', 'The router did not answer.'); Object.assign(result, { kind: 'fail', title: "Your PC can't reach the router", text: isWifi ? 'Check that the router is on, and that you are in range of it. Weak Wi-Fi is a common cause.' : 'Check the cable between this PC and the router, and that the router is on.', acts: isWifi ? [toWifi] : [] }); throw 0; }
+          const bad = g.loss > 0 || g.avg > 30 || g.jit > 15;
+          s2(bad ? 'warn' : 'ok', fmtStat(g) + '.' + (wifiSignal != null ? ' Wi-Fi signal ' + wifiSignal + '%.' : ''));
+          if (bad) Object.assign(result, { kind: 'warn', title: 'The connection to your router is unstable', text: (g.loss > 0 ? g.loss + '% of test packets to the router were lost. ' : 'Replies from the router are slow or uneven. ') + (isWifi ? 'This points to Wi-Fi interference or a weak signal. Try moving closer to the router, or use a cable.' : 'Check the network cable and the router.'), acts: isWifi ? [toWifi] : [] });
+        }
+        // 3. internet
+        const s3 = step('Internet'); let net = null, tgt = '1.1.1.1';
+        net = stat(await ping(tgt)); if (net.loss === 100) { tgt = '8.8.8.8'; net = stat(await ping(tgt)); } if (stop) throw 0;
+        if (net.loss === 100) { s3('fail', 'Nothing answered from the internet (tried 1.1.1.1 and 8.8.8.8).'); if (result.kind === 'ok') Object.assign(result, { kind: 'fail', title: gw ? 'The router works, but there is no internet' : 'No internet connection', text: 'The problem is between your router and the internet. Restart the router and modem, wait a minute, and test again. If it stays down, contact your internet provider.', acts: [] }); throw 0; }
+        const nbad = net.loss > 0 || net.avg > 150;
+        s3(nbad ? 'warn' : 'ok', 'Reached ' + tgt + ': ' + fmtStat(net) + '.');
+        if (nbad && result.kind === 'ok') Object.assign(result, { kind: 'warn', title: 'The internet connection is slow or unreliable', text: (net.loss > 0 ? net.loss + '% of test packets were lost. ' : 'Replies are slow (' + net.avg.toFixed(0) + ' ms). ') + (g && g.avg <= 30 && g.loss === 0 ? 'Your router is fine, so the slowness is beyond it. Try restarting the router, or ask your provider.' : ''), acts: [] });
+        // 4. DNS
+        const s4 = step('Name lookup (DNS)'); const t0 = performance.now(); let d = null;
+        try { d = await WK.native('dns_lookup', { host: 'example.com' }); } catch (_) { /* treated as failure */ }
+        const ms = Math.round(performance.now() - t0);
+        if (!d || !d.success) { s4('fail', 'Could not look up example.com, although the internet itself works.'); Object.assign(result, { kind: 'fail', title: 'Websites will not open because name lookup fails', text: 'The internet works, but your DNS server is not answering. Flushing the DNS cache can fix it. If it does not, set a different DNS server such as 1.1.1.1 or 8.8.8.8 in the adapter settings.', acts: [toMaint] }); }
+        else { s4(ms > 800 ? 'warn' : 'ok', 'Looked up example.com in ' + ms + ' ms' + ((ad.dnsServers || []).length ? ' using ' + ad.dnsServers[0] + '.' : '.')); if (ms > 800 && result.kind === 'ok') Object.assign(result, { kind: 'warn', title: 'Name lookup is slow', text: 'Pages may feel slow to start loading. A faster DNS server such as 1.1.1.1 or 8.8.8.8 can help.', acts: [toMaint] }); }
+      } catch (e) { if (e && e !== 0) { WK.alert('The test could not finish', errText(e)); result.kind = null; } }
+      if (stop && result.kind) { result.kind = null; hint.classList.add('wk-hide'); }
+      if (result.kind) {
+        if (result.kind === 'ok') result.text = 'Every step answered normally. If a website or app still misbehaves, the problem is with that service.';
+        showVerdict(result.kind, result.title, result.text, result.acts); verdict.classList.remove('wk-hide');
+        WK.activity.record('Connection test: ' + result.title, result.kind === 'ok' ? 'Success' : result.kind === 'warn' ? 'Warning' : 'Error');
+      }
+      running = false; run.disabled = false; run.textContent = 'Run again'; stopBtn.classList.add('wk-hide');
+    }
+    return {};
+  }
+
   // ---------------------------------------------------------------- page
   const TAB_ALIAS = { ping: 'ping', dns: 'dns', dnslookup: 'dns', 'dns-lookup': 'dns', traceroute: 'traceroute', trace: 'traceroute', tracert: 'traceroute',
-    ipconfig: 'ipconfig', ip: 'ipconfig', ipconfiguration: 'ipconfig', 'ip-configuration': 'ipconfig', maintenance: 'maintenance', maint: 'maintenance', netmaint: 'maintenance' };
+    ipconfig: 'ipconfig', ip: 'ipconfig', ipconfiguration: 'ipconfig', 'ip-configuration': 'ipconfig', maintenance: 'maintenance', maint: 'maintenance', netmaint: 'maintenance', wifi: 'wifi', 'wi-fi': 'wifi', wireless: 'wifi', wlan: 'wifi', conntest: 'conntest', 'connection-test': 'conntest', connection: 'conntest', diagnose: 'conntest', ports: 'ports', port: 'ports', connections: 'ports', netstat: 'ports' };
 
   WK.pages.register('network', {
     title: 'Network',
@@ -266,6 +481,9 @@
         { id: 'dns', title: 'DNS Lookup', create: dnsTab },
         { id: 'traceroute', title: 'Traceroute', create: traceTab },
         { id: 'ipconfig', title: 'IP Configuration', create: ipTab },
+        { id: 'ports', title: 'Ports', create: portsTab },
+        { id: 'wifi', title: 'Wi-Fi', create: wifiTab },
+        { id: 'conntest', title: 'Connection test', create: connTab },
         { id: 'maintenance', title: 'Maintenance', create: maintTab },
       ], 'Test connectivity, look up names, inspect adapters and reset the network stack.');
       return {

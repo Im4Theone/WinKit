@@ -2,6 +2,34 @@
 
 All notable changes to WinKit are documented in this file.
 
+## 2.1.0 — 2026-10-10
+
+Five new tools, a smarter Dashboard and a smaller download. See `RELEASE_NOTES.md` for the full list.
+
+### Added
+- **Disk usage** (System): pick a drive or your user folder and click through the biggest folders and files. Read-only; junctions and online-only OneDrive files are not counted.
+- **Wi-Fi** and **Connection test** (Network): signal, band, channel, speed, security and nearby networks, and a guided test of adapter, router, internet and DNS that says where the problem is.
+- **Ports** (Network): every open port and connection with the program that owns it.
+- **Health report** (Diagnostics, Quick Open): a plain-text summary of the PC to save or copy. Computer name, addresses and Wi-Fi names are left out unless you tick a box.
+- **Hardware health** on the Dashboard: free space for every drive and, on laptops, battery charge and remaining capacity. A restart is suggested after two weeks of uptime.
+- Right-click menus on processes, services, apps, environment variables, startup items, ports and disk usage.
+- Quick Open (Ctrl+K), a search box on every list (Ctrl+F), Ctrl+R to refresh, Ctrl+B for the sidebar and Ctrl+, for Settings.
+- Click an address, port or system detail to copy it; Copy all on System info.
+- The window reopens with its previous size, position and maximised state.
+- The process list starts sorted by memory.
+
+### Changed
+- The interface is stored compressed inside the exe (Windows LZMS), so the portable exe is about 870 KB even with the new tools.
+- Nothing polls while the window is minimised, which lowers background CPU use.
+- Contrast corrections in every theme, and clearer sort indicators in tables.
+
+### Fixed
+- Notifications are respected when switched off (errors still show).
+- Cleaning temp files from Diagnostics now handles paths longer than 260 characters.
+- A renamed portable copy is updated in place instead of leaving a second exe.
+- Elevated runs use their own web view profile; a crashed web view recovers by itself.
+- Correct plurals, table columns that no longer clip buttons, and uninstalling removes the start-with-Windows entry.
+
 ## 2.0.0 — 2026-10-09
 
 WinKit is rebuilt as a native Windows app: a single `WinKit.exe` (C++ backend, HTML/CSS/JS interface in an embedded Microsoft Edge WebView2 window) with no .NET runtime. All tools, settings and saved data carry over from 1.x. See `RELEASE_NOTES.md` for the full list.

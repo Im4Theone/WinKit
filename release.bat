@@ -10,7 +10,7 @@ rem   WinKitSetup-<v>.exe       the Inno Setup installer (needs Inno Setup 6 on 
 rem   SHA256SUMS.txt
 rem Change the version by editing version.txt (and the two version numbers in app.rc).
 
-set "WKVER=2.0.0"
+set "WKVER=2.1.0"
 if exist version.txt set /p WKVER=<version.txt
 
 rem build.bat must not pause when called from here

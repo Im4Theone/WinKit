@@ -1,5 +1,5 @@
 ; WinKit installer script (Inno Setup 6).  Builds WinKitSetup-<version>.exe from the single WinKit.exe.
-; release.bat runs this for you:  ISCC.exe /DMyAppVersion=2.0.0 installer.iss
+; release.bat runs this for you:  ISCC.exe /DMyAppVersion=2.1.0 installer.iss
 ;
 ; Installs to Program Files. An installed copy self-updates by downloading and silently re-running a newer
 ; WinKitSetup-<version>.exe, which is why "/VERYSILENT /NORESTART /launchafterinstall=1" is honoured below.
@@ -8,7 +8,7 @@
 
 #define MyAppName "WinKit"
 #ifndef MyAppVersion
-  #define MyAppVersion "2.0.0"
+  #define MyAppVersion "2.1.0"
 #endif
 #define MyAppPublisher "WinKit"
 #define MyAppURL "https://github.com/Im4Theone/WinKit"
@@ -72,6 +72,10 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
 ; silent self-update: WinKit passes /launchafterinstall=1 and expects to be reopened
 Filename: "{app}\{#MyAppExeName}"; Flags: nowait; Check: ShouldLaunchAfterSilentInstall
+
+[Registry]
+; WinKit's "Start with Windows" switch writes this value. Remove it on uninstall so Windows is not left starting a file that no longer exists.
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: none; ValueName: "WinKit"; Flags: dontcreatekey uninsdeletevalue
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"

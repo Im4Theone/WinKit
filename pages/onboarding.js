@@ -15,7 +15,7 @@
   WK.pages.register('onboarding', {
     title: 'Welcome',
     create(root) {
-      const input = el('input', { type: 'text', 'aria-label': 'Your name', autocomplete: 'off', spellcheck: 'false', oninput: sync, onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); go(); } } });
+      const input = el('input', { type: 'text', 'aria-label': 'Your name', maxlength: 40, autocomplete: 'off', spellcheck: 'false', oninput: sync, onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); go(); } } });
       const btn = el('button', { class: 'primary', text: 'Continue', onclick: go });
       let busy = false;
       function sync() { btn.disabled = busy || !WK.onboarding.canContinue(input.value); }
@@ -23,6 +23,7 @@
         if (busy || !WK.onboarding.canContinue(input.value)) return;
         busy = true; sync();
         try { if (await WK.onboarding.submit(input.value)) WK.nav.go('dashboard'); }
+        catch (e) { await WK.alert("Couldn't save your name", 'WinKit could not write its settings file. Check that your disk has free space, then try again.', e && e.message); }
         finally { busy = false; sync(); }
       }
       root.append(el('div', { class: 'ob-page' }, el('div', { class: 'wk-card ob-box' },

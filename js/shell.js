@@ -11,7 +11,6 @@
  *   el(tag, attrs?, ...children)                    tiny DOM builder; attrs: class, text, html(use sparingly), on* handlers, any attribute; children: nodes|strings|arrays
  *   esc(s)                                          HTML-escape for innerHTML templates
  *   tabsPage(root, title, tabs, subtitle?)          System/Network style page: big title (+ optional subtitle) + tab strip. tabs = [{id,title,create(panel)->{show?,hide?}}] ; returns {select(id), current()}; a tab's create() runs on its first selection, its show() on every selection.
- *   sortableTable(table, getRows, columns)          optional helper, see its comment
  *   busy(button, promiseFn)                         disables button while promiseFn() runs
  *   logo(large?)                                    the WinKit logo mark (span.wk-logo) for headers / empty states
  */
@@ -58,30 +57,6 @@
       t.api.show && t.api.show();
     }
     return { select, current: () => cur && cur.id, hide: () => { cur && cur.api && cur.api.hide && cur.api.hide(); }, showCurrent: () => { cur && cur.api && cur.api.show && cur.api.show(); } };
-  };
-
-  /* sortableTable(table, getRows, columns): columns = [{key, title, num?, sort?:(a,b)=>n, render?:(row)=>Node|string, cls?}]
-     returns { render(), setSort(key, dir), selected() } ; clicking a header toggles sort; getRows() returns the (already filtered) array. */
-  ui.sortableTable = function (table, getRows, columns, opts) {
-    opts = opts || {}; let sortKey = opts.sortKey || null, dir = opts.dir || 1, selRow = null;
-    table.classList.add('wk-table');
-    const thead = ui.el('thead'), tbody = ui.el('tbody'); table.append(thead, tbody);
-    function head() {
-      thead.replaceChildren(ui.el('tr', null, columns.map(c => ui.el('th', { class: c.num ? 'num' : '', 'data-sort': c.sortable === false ? null : c.key, onclick: () => { if (c.sortable === false) return; if (sortKey === c.key) dir = -dir; else { sortKey = c.key; dir = 1; } render(); } },
-        c.title, sortKey === c.key ? ui.el('span', { class: 'arr', text: dir > 0 ? '▲' : '▼' }) : null))));
-    }
-    function render() {
-      head(); let rows = getRows().slice();
-      const c = columns.find(x => x.key === sortKey);
-      if (c) rows.sort((a, b) => dir * (c.sort ? c.sort(a, b) : (a[c.key] < b[c.key] ? -1 : a[c.key] > b[c.key] ? 1 : 0)));
-      tbody.replaceChildren(...rows.map(r => {
-        const tr = ui.el('tr', { class: r === selRow ? 'sel' : '', onclick: () => { selRow = r; opts.onSelect && opts.onSelect(r); [...tbody.children].forEach(x => x.classList.toggle('sel', x === tr)); } },
-          columns.map(c2 => { const v = c2.render ? c2.render(r) : r[c2.key]; return ui.el('td', { class: (c2.num ? 'num ' : '') + (c2.cls || '') }, v == null ? '' : v); }));
-        return tr;
-      }));
-      if (!rows.length && opts.empty) tbody.append(ui.el('tr', null, ui.el('td', { colspan: columns.length, class: 'wk-empty', text: opts.empty })));
-    }
-    return { render, selected: () => selRow, setSort(k, d) { sortKey = k; dir = d || 1; render(); } };
   };
 
   // ---- icons (from Resources/Icons.xaml; SVG path data, 16x16 viewBox) ----

@@ -19,7 +19,7 @@
  *   WK.store.read(name) -> obj|null  WK.store.write(name, obj)  WK.store.remove(name)  WK.store.list(dir) -> string[]
  * App / shell
  *   WK.app.info() -> {version,exePath,exeDir,dataDir,logsDir,themesDir,isAdmin,isInstalledLocation,userName,architecture,windowsVersion,windowsBuild,systemUsesLightTheme}
- *   WK.app.version (string "2.0.0")  WK.app.quit()
+ *   WK.app.version (string "2.1.0")  WK.app.quit()
  *   WK.shell.openUrl(url)  WK.shell.openFolder(pathOr"@data"|"@logs"|"@themes")  WK.shell.reveal(path)  WK.shell.copy(text) -> bool
  *   WK.admin.isElevated() -> bool    WK.admin.restart() -> Promise<bool>   (confirm dialog + relaunch; shows error dialog on failure)
  *   WK.autostart.get() -> bool       WK.autostart.set(bool)
@@ -172,7 +172,7 @@
       for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(pre) && !k.slice(pre.length).includes('/')) out.push(k.slice(pre.length)); }
       return out.sort();
     },
-    app_info: () => ({ version: '2.0.0', exePath: 'C:\\WinKit\\WinKit.exe', exeDir: 'C:\\WinKit', dataDir: 'C:\\Users\\user\\AppData\\Local\\WinKit', logsDir: '', themesDir: '', isAdmin: false, isInstalledLocation: false, userName: 'user', architecture: 'X64', windowsVersion: 'Windows 11 Pro 24H2 (Build 26100)', windowsBuild: 26100, systemUsesLightTheme: false }),
+    app_info: () => ({ version: '2.1.0', exePath: 'C:\\WinKit\\WinKit.exe', exeDir: 'C:\\WinKit', dataDir: 'C:\\Users\\user\\AppData\\Local\\WinKit', logsDir: '', themesDir: '', isAdmin: false, isInstalledLocation: false, userName: 'user', architecture: 'X64', windowsVersion: 'Windows 11 Pro 24H2 (Build 26100)', windowsBuild: 26100, systemUsesLightTheme: false }),
     is_admin: () => false, system_uses_light_theme: () => false,
     autostart_get: () => localStorage.getItem(mockLS('@autostart')) === '1',
     autostart_set: (a) => { localStorage.setItem(mockLS('@autostart'), a.enabled === 'true' ? '1' : '0'); return true; },
@@ -181,7 +181,7 @@
     clipboard_set: (a) => { try { navigator.clipboard.writeText(a.text); } catch (_) { /* ignore */ } return true; },
     open_url: (a) => { window.open(a.url, '_blank'); return true; },
     relaunch_elevated: () => false,
-    error_report_create: (a) => { const id = 'WK-' + Math.random().toString(16).slice(2, 10).toUpperCase(); const ts = new Date().toISOString(); const r = { errorId: id, winKitVersion: '2.0.0', windowsVersion: 'Windows 11', architecture: 'X64', component: a.component || '', exceptionType: a.exceptionType || '', exceptionMessage: a.exceptionMessage || '', stackTrace: a.stackTrace || '(no stack trace available)', timestamp: ts }; r.text = 'Error ID: ' + id + '\r\nComponent: ' + r.component + '\r\nTimestamp: ' + ts + '\r\n\r\nWinKit Version: 2.0.0\r\nWindows Version: Windows 11\r\nArchitecture: X64\r\n\r\nException Type: ' + r.exceptionType + '\r\nException Message: ' + r.exceptionMessage + '\r\n\r\nStack Trace:\r\n' + r.stackTrace + '\r\n'; return r; },
+    error_report_create: (a) => { const id = 'WK-' + Math.random().toString(16).slice(2, 10).toUpperCase(); const ts = new Date().toISOString(); const r = { errorId: id, winKitVersion: '2.1.0', windowsVersion: 'Windows 11', architecture: 'X64', component: a.component || '', exceptionType: a.exceptionType || '', exceptionMessage: a.exceptionMessage || '', stackTrace: a.stackTrace || '(no stack trace available)', timestamp: ts }; r.text = 'Error ID: ' + id + '\r\nComponent: ' + r.component + '\r\nTimestamp: ' + ts + '\r\n\r\nWinKit Version: 2.1.0\r\nWindows Version: Windows 11\r\nArchitecture: X64\r\n\r\nException Type: ' + r.exceptionType + '\r\nException Message: ' + r.exceptionMessage + '\r\n\r\nStack Trace:\r\n' + r.stackTrace + '\r\n'; return r; },
     error_report_send: () => ({ ok: true, errorMessage: null }),
   };
 
@@ -281,7 +281,7 @@
       WK.emit('profile:changed', WK.profile.current());
     },
     setName: async function (name) {
-      profile = { name: String(name == null ? '' : name).trim() };
+      profile = { name: String(name == null ? '' : name).trim().slice(0, 40) };
       await WK.store.write('profile', { Name: profile.name, HasCompletedOnboarding: !blank(profile.name) });
       WK.emit('profile:changed', WK.profile.current());
     },
@@ -350,7 +350,7 @@
     refreshFromSystem: async function () {
       let v = settings.startWithWindows;
       try { v = await WK.autostart.get(); } catch (_) { /* keep stored */ }
-      await WK.settings.set({ startWithWindows: v });
+      if (v !== settings.startWithWindows) await WK.settings.set({ startWithWindows: v });
       return WK.settings.get();
     },
     saveName: async function (name) {
@@ -405,7 +405,7 @@
   // themes
   // ------------------------------------------------------------------------------------------------
   const COLOR_KEYS = ['background', 'surface', 'surfaceElevated', 'border', 'textPrimary', 'textSecondary', 'textMuted', 'accent', 'accentHover', 'onAccent', 'success', 'warning', 'error', 'update'];
-  const DEFAULT_COLORS = Object.freeze({ background: '#161618', surface: '#1D1D20', surfaceElevated: '#242427', border: '#2B2B2F', textPrimary: '#DCDAD4', textSecondary: '#A29F97', textMuted: '#8C8981', accent: '#8EA0B5', accentHover: '#A4B3C5', onAccent: '#161618', success: '#86B58F', warning: '#D4A85F', error: '#D9826F', update: '#8EA0B5' });
+  const DEFAULT_COLORS = Object.freeze({ background: '#161618', surface: '#1D1D20', surfaceElevated: '#242427', border: '#2B2B2F', textPrimary: '#DCDAD4', textSecondary: '#A29F97', textMuted: '#918E86', accent: '#8EA0B5', accentHover: '#A4B3C5', onAccent: '#161618', success: '#86B58F', warning: '#D4A85F', error: '#D98370', update: '#8EA0B5' });
   const DEFAULT_THEME = 'Dusk';
   const DENSITIES = ['Comfortable', 'Compact'], ANIMS = ['Full', 'Reduced', 'Off'];
   const HEX_RE = /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
@@ -414,17 +414,17 @@
   // built-in themes (alphabetical by name, like the original Directory.EnumerateFiles + OrderBy)
   const BUILTIN_SOURCE = [
     { name: 'Carbon', isBuiltIn: true, density: 'Compact', cornerRadius: 4, sidebarWidth: 224, fontScale: 1, animationIntensity: 'Full',
-      colors: { background: '#0C0C0D', surface: '#141415', surfaceElevated: '#1B1B1D', border: '#282829', textPrimary: '#F0F0F1', textSecondary: '#A0A0A4', textMuted: '#6B6B70', accent: '#8E9BF0', accentHover: '#A5B0F6', onAccent: '#0C0C0D', success: '#4CC38A', warning: '#E9B44C', error: '#EF6B6B', update: '#53B3D4' } },
+      colors: { background: '#0C0C0D', surface: '#141415', surfaceElevated: '#1B1B1D', border: '#282829', textPrimary: '#F0F0F1', textSecondary: '#A0A0A4', textMuted: '#86868A', accent: '#8E9BF0', accentHover: '#A5B0F6', onAccent: '#0C0C0D', success: '#4CC38A', warning: '#E9B44C', error: '#EF6B6B', update: '#53B3D4' } },
     { name: 'Dawn', isBuiltIn: true, density: 'Comfortable', cornerRadius: 10, sidebarWidth: 232, fontScale: 1, animationIntensity: 'Full',
-      colors: { background: '#F3F2EE', surface: '#FBFAF7', surfaceElevated: '#FFFFFF', border: '#E3E1DB', textPrimary: '#2B2A27', textSecondary: '#66635C', textMuted: '#7A776F', accent: '#5B6F86', accentHover: '#4D6076', onAccent: '#FFFFFF', success: '#3F7D4F', warning: '#94650F', error: '#B0503C', update: '#5B6F86' } },
+      colors: { background: '#F3F2EE', surface: '#FBFAF7', surfaceElevated: '#FFFFFF', border: '#E3E1DB', textPrimary: '#2B2A27', textSecondary: '#66635C', textMuted: '#6E6B64', accent: '#5B6F86', accentHover: '#4D6076', onAccent: '#FFFFFF', success: '#376D45', warning: '#845A0D', error: '#9E4836', update: '#5B6F86' } },
     { name: 'Dusk', isBuiltIn: true, density: 'Comfortable', cornerRadius: 10, sidebarWidth: 232, fontScale: 1, animationIntensity: 'Full',
-      colors: { background: '#161618', surface: '#1D1D20', surfaceElevated: '#242427', border: '#2B2B2F', textPrimary: '#DCDAD4', textSecondary: '#A29F97', textMuted: '#8C8981', accent: '#8EA0B5', accentHover: '#A4B3C5', onAccent: '#161618', success: '#86B58F', warning: '#D4A85F', error: '#D9826F', update: '#8EA0B5' } },
+      colors: { background: '#161618', surface: '#1D1D20', surfaceElevated: '#242427', border: '#2B2B2F', textPrimary: '#DCDAD4', textSecondary: '#A29F97', textMuted: '#918E86', accent: '#8EA0B5', accentHover: '#A4B3C5', onAccent: '#161618', success: '#86B58F', warning: '#D4A85F', error: '#D98370', update: '#8EA0B5' } },
     { name: 'Light', isBuiltIn: true, density: 'Comfortable', cornerRadius: 8, sidebarWidth: 232, fontScale: 1, animationIntensity: 'Full',
-      colors: { background: '#F3F4F7', surface: '#FFFFFF', surfaceElevated: '#FFFFFF', border: '#DCE0E6', textPrimary: '#181A1F', textSecondary: '#535A66', textMuted: '#858C98', accent: '#2F6FE4', accentHover: '#4A83EA', onAccent: '#FFFFFF', success: '#1E9E5A', warning: '#B5790A', error: '#D8433C', update: '#1D8AA6' } },
+      colors: { background: '#F3F4F7', surface: '#FFFFFF', surfaceElevated: '#FFFFFF', border: '#DCE0E6', textPrimary: '#181A1F', textSecondary: '#535A66', textMuted: '#686D77', accent: '#2F6FE4', accentHover: '#4072CC', onAccent: '#FFFFFF', success: '#167342', warning: '#8A5C08', error: '#B33832', update: '#1D8AA6' } },
     { name: 'Midnight', isBuiltIn: true, density: 'Comfortable', cornerRadius: 8, sidebarWidth: 232, fontScale: 1, animationIntensity: 'Full',
-      colors: { background: '#0F1115', surface: '#161920', surfaceElevated: '#1D2129', border: '#2A2F39', textPrimary: '#EDEFF3', textSecondary: '#A3A9B5', textMuted: '#727987', accent: '#4C8DFF', accentHover: '#6AA0FF', onAccent: '#FFFFFF', success: '#4CC38A', warning: '#E9B44C', error: '#EF6B6B', update: '#53B3D4' } },
+      colors: { background: '#0F1115', surface: '#161920', surfaceElevated: '#1D2129', border: '#2A2F39', textPrimary: '#EDEFF3', textSecondary: '#A3A9B5', textMuted: '#848B97', accent: '#4C8DFF', accentHover: '#6AA0FF', onAccent: '#07101F', success: '#4CC38A', warning: '#E9B44C', error: '#EF6B6B', update: '#53B3D4' } },
     { name: 'Slate', isBuiltIn: true, density: 'Comfortable', cornerRadius: 10, sidebarWidth: 236, fontScale: 1, animationIntensity: 'Full',
-      colors: { background: '#12151A', surface: '#181C22', surfaceElevated: '#1F242C', border: '#2B313B', textPrimary: '#F0F2F5', textSecondary: '#A6AEBB', textMuted: '#727B89', accent: '#4FA8E0', accentHover: '#6DBBEB', onAccent: '#0B1620', success: '#4CC38A', warning: '#E9B44C', error: '#EF6B6B', update: '#53B3D4' } },
+      colors: { background: '#12151A', surface: '#181C22', surfaceElevated: '#1F242C', border: '#2B313B', textPrimary: '#F0F2F5', textSecondary: '#A6AEBB', textMuted: '#868E9A', accent: '#4FA8E0', accentHover: '#6DBBEB', onAccent: '#0B1620', success: '#4CC38A', warning: '#E9B44C', error: '#EF6E6E', update: '#53B3D4' } },
   ];
 
   const kebab = (k) => k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
@@ -547,6 +547,9 @@
     root.dataset.wkAnimations = String(theme.animationIntensity || 'Full').toLowerCase();
     root.dataset.wkTheme = theme.name;
     const dark = isDarkTheme(theme);
+    const lum = (h) => { const r = hexRgb(h); if (!r) return 0; const l = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * l(r[0]) + 0.7152 * l(r[1]) + 0.0722 * l(r[2]); };
+    const errL = lum(c.error);                            // text on a solid error-coloured button: whichever of white / near-black reads better
+    st.setProperty('--wk-on-error', 1.05 / (errL + 0.05) >= (errL + 0.05) / 0.0579 ? '#FFFFFF' : '#161618');       // 0.0579 = luminance of #161618 + 0.05
     st.colorScheme = dark ? 'dark' : 'light';
     st.setProperty('--wk-shadow-md', dark ? '0 10px 30px rgba(0,0,0,.42)' : '0 10px 30px rgba(16,24,40,.16)');
     animIntensity = theme.animationIntensity || 'Full';
@@ -572,6 +575,8 @@
   async function saveCustomTheme(theme) {
     const v = validateTheme(theme);
     if (!v.ok) throw new Error(v.error || 'Invalid theme.');
+    if (custom.some((t) => !nameEq(t.name, theme.name) && sanitizeFileName(t.name).toLowerCase() === sanitizeFileName(theme.name).toLowerCase()))
+      throw new Error('A theme with a nearly identical name already exists ("' + custom.find((t) => sanitizeFileName(t.name).toLowerCase() === sanitizeFileName(theme.name).toLowerCase()).name + '"). Choose a more different name.');
     if (reservedName(theme.name)) throw new Error('"' + String(theme.name).trim() + '" is the name of a built-in theme. Choose a different name.');
     theme.isBuiltIn = false;
     await WK.store.write(themeFile(theme.name), JSON.parse(serializeTheme(theme)));
@@ -588,7 +593,7 @@
 
   async function applyThemeSelection(name) { // SettingsViewModel.ApplyThemeSelectionAsync
     await WK.themes.apply(name);
-    await WK.settings.set({ themeName: name });
+    try { await WK.settings.set({ themeName: name }); } catch (e) { await WK.alert("Couldn't save your theme choice", 'The theme is applied for now, but WinKit could not write its settings file, so it will not be remembered.', errMsg(e)); }
     WK.activity.record('Theme changed to ' + name, 'Info', null, 'ThemeAndSettings');
   }
 
@@ -750,7 +755,7 @@
 .wk-btn:focus-visible { outline: 2px solid var(--wk-accent, #4C8DFF); outline-offset: 2px; }
 .wk-btn-primary { background: var(--wk-accent, #4C8DFF); border-color: var(--wk-accent, #4C8DFF); color: var(--wk-on-accent, #fff); }
 .wk-btn-primary:hover:not(:disabled) { background: var(--wk-accent-hover, #669DFF); border-color: var(--wk-accent-hover, #669DFF); }
-.wk-btn-destructive { background: var(--wk-error, #EF6B6B); border-color: var(--wk-error, #EF6B6B); color: #fff; }
+.wk-btn-destructive { background: var(--wk-error, #EF6B6B); border-color: var(--wk-error, #EF6B6B); color: var(--wk-on-error, #161618); }
 .wk-btn-destructive:hover:not(:disabled) { filter: brightness(1.08); border-color: var(--wk-error, #EF6B6B); }
 .wk-btn-small { padding: 4px 10px; font-size: var(--wk-font-size-small, 11.5px); margin-top: 8px; }
 .wk-dialog { animation: wk-dlg-in .16s ease-out; }
@@ -798,6 +803,7 @@
       const uid = 'wk-dlg-' + (++seq); title.id = uid + '-t'; msg.id = uid + '-m';
       dlg.setAttribute('aria-labelledby', title.id); dlg.setAttribute('aria-describedby', msg.id);
       dlg.append(title, msg);
+      if (o.extra) dlg.append(o.extra);
       if (o.errorId) dlg.append(el('div', 'wk-dialog-errid', 'Error ID: ' + o.errorId));
       let details = null;
       if (o.details) {
@@ -847,6 +853,7 @@
     });
   }
 
+  WK.dialog = (o) => enqueue(() => openDialog(o));            // o: see openDialog; extra = a DOM node shown under the message
   WK.confirm = (req) => enqueue(() => openDialog({
     title: req.title, message: req.message,
     cancel: { label: req.cancelText || 'Cancel' },
@@ -904,6 +911,7 @@
   WK.notify = function (req) {
     const r = req || {};
     const sev = SEVERITIES.find((s) => s.toLowerCase() === String(r.severity || 'Info').toLowerCase()) || 'Info';
+    if (settings.notificationsEnabled === false && sev !== 'Error') return 0;          // Settings > Notifications is off: only errors still interrupt
     const n = {
       id: ++noteSeq, title: String(r.title == null ? '' : r.title), description: blank(r.description) ? null : String(r.description), severity: sev,
       actionText: blank(r.actionText) ? null : String(r.actionText), action: typeof r.action === 'function' ? r.action : null,
@@ -1023,7 +1031,7 @@
   const UPDATE_INTERVAL_MS = 6 * 3600 * 1000;
   let updateTimer = null;
   const checkNative = async function () {
-    try { return await WK.native('update_check'); } catch (e) { return { status: 'Failed', errorMessage: errMsg(e) }; }
+    try { const r = await WK.native('update_check'); return r && typeof r === 'object' ? r : { status: 'Failed', errorMessage: 'WinKit got no answer.' }; } catch (e) { return { status: 'Failed', errorMessage: errMsg(e) }; }
   };
   WK.updates = {
     check: checkNative,
@@ -1060,7 +1068,7 @@
       aboutState.isChecking = true; aboutState.statusText = 'Checking for updates...'; aboutChanged();
       try {
         const result = await checkNative(); lastCheck = result;
-        await WK.settings.set({ lastUpdateCheckUtc: new Date().toISOString() });
+        bg(WK.settings.set({ lastUpdateCheckUtc: new Date().toISOString() }));
         aboutState.updateAvailable = result.status === 'UpdateAvailable';
         aboutState.statusText = result.status === 'UpToDate' ? "You're on the latest version."
           : result.status === 'UpdateAvailable' ? 'WinKit ' + result.latestVersion + ' is available.'
@@ -1081,6 +1089,7 @@
       let res;
       try { res = await WK.native('update_download_apply', { latestVersion: lastCheck.latestVersion || '' }); }
       catch (e) { res = { status: 'Failed', errorMessage: errMsg(e) }; }
+      if (!res || typeof res !== 'object') res = { status: 'Failed', errorMessage: 'WinKit got no answer.' };
       aboutState.isInstalling = false; aboutState.progress = null;
       if (res.status === 'Started') {
         WK.activity.record('Updating to ' + lastCheck.latestVersion, 'Info');
@@ -1117,6 +1126,11 @@
       await step(() => WK.activity.load());
       await step(() => WK.themes.init());
       await step(() => WK.themes.apply(settings.themeName));
+      try {           // when Windows switches between light and dark, an "Auto" theme follows it straight away
+        const mq = window.matchMedia('(prefers-color-scheme: light)');
+        const follow = () => { if (settings.themeName === SYSTEM && !draft) bg(WK.themes.apply(SYSTEM)); };
+        if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow);
+      } catch (_) { /* no media query support: keep the theme chosen at start-up */ }
       installErrorHandlers();
       renderToasts();
       if (settings.autoCheckForUpdates) WK.updates.startAutoChecks();

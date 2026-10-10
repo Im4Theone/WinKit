@@ -30,6 +30,7 @@
 // marshal to the UI thread themselves (PostMessage etc.).
 void HostQuit();                                         // close the main window / end the process (thread-safe, asynchronous)
 void HostSetMaterial(const ws &mode);                    // "dark" | "light" [",mica"|",acrylic"|",tabbed"|",none"]
+void HostSetTitle(const ws &title);                      // window caption ("Network - WinKit")
 void HostSetTitleBarColors(bool dark, unsigned caption, unsigned text, unsigned border);   // COLORREF 0x00BBGGRR, 0xFFFFFFFF = default
 
 namespace wkinfra {
@@ -651,6 +652,7 @@ inline ws UpdateDownloadApply(const ws &expectVersion) {
         updaterParams = ws(WINKIT_UPDATER_SWITCH) + L" ";
     }
     updaterParams += L"\"" + staging + L"\" \"" + installDir + L"\" " + Num(GetCurrentProcessId());
+    { ws self = ExePath(); size_t cut = self.find_last_of(L'\\'); if (cut != ws::npos) updaterParams += L" \"" + self.substr(cut + 1) + L"\""; }
     UpdateProgress(L"launch", 0, 0);
     if (!Launch(updaterPath, updaterParams, installDir, err)) { DeleteDirRecursive(staging); return ApplyFailed(L"Couldn't start the updater (" + err + L")."); }
     return JObj().S(L"status", L"Started").Str();
@@ -707,6 +709,7 @@ inline bool OpenFolder(const ws &path) {
 }
 inline bool RevealInExplorer(const ws &path) {
     ws p = ResolveFolderAlias(path);
+    if (p.find(L'%') != ws::npos) { wchar_t b[2 * MAX_PATH]; DWORD n = ExpandEnvironmentStringsW(p.c_str(), b, 2 * MAX_PATH); if (n > 0 && n <= 2 * MAX_PATH) p = b; }   // startup entries use %windir% and friends
     if (DirExists(p)) return OpenFolder(p);
     if (!FileExists(p)) return false;
     return (INT_PTR)ShellExecuteW(nullptr, L"open", L"explorer.exe", (L"/select,\"" + p + L"\"").c_str(), nullptr, SW_SHOWNORMAL) > 32;
@@ -851,6 +854,7 @@ inline bool Mod_Infra(const ws &cmd, const Args &a, ws &out) {
             return true;
         }
 
+        if (cmd == L"set_window_title") { HostSetTitle(Clip(Trim(Arg(a, L"title", L"WinKit")), 120)); out = L"true"; return true; }
         if (cmd == L"set_window_material") { HostSetMaterial(Arg(a, L"mode", L"dark")); out = L"true"; return true; }
         if (cmd == L"set_title_bar_colors") {
             HostSetTitleBarColors(ArgBool(a, L"dark", true), ParseColorRef(Arg(a, L"caption")), ParseColorRef(Arg(a, L"text")), ParseColorRef(Arg(a, L"border")));
@@ -916,12 +920,17 @@ inline void CollectFiles(const ws &root, const ws &rel, std::vector<ws> &files, 
     } while (FindNextFileW(h, &fd));
     FindClose(h);
 }
-inline bool CopyDirectoryWithRetry(const ws &srcDir, const ws &dstDir, ws &err) {
+// `exeName`: when set, the new WinKit.exe from the update replaces the file under THAT name. A portable download is usually called
+// WinKit-<version>-portable.exe; without this the update would leave a new WinKit.exe next to it and the old file would stay outdated for good.
+inline bool CopyDirectoryWithRetry(const ws &srcDir, const ws &dstDir, ws &err, const ws &exeName = L"") {
     std::vector<ws> files, dirs; CollectFiles(srcDir, L"", files, dirs);
     CreateDirRecursive(dstDir);
     for (auto &d : dirs) CreateDirRecursive(dstDir + L"\\" + d);
     CopyJobs c; c.selfPath = ExePath();
-    for (auto &f : files) c.jobs.push_back({ srcDir + L"\\" + f, dstDir + L"\\" + f });
+    for (auto &f : files) {
+        bool isExe = !exeName.empty() && Lower(f) == Lower(WINKIT_EXE_NAME);
+        c.jobs.push_back({ srcDir + L"\\" + f, dstDir + L"\\" + (isExe ? exeName : f) });
+    }
     SYSTEM_INFO si; GetSystemInfo(&si);
     int n = (int)si.dwNumberOfProcessors; if (n < 2) n = 2; if (n > 8) n = 8;
     if ((size_t)n > c.jobs.size()) n = (int)c.jobs.size();
@@ -932,8 +941,8 @@ inline bool CopyDirectoryWithRetry(const ws &srcDir, const ws &dstDir, ws &err) 
     if (c.failed) { err = c.firstErr; return false; }
     return true;
 }
-inline bool RelaunchWinKit(const ws &installDir, ws &err) {
-    ws exe = installDir + L"\\" + WINKIT_EXE_NAME;
+inline bool RelaunchWinKit(const ws &installDir, ws &err, const ws &exeName = L"") {
+    ws exe = installDir + L"\\" + (exeName.empty() ? ws(WINKIT_EXE_NAME) : exeName);
     SHELLEXECUTEINFOW sei = {}; sei.cbSize = sizeof(sei); sei.lpVerb = L"open"; sei.lpFile = exe.c_str(); sei.lpDirectory = installDir.c_str(); sei.nShow = SW_SHOWNORMAL;
     if (ShellExecuteExW(&sei)) return true;
     err = exe + L": " + LastErrText(GetLastError()); return false;
@@ -954,19 +963,21 @@ inline int Updater_Main(const wchar_t *cmdline) {
     bool digits = !pidText.empty() && pidText.size() < 10; for (wchar_t c : pidText) if (c < L'0' || c > L'9') digits = false;
     if (!digits) { UpdaterLog(L"Missing or invalid arguments; expected <stagingDir> <installDir> <pid>."); return 1; }
     DWORD pid = (DWORD)_wtoi(pidText.c_str());
+    ws exeName = args.size() > first + 3 ? args[first + 3] : ws();          // optional 4th argument: file name of the running (portable) exe
+    if (exeName.find_first_of(L"\\/:") != ws::npos || Lower(exeName).find(L".exe") == ws::npos) exeName.clear();
 
     ws err;
     // wait for WinKit to exit (up to 30 s); already-gone is fine
     HANDLE p = OpenProcess(SYNCHRONIZE, FALSE, pid);
     if (p) { WaitForSingleObject(p, 30000); CloseHandle(p); }
     Sleep(500);      // let the OS release file handles
-    if (!CopyDirectoryWithRetry(stagingDir, installDir, err)) {
+    if (!CopyDirectoryWithRetry(stagingDir, installDir, err, exeName)) {
         UpdaterLog(L"Update failed: " + err);
-        ws rerr; if (!RelaunchWinKit(installDir, rerr)) UpdaterLog(L"Relaunch after failed update also failed: " + rerr);
+        ws rerr; if (!RelaunchWinKit(installDir, rerr, exeName)) UpdaterLog(L"Relaunch after failed update also failed: " + rerr);
         return 1;
     }
     DeleteDirRecursive(stagingDir);
-    if (!RelaunchWinKit(installDir, err)) {
+    if (!RelaunchWinKit(installDir, err, exeName)) {
         UpdaterLog(L"Update failed: " + err);
         return 1;
     }

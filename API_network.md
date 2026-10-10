@@ -14,13 +14,15 @@ Needs `WSAStartup` (done internally), ICMP via iphlpapi (no admin required).
 | `trace_cancel` | `opId` | `true`/`false` as above. |
 | `dns_lookup` | `host` (default `example.com`) | OperationResult with `value` (below). |
 | `ipcfg_get` | - | JSON array of Adapter, sorted: up adapters first (stable), loopback excluded. |
+| `wifi_info` | `rescan` ("true" asks the adapter to scan and waits 2.5 s) | `{available:false, reason}` or `{available:true, adapters:[{description,state,connected,connection:null\|{ssid,bssid,signal(0-100),rssiDbm\|null,phy,channel,band,frequencyMhz,rxMbps,txMbps,security,profile,weakSecurity,othersOnChannel},networks:[{ssid,signal,secure,security,connected,saved,channel?,band?}],profiles:[names]}]}`. Uses wlanapi.dll, loaded at run time. Never returns passwords. |
+| `ports_list` | - | JSON array of PortEntry: every TCP connection and UDP socket (IPv4 and IPv6) with the process that owns it. Error if none of the four tables could be read. |
 | `netmaint_flushdns` | - | OperationResult. `ipconfig /flushdns`, NOT elevated. |
 | `netmaint_dhcprenew` | - | OperationResult. `ipconfig /renew`, UAC "runas" prompt. |
 | `netmaint_dhcprelease` | - | OperationResult. `ipconfig /release`, UAC prompt. |
 | `netmaint_winsockreset` | - | OperationResult. `netsh winsock reset`, UAC prompt. |
 | `netmaint_tcpipreset` | - | OperationResult. `netsh int ip reset`, UAC prompt. |
 
-(11 commands.) Elevated commands show the UAC dialog each time and block until the child exits (no timeout). If UAC is declined the result is a failure with `technicalDetail` "The operation was canceled by the user." Maintenance commands cannot be cancelled (C# passes CancellationToken.None).
+(13 commands.) `ping_run` also accepts `timeoutMs` (200-4000, default 4000) and `intervalMs` (0-1000, default 1000); the Connection test uses 1500 and 200. Elevated commands show the UAC dialog each time and block until the child exits (no timeout). If UAC is declined the result is a failure with `technicalDetail` "The operation was canceled by the user." Maintenance commands cannot be cancelled (C# passes CancellationToken.None).
 
 ## JSON shapes
 
@@ -40,6 +42,8 @@ Needs `WSAStartup` (done internally), ICMP via iphlpapi (no admin required).
 - DNS failures: `Could not resolve "<host>".` (technicalDetail = Windows resolver message), or `No records found for "<host>".` Only A/AAAA records (IPv4+IPv6) - the C# does not query other record types. `hostName` = canonical name; for an IP-literal input a reverse lookup is performed (PTR) and failure to reverse-resolve is reported as "Could not resolve".
 
 **Adapter** (`ipcfg_get` array element): `{"name","description","macAddress":"AA-BB-CC-DD-EE-FF"|null,"ipv4Addresses":[],"ipv6Addresses":[] (link-local include "%scopeId"),"gateways":[] (v4+v6),"dnsServers":[],"dhcpEnabled":bool (IPv4 DHCP),"isUp":bool}`
+
+**PortEntry** (`ports_list` array element): `{"proto":"TCP"|"UDP","local":"0.0.0.0","localPort":135,"remote":"" (empty for listeners and UDP),"remotePort":0,"state":"Listening"|"Established"|"Time wait"|...,"pid":1816,"process":"svchost" (no .exe; empty when no process owns it, pid 0)}`. UDP sockets are reported as `Listening`. Unsorted; the page sorts and filters.
 
 ## Events (via PushEvent; payload is `data`)
 | event | payload |

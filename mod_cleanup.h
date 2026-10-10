@@ -301,8 +301,7 @@ inline ws CmdRun(const Args &a) {
     long long skipped = ctx.t.skipped;
     ws msg;
     if (skipped > 0) {
-        msg = IsAdmin() ? Num(skipped) + L" item(s) were in use and were skipped."
-                        : Num(skipped) + L" item(s) were in use or protected and were skipped. To remove protected system files, go to Settings > Advanced > Run as Administrator.";
+        msg = SkippedNote(skipped, IsAdmin());
     }
     JObj sum; sum.U(L"bytesFreed", ctx.t.bytes).N(L"filesRemoved", ctx.t.removed).N(L"filesSkipped", skipped).D(L"gbFreed", ctx.t.bytes / 1024.0 / 1024.0 / 1024.0, 6);
     JObj o; o.B(L"success", true);

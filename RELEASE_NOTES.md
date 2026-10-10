@@ -1,25 +1,41 @@
-# WinKit 2.0.0
+# WinKit 2.1.0
 
-WinKit has been rebuilt from the ground up as a native Windows app. It is now a single `WinKit.exe` with no .NET runtime to bundle, and the interface is HTML/CSS/JS shown in an embedded Microsoft Edge WebView2 window. The tools, behaviour and your saved settings carry over from 1.x.
+Five new tools, a smarter Dashboard and a smaller download. WinKit is still one `WinKit.exe` of under 1 MB with nothing else to install. Your settings, themes and history carry over.
 
-## Highlights
+## New in 2.1.0
+
+- **Disk usage.** Pick a drive or your user folder and click through the biggest folders and files to see where your space went. It only reads, it never deletes.
+- **Wi-Fi details and a connection test.** See signal, channel, speed and security for your Wi-Fi, plus nearby networks. Or run the test: it checks your adapter, router, internet and DNS and tells you where the problem is.
+- **Open ports.** Every open port and connection with the program that owns it.
+- **Health report.** Save or copy a plain-text summary of your PC to send to whoever is helping you. Computer name, addresses and Wi-Fi names are left out unless you tick a box.
+- **Hardware health.** The Dashboard now shows each drive's free space and, on laptops, battery charge and how much of its original capacity is left. It also suggests a restart after two weeks of uptime.
+- **Right-click menus** on processes, services, apps, startup items, ports and disk usage: copy, show in folder, search online and the usual actions.
+- **Quick Open (Ctrl+K)** jumps to any page, tab or action. Every list has a search box (Ctrl+F).
+- **Click to copy** IP addresses, ports and system details, or use Copy all on System info.
+- **WinKit remembers its window**: same size, position and maximised state next time.
+- **Processes start sorted by memory**, biggest first, like Task Manager.
+- **Smaller and quieter.** The interface is stored compressed, nothing polls while the window is minimised, and the portable exe is about 870 KB.
+- **Fixes.** Better contrast in every theme, correct plurals, crash recovery for the web view, safer updates of renamed portable copies, and many small layout fixes.
+
+## What WinKit is
 
 - **One small file.** The portable download is just `WinKit.exe`. Download it and run it.
-- **Same toolkit, same behaviour.** All five tool categories are ported from the 1.x source: System, Network, Cleanup, Diagnostics and Appearance.
-- **A calmer new look.** A warm, flat design with hairline-bordered cards and a muted palette. The new default theme is **Dusk**, with **Dawn** as its light companion.
-- **Your data carries over.** Settings, profile, activity history and custom themes use the same files and format as 1.x (`%LOCALAPPDATA%\WinKit`).
-- **Upgrades cleanly.** The installer uses the same product ID as 1.x, so 2.0 replaces an existing install and removes the old .NET files.
+- **A calm look.** A warm, flat design with six themes (Dusk is the default) plus Auto, which follows Windows.
+- **Same toolkit as 1.x.** System, Network, Cleanup, Diagnostics and Appearance, rebuilt as a native Windows app.
+- **Upgrades cleanly.** The installer uses the same product ID as before, so it replaces an existing install.
 
 ## What's included
 
 **System**
-- Process manager with real memory and CPU figures, including protected Windows services. System and Idle can't be ended by mistake.
+- Process manager with real memory and CPU figures, including protected Windows services, biggest memory users first. System and Idle can't be ended by mistake.
+- Click a program's path (in Processes or Startup) to open its folder in File Explorer
 - Startup manager, services manager (running services are shown in green), installed apps with uninstall
 - Environment variables editor and hosts file editor
 - System information with live uptime
 
 **Network**
 - Ping and traceroute with live results and colour-coded latency, DNS lookup
+- **Ports**: every open port and connection with the program that owns it, so you can see what is using port 3000 or what is talking to the internet
 - IP configuration showing IPv4, IPv6, gateway, DNS servers and DHCP for every adapter
 - Flush DNS, renew/release DHCP, reset Winsock and TCP/IP (each asks for administrator approval)
 
@@ -33,22 +49,26 @@ WinKit has been rebuilt from the ground up as a native Windows app. It is now a 
 - 5 one-click fixers: flush DNS, clean temp files, restart update services, Device Manager shortcut, SFC/DISM repair with live output
 - Without administrator rights the Windows integrity check says so and offers **Check as Administrator**. It never reports false corruption.
 - The internet check falls back to a real connection test, so networks that block ping aren't reported as offline
-- Results are saved between sessions and summarised on the Dashboard
+- Results are saved between sessions and summarised on the Dashboard. Opening the page shows your last results instead of scanning again; a scan runs on the first visit, when you press Run Diagnostics, or when the results are over 10 minutes old.
 
 **App**
 - Dashboard with system overview, usage meters that turn amber and red as they fill, and quick actions
-- Six built-in themes (Dusk, Dawn, Midnight, Carbon, Slate, Light), a full custom theme editor with a live preview strip, theme import/export
+- Six built-in themes (Dusk, Dawn, Midnight, Carbon, Slate, Light) picked from a visual appearance chooser, plus an Auto option that follows Windows live. A full custom theme editor and theme import/export
 - Activity log with severity colours, notifications, start minimized, start with Windows
-- Keyboard shortcuts: **Ctrl+1 to Ctrl+8** jump straight to Dashboard, System, Network, Cleanup, Diagnostics, Activity, Settings and About
-- Update check with checksum verification, optional crash reports (sent only when you click Send)
+- Keyboard shortcuts: **Ctrl+K** quick open, **Ctrl+F** search, **Ctrl+R** refresh, **Ctrl+B** hide the sidebar, **Ctrl+,** settings, and **Ctrl+1 to Ctrl+8** for the main pages
+- WinKit reopens where you left it, with the same size, position and maximised state
+- Click an IP address, port or system detail to copy it, or use **Copy all** on System info for a support request
+- The window title shows the page you are on, and the sidebar shows how many issues Diagnostics found
+- Quiet in the background: nothing polls while the window is minimised
+- Update check with checksum verification (a portable copy is updated in place under its own file name), optional crash reports (sent only when you click Send)
 
 ## Downloads
 
 | File | |
 |---|---|
-| `WinKitSetup-2.0.0.exe` | Installer (Program Files, Start Menu, uninstaller, self-updates) |
-| `WinKit-2.0.0-portable.exe` | Portable program, no install |
-| `WinKit-2.0.0-portable.zip` | Same portable exe, zipped (used by the built-in updater) |
+| `WinKitSetup-2.1.0.exe` | Installer (Program Files, Start Menu, uninstaller, self-updates) |
+| `WinKit-2.1.0-portable.exe` | Portable program, no install |
+| `WinKit-2.1.0-portable.zip` | Same portable exe, zipped (used by the built-in updater) |
 | `SHA256SUMS.txt` | Checksums |
 
 ## Requirements

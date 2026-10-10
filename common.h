@@ -37,6 +37,14 @@ inline ws Num(unsigned long long v) { return std::to_wstring(v); }
 inline ws SNum(long long v) { return std::to_wstring(v); }
 inline ws Dbl(double v, int digits = 2) { wchar_t b[64]; swprintf(b, 64, L"%.*f", digits, v); return b; }
 inline ws Bool(bool b) { return b ? L"true" : L"false"; }
+// "1 file" / "3 files"
+inline ws Pl(long long n, const wchar_t *one, const wchar_t *many) { return std::to_wstring(n) + L" " + (n == 1 ? one : many); }
+// Note shown after a cleanup when some items could not be removed.
+inline ws SkippedNote(long long n, bool admin) {
+    ws first = n == 1 ? ws(L"1 item was") : std::to_wstring(n) + L" items were";
+    return admin ? first + L" in use and " + (n == 1 ? L"was" : L"were") + L" skipped."
+                 : first + L" in use or protected and " + (n == 1 ? L"was" : L"were") + L" skipped. To remove protected system files, go to Settings > Advanced > Run as Administrator.";
+}
 
 inline ws JStr(const ws &s) {            // JSON string literal (escapes ", \, control chars)
     ws o = L"\"";

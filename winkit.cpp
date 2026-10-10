@@ -9,11 +9,14 @@
 #include "mod_system.h"
 #include "mod_network.h"
 #include "mod_cleanup.h"
+#include "mod_disk.h"
 #include "mod_diag.h"
 #include "mod_infra.h"
 
 #include <shellapi.h>
 #include <dwmapi.h>
+#include <compressapi.h>
+#pragma comment(lib, "cabinet.lib")
 #include <thread>
 
 #ifndef WK_SYNTAX_ONLY
@@ -30,14 +33,82 @@ static const wchar_t *kTitle = L"WinKit";
 static const UINT WM_HOST_MSG   = WM_APP + 1;   // lParam = new ws*  (JSON to post to the page)
 static const UINT WM_HOST_MAT   = WM_APP + 2;   // lParam = new ws*  (material mode)
 static const UINT WM_HOST_COLOR = WM_APP + 3;   // lParam = new ColorReq*
+static const UINT WM_HOST_TITLE = WM_APP + 4;   // lParam = new ws*  (window caption)
+static const UINT WM_HOST_REINIT = WM_APP + 5;  // the web view's browser process died: build a new one
 
 struct ColorReq { bool dark; unsigned caption, text, border; };
 
 static HWND g_hwnd = nullptr;
+static COLORREF g_startBg = RGB(22, 22, 24);      // colour of the saved theme, so the window never flashes the wrong colour while the page loads
+static bool g_startLight = false;
 #ifndef WK_SYNTAX_ONLY
 static ComPtr<ICoreWebView2Controller> g_controller;
 static ComPtr<ICoreWebView2> g_webview;
 #endif
+
+// Reads the saved theme name and maps built-in themes to their background colour. Unknown / custom themes start dark.
+static void ReadStartLook() {
+    try {
+        ws json, err; if (!wkinfra::StoreReadText(L"settings", json, err)) return;
+        wkinfra::JV v; if (!wkinfra::JParse(json, v)) return;
+        ws name, ver; wkinfra::JGetStr(v, L"ThemeName", name); wkinfra::JGetStr(v, L"PaletteVersion", ver);
+        if (name.empty() || (name == L"Midnight" && ver != L"2")) name = L"Dusk";         // the old default is moved to Dusk on first launch
+        if (name == L"System") name = wkinfra::SystemUsesLightTheme() ? L"Dawn" : L"Dusk";
+        static const struct { const wchar_t *n; bool light; COLORREF c; } T[] = {
+            { L"Carbon", false, RGB(12, 12, 13) }, { L"Dawn", true, RGB(243, 242, 238) }, { L"Dusk", false, RGB(22, 22, 24) },
+            { L"Light", true, RGB(243, 244, 247) }, { L"Midnight", false, RGB(15, 17, 21) }, { L"Slate", false, RGB(18, 21, 26) } };
+        for (auto &t : T) if (_wcsicmp(t.n, name.c_str()) == 0) { g_startBg = t.c; g_startLight = t.light; return; }
+    } catch (...) { /* keep the dark default */ }
+}
+
+// Updates leave files in %TEMP%\WinKitUpdate (the helper's private exe copy, the unpacked staging folder, the downloaded zip / installer).
+// The helper cannot delete itself while it runs, so the next normal start removes anything older than an hour.
+static void TidyUpdateLeftovers() {
+    std::thread([]() {
+        try {
+            ws dir = wkinfra::TempDir() + L"\\WinKitUpdate";
+            if (!DirExists(dir)) return;
+            FILETIME nowFt; GetSystemTimeAsFileTime(&nowFt);
+            ULONGLONG now = ((ULONGLONG)nowFt.dwHighDateTime << 32) | nowFt.dwLowDateTime, hour = 36000000000ULL;
+            WIN32_FIND_DATAW fd; HANDLE h = FindFirstFileW((dir + L"\\*").c_str(), &fd);
+            if (h == INVALID_HANDLE_VALUE) return;
+            do {
+                ws n = fd.cFileName; if (n == L"." || n == L"..") continue;
+                ULONGLONG t = ((ULONGLONG)fd.ftLastWriteTime.dwHighDateTime << 32) | fd.ftLastWriteTime.dwLowDateTime;
+                if (now < t || now - t < hour) continue;
+                ws p = dir + L"\\" + n;
+                if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) { if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) wkinfra::DeleteDirRecursive(p); }
+                else DeleteFileW(p.c_str());                                  // fails harmlessly while a helper from a very slow update still runs
+            } while (FindNextFileW(h, &fd));
+            FindClose(h);
+            RemoveDirectoryW(dir.c_str());                                    // only succeeds when empty
+        } catch (...) { /* best effort */ }
+    }).detach();
+}
+
+// The window comes back where you left it (size, position, maximised), as long as that spot is still on a connected screen.
+static void SaveWindowPlacement(HWND hwnd) {
+    try {
+        WINDOWPLACEMENT p = { sizeof(p) }; if (!GetWindowPlacement(hwnd, &p)) return;
+        const RECT &r = p.rcNormalPosition; wchar_t b[160];
+        swprintf_s(b, L"{\"x\":%ld,\"y\":%ld,\"w\":%ld,\"h\":%ld,\"max\":%s}", r.left, r.top, r.right - r.left, r.bottom - r.top, p.showCmd == SW_SHOWMAXIMIZED ? L"true" : L"false");
+        ws err; wkinfra::StoreWriteText(L"window", b, err);
+    } catch (...) { /* best effort */ }
+}
+static bool LoadWindowPlacement(RECT &r, bool &maximized) {
+    try {
+        ws json, err; if (!wkinfra::StoreReadText(L"window", json, err)) return false;
+        wkinfra::JV v; if (!wkinfra::JParse(json, v)) return false;
+        auto num = [&](const wchar_t *k, double &o) { const wkinfra::JV *n = v.get(k); if (!n || n->t != wkinfra::JV::Num) return false; o = n->n; return true; };
+        double x, y, w, h; if (!num(L"x", x) || !num(L"y", y) || !num(L"w", w) || !num(L"h", h)) return false;
+        if (w < 500 || h < 400 || w > 16000 || h > 16000 || x < -32000 || y < -32000 || x > 32000 || y > 32000) return false;
+        r = { (LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h) };
+        POINT grab = { r.left + 120, r.top + 16 };                       // the title bar must be reachable on some screen
+        if (!MonitorFromPoint(grab, MONITOR_DEFAULTTONULL)) return false;
+        wkinfra::JGetBool(v, L"max", maximized);
+        return true;
+    } catch (...) { return false; }
+}
 
 static bool HasFlag(const wchar_t *f) { return wcsstr(GetCommandLineW(), f) != nullptr; }
 static bool DevMode() { static bool d = HasFlag(L"--dev"); return d; }
@@ -51,6 +122,7 @@ void PushEvent(const ws &name, const ws &jsonData) {
 }
 void HostQuit() { if (g_hwnd) PostMessageW(g_hwnd, WM_CLOSE, 0, 0); }
 void HostSetMaterial(const ws &mode) { if (g_hwnd) PostMessageW(g_hwnd, WM_HOST_MAT, 0, (LPARAM) new ws(mode)); }
+void HostSetTitle(const ws &title) { if (g_hwnd) PostMessageW(g_hwnd, WM_HOST_TITLE, 0, (LPARAM) new ws(title)); }
 void HostSetTitleBarColors(bool dark, unsigned caption, unsigned text, unsigned border) {
     if (g_hwnd) PostMessageW(g_hwnd, WM_HOST_COLOR, 0, (LPARAM) new ColorReq{ dark, caption, text, border });
 }
@@ -128,6 +200,7 @@ static ws Dispatch(const ws &cmd, const Args &a) {
     if (Mod_System(cmd, a, out)) return out;
     if (Mod_Network(cmd, a, out)) return out;
     if (Mod_Cleanup(cmd, a, out)) return out;
+    if (Mod_Disk(cmd, a, out)) return out;
     if (Mod_Diag(cmd, a, out)) return out;
     return Err(L"Unknown command: " + cmd);
 }
@@ -154,7 +227,16 @@ static bool LoadEmbeddedHtml(ws &out) {
     HGLOBAL g = LoadResource(nullptr, r); if (!g) return false;
     const char *p = (const char *)LockResource(g); int sz = (int)SizeofResource(nullptr, r);
     if (!p || sz <= 0) return false;
-    out = FromCp(std::string(p, sz), CP_UTF8);
+    std::string page;                                                     // the page is stored LZMS-compressed (see packui.cpp); plain HTML is accepted too
+    if (p[0] == '<' || (unsigned char)p[0] == 0xEF) page.assign(p, sz);
+    else {
+        DECOMPRESSOR_HANDLE d = nullptr; SIZE_T need = 0;
+        if (!CreateDecompressor(COMPRESS_ALGORITHM_LZMS, nullptr, &d)) return false;
+        Decompress(d, p, sz, nullptr, 0, &need);
+        if (need) { page.resize(need); SIZE_T got = 0; if (!Decompress(d, p, sz, &page[0], need, &got)) { CloseDecompressor(d); return false; } page.resize(got); }
+        CloseDecompressor(d); if (page.empty()) return false;
+    }
+    out = FromCp(page, CP_UTF8);
     if (!out.empty() && out[0] == 0xFEFF) out.erase(0, 1);
     return true;
 }
@@ -175,9 +257,10 @@ static void LoadPage() {
 }
 static void Resize(HWND h) { if (g_controller) { RECT rc; GetClientRect(h, &rc); g_controller->put_Bounds(rc); } }
 
-static void ShowRuntimeError() {
-    if (MessageBoxW(g_hwnd, L"WinKit needs the Microsoft Edge WebView2 Runtime, which wasn't found on this PC.\n\nOpen the download page now?",
-                    kTitle, MB_YESNO | MB_ICONWARNING) == IDYES)
+static void ShowRuntimeError(HRESULT hr = S_OK) {
+    wchar_t msg[512];
+    swprintf(msg, 512, L"WinKit couldn't start its web view (error 0x%08X).\n\nIt needs the Microsoft Edge WebView2 Runtime. If it isn't installed, or it is damaged, installing it again usually fixes this.\n\nOpen the download page now?", (unsigned)hr);
+    if (MessageBoxW(g_hwnd, msg, kTitle, MB_YESNO | MB_ICONWARNING) == IDYES)
         ShellExecuteW(nullptr, L"open", L"https://go.microsoft.com/fwlink/p/?LinkId=2124703", nullptr, nullptr, SW_SHOWNORMAL);
     PostQuitMessage(1);
 }
@@ -186,19 +269,21 @@ static bool AllowedUrl(const wchar_t *u) {
 }
 
 static void InitWebView(HWND hwnd) {
-    ws data = AppDataDir() + L"\\WebView2";
+    // An elevated process cannot share a web-view profile with a normal one, and "Restart as Administrator" starts the new instance
+    // while the old one is still shutting down - so elevated runs get a profile of their own.
+    ws data = AppDataDir() + (IsAdmin() ? L"\\WebView2-admin" : L"\\WebView2");
     HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(nullptr, data.c_str(), nullptr,
         Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
         [hwnd](HRESULT r, ICoreWebView2Environment *env) -> HRESULT {
-            if (FAILED(r) || !env) { ShowRuntimeError(); return r; }
+            if (FAILED(r) || !env) { ShowRuntimeError(r); return r; }
             env->CreateCoreWebView2Controller(hwnd,
                 Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
                 [hwnd](HRESULT r2, ICoreWebView2Controller *c) -> HRESULT {
-                    if (FAILED(r2) || !c) { ShowRuntimeError(); return r2; }
+                    if (FAILED(r2) || !c) { ShowRuntimeError(r2); return r2; }
                     g_controller = c; g_controller->get_CoreWebView2(&g_webview);
 
                     ComPtr<ICoreWebView2Controller2> c2;
-                    if (SUCCEEDED(g_controller.As(&c2))) { COREWEBVIEW2_COLOR bg = { 255, 22, 22, 24 }; c2->put_DefaultBackgroundColor(bg); }
+                    if (SUCCEEDED(g_controller.As(&c2))) { COREWEBVIEW2_COLOR bg = { 255, GetRValue(g_startBg), GetGValue(g_startBg), GetBValue(g_startBg) }; c2->put_DefaultBackgroundColor(bg); }
 
                     ComPtr<ICoreWebView2Settings> st;
                     if (SUCCEEDED(g_webview->get_Settings(&st))) {
@@ -217,7 +302,9 @@ static void InitWebView(HWND hwnd) {
                         [](ICoreWebView2 *, ICoreWebView2ProcessFailedEventArgs *args) -> HRESULT {
                             COREWEBVIEW2_PROCESS_FAILED_KIND kind = COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED;
                             args->get_ProcessFailedKind(&kind);
+                            static int rebuilds = 0;
                             if (kind == COREWEBVIEW2_PROCESS_FAILED_KIND_RENDER_PROCESS_EXITED) LoadPage();
+                            else if (kind == COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED && rebuilds++ < 3) PostMessageW(g_hwnd, WM_HOST_REINIT, 0, 0);
                             return S_OK;
                         }).Get(), &tok);
                     g_webview->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>(
@@ -246,20 +333,24 @@ static void InitWebView(HWND hwnd) {
                         }).Get(), &tok);
 
                     Resize(hwnd); LoadPage();
+                    if (IsIconic(hwnd)) g_controller->put_IsVisible(FALSE);              // started minimised
                     // keyboard focus belongs to the page (Tab / Enter / typing work without a first click)
                     if (GetForegroundWindow() == hwnd) g_controller->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
                     return S_OK;
                 }).Get());
             return S_OK;
         }).Get());
-    if (FAILED(hr)) ShowRuntimeError();
+    if (FAILED(hr)) ShowRuntimeError(hr);
 }
 #endif  // WK_SYNTAX_ONLY
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
 #ifndef WK_SYNTAX_ONLY
-    case WM_SIZE: Resize(hwnd); return 0;
+    case WM_SIZE:
+        // Minimised: tell the web view it is hidden so the engine stops rendering and throttles the page's timers (no background CPU).
+        if (wp == SIZE_MINIMIZED) { if (g_controller) g_controller->put_IsVisible(FALSE); return 0; }
+        Resize(hwnd); if (g_controller) g_controller->put_IsVisible(TRUE); return 0;
     case WM_SETFOCUS:                                   // restored from the taskbar / alt-tab: hand focus back to the page
         if (g_controller) g_controller->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
         return 0;
@@ -284,6 +375,11 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     }
     case WM_HOST_MAT:   { ws *m = (ws *)lp; ApplyMaterial(*m); delete m; return 0; }
     case WM_HOST_COLOR: { ColorReq *c = (ColorReq *)lp; ApplyColors(*c); delete c; return 0; }
+#ifndef WK_SYNTAX_ONLY
+    case WM_HOST_REINIT: g_webview = nullptr; g_controller = nullptr; InitWebView(hwnd); return 0;
+#endif
+    case WM_HOST_TITLE: { ws *t = (ws *)lp; SetWindowTextW(hwnd, t->c_str()); delete t; return 0; }
+    case WM_CLOSE: SaveWindowPlacement(hwnd); DestroyWindow(hwnd); return 0;
     case WM_DESTROY:
 #ifndef WK_SYNTAX_ONLY
         g_webview = nullptr; g_controller = nullptr;
@@ -305,20 +401,24 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE, PWSTR, int show) {
     wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
     wc.hIcon = LoadIconW(inst, MAKEINTRESOURCEW(101));
     if (!wc.hIcon) wc.hIcon = LoadIconW(nullptr, IDI_APPLICATION);
-    wc.hbrBackground = CreateSolidBrush(RGB(22, 22, 24)); wc.lpszClassName = L"WinKitWindow";
+    ReadStartLook();
+    wc.hbrBackground = CreateSolidBrush(g_startBg); wc.lpszClassName = L"WinKitWindow";
     RegisterClassExW(&wc);
 
     int w = 1180, h = 760;
     UINT dpi = 96; { HDC dc = GetDC(nullptr); if (dc) { dpi = GetDeviceCaps(dc, LOGPIXELSX); ReleaseDC(nullptr, dc); } }
     w = MulDiv(w, dpi, 96); h = MulDiv(h, dpi, 96);
     int sx = GetSystemMetrics(SM_CXSCREEN), sy = GetSystemMetrics(SM_CYSCREEN);
-    g_hwnd = CreateWindowExW(0, wc.lpszClassName, kTitle, WS_OVERLAPPEDWINDOW, (sx - w) / 2, (sy - h) / 2, w, h, nullptr, nullptr, inst, nullptr);
+    int px = (sx - w) / 2, py = (sy - h) / 2; bool maxed = false; RECT saved;
+    if (LoadWindowPlacement(saved, maxed)) { px = saved.left; py = saved.top; w = saved.right - saved.left; h = saved.bottom - saved.top; }
+    g_hwnd = CreateWindowExW(0, wc.lpszClassName, kTitle, WS_OVERLAPPEDWINDOW, px, py, w, h, nullptr, nullptr, inst, nullptr);
     if (!g_hwnd) return 1;
-    ApplyMaterial(L"dark");
+    ApplyMaterial(g_startLight ? L"light" : L"dark");
 
+    TidyUpdateLeftovers();
     bool minimized = false;
     try { minimized = Infra_StartMinimized(); } catch (...) {}
-    ShowWindow(g_hwnd, minimized ? SW_SHOWMINNOACTIVE : show); UpdateWindow(g_hwnd);
+    ShowWindow(g_hwnd, minimized ? SW_SHOWMINNOACTIVE : maxed ? SW_SHOWMAXIMIZED : show); UpdateWindow(g_hwnd);
 #ifndef WK_SYNTAX_ONLY
     InitWebView(g_hwnd);
 #endif

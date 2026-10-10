@@ -7,6 +7,9 @@
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 #include <icmpapi.h>
+#include <tlhelp32.h>
+#include <windot11.h>
+#include <wlanapi.h>      // types only; the functions are loaded at run time
 #include <shellapi.h>
 #include <atomic>
 #include <memory>
@@ -213,6 +216,8 @@ inline ws PingRun(const Args &a) {
     if (host.empty()) return Err(L"host is required");
     long long count = ArgInt(a, L"count", 4); if (count < 1) count = 1; if (count > 1000) count = 1000;
     ws opId = Arg(a, L"opId");
+    long long toMs = ArgInt(a, L"timeoutMs", 4000), gapMs = ArgInt(a, L"intervalMs", 1000);       // the Wi-Fi / connection test uses short ones
+    toMs = std::max(200LL, std::min(4000LL, toMs)); gapMs = std::max(0LL, std::min(1000LL, gapMs));
     OpScope scope(L"ping:" + opId);
     const std::atomic<bool> &cancel = scope.f->cancel;
     EnsureWsa();
@@ -225,7 +230,7 @@ inline ws PingRun(const Args &a) {
         long status = -1; unsigned long rtt = 0; ws addr; bool haveAddr = false;
         sockaddr_storage dst; memset(&dst, 0, sizeof(dst));
         if (ResolveFirst(host, dst) == 0) {
-            EchoResult e = pinger.Send(dst, 64, false, 4000, cancel);   // Ttl=64, timeout 4000 ms
+            EchoResult e = pinger.Send(dst, 64, false, (DWORD)toMs, cancel);   // Ttl=64, timeout 4000 ms unless asked for less
             if (e.cancelled) { cancelled = true; break; }
             status = e.status; rtt = e.rtt;
             if (e.hasFrom) { addr = AddrStr((const sockaddr *)&e.from); haveAddr = true; }
@@ -241,7 +246,7 @@ inline ws PingRun(const Args &a) {
             received++; sumMs += rtt; if (minMs < 0 || (long long)rtt < minMs) minMs = rtt; if ((long long)rtt > maxMs) maxMs = rtt;
             if (firstAddr.empty()) firstAddr = addr;
         }
-        if (i < count && !SleepCancellable(1000, cancel)) { cancelled = true; break; }   // 1 s between probes
+        if (i < count && !SleepCancellable((DWORD)gapMs, cancel)) { cancelled = true; break; }   // 1 s between probes unless asked for less
     }
     JObj o; o.S(L"host", host).B(L"cancelled", cancelled).N(L"sent", sent).N(L"received", received).N(L"lost", sent - received);
     if (received) o.N(L"minMs", minMs).N(L"maxMs", maxMs).D(L"avgMs", (double)sumMs / received, 2);
@@ -408,6 +413,175 @@ inline ws MaintElevated(const ws &exe, const ws &args, const ws &failMsg) {   //
     return code == 0 ? OpOk() : OpFail(failMsg, L"Exit code " + Num(code) + L".");
 }
 
+// ---- Ports: TCP connections and UDP sockets, each with the process that owns it ----------------------------------------
+inline ws PortsList() {
+    std::map<DWORD, ws> names;
+    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snap != INVALID_HANDLE_VALUE) {
+        PROCESSENTRY32W pe; pe.dwSize = sizeof(pe);
+        for (BOOL ok = Process32FirstW(snap, &pe); ok; ok = Process32NextW(snap, &pe)) {
+            ws n = pe.szExeFile; size_t d = n.size();
+            if (d > 4 && _wcsicmp(n.c_str() + d - 4, L".exe") == 0) n.resize(d - 4);
+            names[pe.th32ProcessID] = n;
+        }
+        CloseHandle(snap);
+    }
+    names[0].clear();                                                           // pid 0 owns connections that are closing
+    static const wchar_t *const ST[] = { L"", L"Closed", L"Listening", L"SYN sent", L"SYN received", L"Established", L"FIN wait 1", L"FIN wait 2", L"Close wait", L"Closing", L"Last ACK", L"Time wait", L"Closing" };
+    JArr arr; bool any = false; std::vector<char> buf;
+    auto addr = [](int af, const void *a) { wchar_t b[64] = L""; InetNtopW(af, (void *)a, b, 64); return ws(b); };
+    auto add = [&](const wchar_t *proto, const ws &l, DWORD lp, const ws &r, DWORD rp, const wchar_t *state, DWORD pid) {
+        auto it = names.find(pid);
+        JObj o; o.S(L"proto", proto).S(L"local", l).N(L"localPort", ntohs((u_short)lp)).S(L"remote", r).N(L"remotePort", r.empty() ? 0 : ntohs((u_short)rp))
+            .S(L"state", state).N(L"pid", pid).S(L"process", it == names.end() ? ws() : it->second);
+        arr.Obj(o);
+    };
+    auto fetch = [&](auto call) {
+        DWORD sz = 0; DWORD r = call(nullptr, &sz);
+        for (int i = 0; i < 5 && r == ERROR_INSUFFICIENT_BUFFER; i++) { buf.assign((size_t)sz + 8192, 0); sz = (DWORD)buf.size(); r = call(buf.data(), &sz); }
+        if (r == NO_ERROR) any = true;
+        return r == NO_ERROR;
+    };
+    if (fetch([](void *p, DWORD *sz) { return GetExtendedTcpTable(p, sz, FALSE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0); })) {
+        auto *t = (MIB_TCPTABLE_OWNER_PID *)buf.data();
+        for (DWORD i = 0; i < t->dwNumEntries; i++) {
+            const auto &r = t->table[i]; DWORD s = r.dwState < 13 ? r.dwState : 0;
+            add(L"TCP", addr(AF_INET, &r.dwLocalAddr), r.dwLocalPort, s == 2 ? ws() : addr(AF_INET, &r.dwRemoteAddr), r.dwRemotePort, ST[s], r.dwOwningPid);
+        }
+    }
+    if (fetch([](void *p, DWORD *sz) { return GetExtendedTcpTable(p, sz, FALSE, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0); })) {
+        auto *t = (MIB_TCP6TABLE_OWNER_PID *)buf.data();
+        for (DWORD i = 0; i < t->dwNumEntries; i++) {
+            const auto &r = t->table[i]; DWORD s = r.dwState < 13 ? r.dwState : 0;
+            add(L"TCP", addr(AF_INET6, r.ucLocalAddr), r.dwLocalPort, s == 2 ? ws() : addr(AF_INET6, r.ucRemoteAddr), r.dwRemotePort, ST[s], r.dwOwningPid);
+        }
+    }
+    if (fetch([](void *p, DWORD *sz) { return GetExtendedUdpTable(p, sz, FALSE, AF_INET, UDP_TABLE_OWNER_PID, 0); })) {
+        auto *t = (MIB_UDPTABLE_OWNER_PID *)buf.data();
+        for (DWORD i = 0; i < t->dwNumEntries; i++) { const auto &r = t->table[i]; add(L"UDP", addr(AF_INET, &r.dwLocalAddr), r.dwLocalPort, ws(), 0, L"Listening", r.dwOwningPid); }
+    }
+    if (fetch([](void *p, DWORD *sz) { return GetExtendedUdpTable(p, sz, FALSE, AF_INET6, UDP_TABLE_OWNER_PID, 0); })) {
+        auto *t = (MIB_UDP6TABLE_OWNER_PID *)buf.data();
+        for (DWORD i = 0; i < t->dwNumEntries; i++) { const auto &r = t->table[i]; add(L"UDP", addr(AF_INET6, r.ucLocalAddr), r.dwLocalPort, ws(), 0, L"Listening", r.dwOwningPid); }
+    }
+    if (!any) return Err(L"Couldn't read the list of open ports.");
+    return arr.Str();
+}
+
+// ---- Wi-Fi: current connection, nearby networks and saved profiles (wlanapi, loaded at run time) --------------------
+// wlanapi.dll is absent on some editions (Windows Server without the WLAN feature), so it is loaded on demand instead of linked.
+struct WlanApi {
+    HMODULE m = nullptr;
+    DWORD (WINAPI *Open)(DWORD, void *, DWORD *, HANDLE *) = nullptr;
+    DWORD (WINAPI *Close)(HANDLE, void *) = nullptr;
+    DWORD (WINAPI *Enum)(HANDLE, void *, WLAN_INTERFACE_INFO_LIST **) = nullptr;
+    DWORD (WINAPI *Query)(HANDLE, const GUID *, int, void *, DWORD *, void **, int *) = nullptr;
+    DWORD (WINAPI *Bss)(HANDLE, const GUID *, void *, int, BOOL, void *, WLAN_BSS_LIST **) = nullptr;
+    DWORD (WINAPI *Avail)(HANDLE, const GUID *, DWORD, void *, WLAN_AVAILABLE_NETWORK_LIST **) = nullptr;
+    DWORD (WINAPI *Profiles)(HANDLE, const GUID *, void *, WLAN_PROFILE_INFO_LIST **) = nullptr;
+    DWORD (WINAPI *Scan)(HANDLE, const GUID *, void *, void *, void *) = nullptr;
+    void (WINAPI *Free)(void *) = nullptr;
+    bool ok() const { return m && Open && Close && Enum && Query && Bss && Avail && Profiles && Scan && Free; }
+};
+inline const WlanApi &Wlan() {
+    static WlanApi w = []() {
+        WlanApi a; a.m = LoadLibraryExW(L"wlanapi.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32); if (!a.m) return a;
+        auto get = [&](const char *n) { return (void *)GetProcAddress(a.m, n); };
+        a.Open = (decltype(a.Open))get("WlanOpenHandle"); a.Close = (decltype(a.Close))get("WlanCloseHandle"); a.Enum = (decltype(a.Enum))get("WlanEnumInterfaces");
+        a.Query = (decltype(a.Query))get("WlanQueryInterface"); a.Bss = (decltype(a.Bss))get("WlanGetNetworkBssList"); a.Avail = (decltype(a.Avail))get("WlanGetAvailableNetworkList");
+        a.Profiles = (decltype(a.Profiles))get("WlanGetProfileList"); a.Scan = (decltype(a.Scan))get("WlanScan"); a.Free = (decltype(a.Free))get("WlanFreeMemory");
+        return a; }();
+    return w;
+}
+inline ws SsidText(const DOT11_SSID &s) { return FromCp(std::string((const char *)s.ucSSID, std::min<ULONG>(s.uSSIDLength, 32)), CP_UTF8); }
+inline ws MacText(const unsigned char *b) { wchar_t t[24]; swprintf_s(t, L"%02X:%02X:%02X:%02X:%02X:%02X", b[0], b[1], b[2], b[3], b[4], b[5]); return t; }
+inline int ChannelOf(ULONG khz) {                                              // centre frequency (kHz) -> channel number
+    long long f = khz / 1000;
+    if (f == 2484) return 14; if (f >= 2412 && f <= 2472) return (int)((f - 2407) / 5);
+    if (f >= 5160 && f <= 5885) return (int)((f - 5000) / 5);
+    if (f >= 5955 && f <= 7115) return (int)((f - 5950) / 5);
+    return 0;
+}
+inline const wchar_t *BandOf(ULONG khz) { long long f = khz / 1000; return f < 3000 ? L"2.4 GHz" : f < 5925 ? L"5 GHz" : L"6 GHz"; }
+inline ws PhyText(int p) {
+    switch (p) { case 4: return L"802.11a"; case 5: return L"802.11b"; case 6: return L"802.11g"; case 7: return L"802.11n (Wi-Fi 4)"; case 8: return L"802.11ac (Wi-Fi 5)";
+        case 9: return L"802.11ad"; case 10: return L"802.11ax (Wi-Fi 6)"; case 11: return L"802.11be (Wi-Fi 7)"; default: return L""; }
+}
+inline ws AuthText(int a) {
+    switch (a) { case 1: return L"Open (no password)"; case 2: return L"WEP"; case 3: return L"WPA-Enterprise"; case 4: return L"WPA-Personal"; case 5: return L"WPA-None";
+        case 6: return L"WPA2-Enterprise"; case 7: return L"WPA2-Personal"; case 8: return L"WPA3-Enterprise 192-bit"; case 9: return L"WPA3-Personal"; case 10: return L"Enhanced Open"; case 11: return L"WPA3-Enterprise"; default: return L"Unknown"; }
+}
+inline ws CipherText(int c) {
+    switch (c) { case 0: return L"none"; case 1: case 5: return L"WEP"; case 2: return L"TKIP"; case 4: return L"AES"; case 6: return L"GCMP"; default: return L""; }
+}
+inline const wchar_t *StateText(int s) {
+    switch (s) { case 1: return L"Connected"; case 2: return L"Ad hoc network"; case 3: return L"Disconnecting"; case 4: return L"Not connected"; case 5: return L"Connecting"; case 6: return L"Looking for networks"; case 7: return L"Signing in"; default: return L"Not ready"; }
+}
+
+inline ws WifiInfo(bool rescan) {
+    const WlanApi &w = Wlan();
+    auto none = [](const wchar_t *why) { return JObj().B(L"available", false).S(L"reason", why).Str(); };
+    if (!w.ok()) return none(L"Wi-Fi isn't available on this PC.");
+    DWORD ver = 0; HANDLE h = nullptr;
+    if (w.Open(2, nullptr, &ver, &h) != ERROR_SUCCESS || !h) return none(L"Wi-Fi isn't available on this PC. The WLAN AutoConfig service may be turned off.");
+    WLAN_INTERFACE_INFO_LIST *il = nullptr;
+    if (w.Enum(h, nullptr, &il) != ERROR_SUCCESS || !il || il->dwNumberOfItems == 0) { if (il) w.Free(il); w.Close(h, nullptr); return none(L"No Wi-Fi adapter was found."); }
+    if (rescan) { for (DWORD i = 0; i < il->dwNumberOfItems; i++) w.Scan(h, &il->InterfaceInfo[i].InterfaceGuid, nullptr, nullptr, nullptr); Sleep(2500); }   // results arrive a moment after the request
+    JArr adapters;
+    for (DWORD i = 0; i < il->dwNumberOfItems; i++) {
+        const WLAN_INTERFACE_INFO &ii = il->InterfaceInfo[i];
+        JObj ad; ad.S(L"description", ii.strInterfaceDescription).S(L"state", StateText((int)ii.isState)).B(L"connected", ii.isState == wlan_interface_state_connected);
+        // all access points in range (channel, signal), used for the connection details and the channel crowding figure
+        WLAN_BSS_LIST *bl = nullptr; w.Bss(h, &ii.InterfaceGuid, nullptr, 3 /*dot11_BSS_type_any*/, FALSE, nullptr, &bl);
+        // current connection
+        WLAN_CONNECTION_ATTRIBUTES *ca = nullptr; DWORD sz = 0; int vt = 0; ws curSsid; unsigned char curBssid[6] = {}; ULONG curFreq = 0;
+        if (ii.isState == wlan_interface_state_connected && w.Query(h, &ii.InterfaceGuid, 7 /*wlan_intf_opcode_current_connection*/, nullptr, &sz, (void **)&ca, &vt) == ERROR_SUCCESS && ca) {
+            const WLAN_ASSOCIATION_ATTRIBUTES &as = ca->wlanAssociationAttributes; const WLAN_SECURITY_ATTRIBUTES &se = ca->wlanSecurityAttributes;
+            curSsid = SsidText(as.dot11Ssid); memcpy(curBssid, as.dot11Bssid, 6);
+            long rssi = 0; bool haveRssi = false; int sameChan = 0; ULONG freq = 0;
+            if (bl) for (DWORD k = 0; k < bl->dwNumberOfItems; k++) if (memcmp(bl->wlanBssEntries[k].dot11Bssid, curBssid, 6) == 0) { rssi = bl->wlanBssEntries[k].lRssi; freq = bl->wlanBssEntries[k].ulChCenterFrequency; haveRssi = true; break; }
+            curFreq = freq;
+            if (bl && freq) for (DWORD k = 0; k < bl->dwNumberOfItems; k++) { const WLAN_BSS_ENTRY &e = bl->wlanBssEntries[k]; if (e.ulChCenterFrequency == freq && memcmp(e.dot11Bssid, curBssid, 6) != 0 && e.lRssi > -85) sameChan++; }
+            ws sec = AuthText((int)se.dot11AuthAlgorithm); ws ci = CipherText((int)se.dot11CipherAlgorithm); if (!ci.empty() && ci != L"none") sec += L", " + ci;
+            JObj c; c.S(L"ssid", curSsid).S(L"bssid", MacText(as.dot11Bssid)).N(L"signal", (long long)as.wlanSignalQuality).S(L"phy", PhyText((int)as.dot11PhyType))
+                .N(L"rxMbps", (long long)(as.ulRxRate / 1000)).N(L"txMbps", (long long)(as.ulTxRate / 1000)).S(L"security", sec).S(L"profile", ca->strProfileName)
+                .B(L"weakSecurity", se.dot11AuthAlgorithm == 1 || se.dot11AuthAlgorithm == 2 || se.dot11AuthAlgorithm == 4 || se.dot11CipherAlgorithm == 1 || se.dot11CipherAlgorithm == 2 || se.dot11CipherAlgorithm == 5);
+            if (haveRssi) c.N(L"rssiDbm", rssi); else c.Null(L"rssiDbm");
+            if (freq) c.N(L"channel", ChannelOf(freq)).S(L"band", BandOf(freq)).N(L"frequencyMhz", (long long)(freq / 1000)).N(L"othersOnChannel", sameChan);
+            ad.R(L"connection", c.Str());
+            w.Free(ca);
+        } else ad.Null(L"connection");
+        // nearby networks (one row per name, strongest access point wins)
+        struct Net { ws ssid, sec; int signal = 0, channel = 0; const wchar_t *band = L""; bool secure = false, connected = false, saved = false; };
+        std::vector<Net> nets;
+        WLAN_AVAILABLE_NETWORK_LIST *al = nullptr;
+        if (w.Avail(h, &ii.InterfaceGuid, 0, nullptr, &al) == ERROR_SUCCESS && al) {
+            for (DWORD k = 0; k < al->dwNumberOfItems; k++) {
+                const WLAN_AVAILABLE_NETWORK &n = al->Network[k]; ws s = SsidText(n.dot11Ssid); if (s.empty()) continue;
+                Net *t = nullptr; for (auto &x : nets) if (x.ssid == s) { t = &x; break; }
+                if (!t) { nets.emplace_back(); t = &nets.back(); t->ssid = s; }
+                t->signal = std::max(t->signal, (int)n.wlanSignalQuality); t->secure = t->secure || n.bSecurityEnabled; t->connected = t->connected || (n.dwFlags & 1) != 0; t->saved = t->saved || (n.dwFlags & 2) != 0;
+                if (t->sec.empty()) t->sec = n.bSecurityEnabled ? AuthText((int)n.dot11DefaultAuthAlgorithm) : ws(L"Open (no password)");
+            }
+            w.Free(al);
+        }
+        if (bl) for (auto &x : nets) { long best = -1000; for (DWORD k = 0; k < bl->dwNumberOfItems; k++) { const WLAN_BSS_ENTRY &e = bl->wlanBssEntries[k]; if (SsidText(e.dot11Ssid) == x.ssid && e.lRssi > best) { best = e.lRssi; x.channel = ChannelOf(e.ulChCenterFrequency); x.band = BandOf(e.ulChCenterFrequency); } } }
+        std::sort(nets.begin(), nets.end(), [](const Net &a, const Net &b) { return a.connected != b.connected ? a.connected : a.signal > b.signal; });
+        JArr na; for (size_t k = 0; k < nets.size() && k < 40; k++) { const Net &x = nets[k];
+            JObj o; o.S(L"ssid", x.ssid).N(L"signal", x.signal).B(L"secure", x.secure).S(L"security", x.sec).B(L"connected", x.connected).B(L"saved", x.saved);
+            if (x.channel) o.N(L"channel", x.channel).S(L"band", x.band); na.Obj(o); }
+        ad.R(L"networks", na.Str());
+        // saved networks
+        JArr pa; WLAN_PROFILE_INFO_LIST *pl = nullptr;
+        if (w.Profiles(h, &ii.InterfaceGuid, nullptr, &pl) == ERROR_SUCCESS && pl) { for (DWORD k = 0; k < pl->dwNumberOfItems && k < 100; k++) pa.S(pl->ProfileInfo[k].strProfileName); w.Free(pl); }
+        ad.R(L"profiles", pa.Str());
+        if (bl) w.Free(bl);
+        adapters.Obj(ad);
+    }
+    w.Free(il); w.Close(h, nullptr);
+    return JObj().B(L"available", true).R(L"adapters", adapters.Str()).Str();
+}
+
 } // namespace wknet
 
 inline bool Mod_Network(const ws &cmd, const Args &a, ws &out) {
@@ -419,6 +593,8 @@ inline bool Mod_Network(const ws &cmd, const Args &a, ws &out) {
         if (cmd == L"trace_cancel") { out = Bool(CancelOp(L"trace:" + Arg(a, L"opId"))); return true; }
         if (cmd == L"dns_lookup") { out = DnsLookup(a); return true; }
         if (cmd == L"ipcfg_get") { out = IpCfgGet(); return true; }
+        if (cmd == L"ports_list") { out = PortsList(); return true; }
+        if (cmd == L"wifi_info") { out = WifiInfo(ArgBool(a, L"rescan", false)); return true; }
         if (cmd == L"netmaint_flushdns") { out = MaintNormal(L"ipconfig.exe", L"/flushdns", L"Unable to flush the DNS cache."); return true; }
         if (cmd == L"netmaint_dhcprenew") { out = MaintElevated(L"ipconfig.exe", L"/renew", L"Unable to renew the DHCP lease."); return true; }
         if (cmd == L"netmaint_dhcprelease") { out = MaintElevated(L"ipconfig.exe", L"/release", L"Unable to release the DHCP lease."); return true; }

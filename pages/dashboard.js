@@ -1,5 +1,5 @@
 /* pages/dashboard.js - Dashboard page (port of DashboardView / DashboardViewModel).
- * Commands: sysinfo_get (every 5 s while visible), sysinfo_uptime, diag_summary (never triggers a scan).
+ * Commands: sysinfo_get (every 5 s while visible), sysinfo_uptime, diag_summary (never triggers a scan), disk_drives + hw_health (drives and battery, at most every 30 s).
  * Events: diag_summary_changed, activity:changed, profile:changed. Timers run only while the page is visible. */
 (function () {
   'use strict';
@@ -17,6 +17,14 @@
 .db-ov .db-t{font-size:var(--wk-font-size-title);font-weight:600;margin-top:6px;line-height:1.35}
 .db-ov .db-sec{color:var(--wk-text-secondary);font-size:var(--wk-font-size-small)}
 .db-meter{margin:8px 0 6px}
+.db-hw{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));margin-top:14px}
+.db-dr{display:grid;grid-template-columns:34px minmax(0,1fr) 92px;column-gap:10px;align-items:center;margin-top:9px}
+.db-dr .wk-progress{height:5px;margin:0}
+.db-dr .db-dl{font-weight:600}
+.db-dr .wk-muted{text-align:right;white-space:nowrap}
+.db-ov.link{cursor:pointer}.db-ov.link:hover{border-color:var(--wk-text-muted)}
+.db-sec.warn{color:var(--wk-warning)}
+.db-bhealth{margin-top:6px}
 .db-ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .db-wrapt{word-break:break-word}
 .db-qa{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
@@ -79,6 +87,7 @@
       const mk = (cls, key) => (v[key] = el('div', { class: cls }));
       const meter = (key) => { const bar = el('i'); v[key] = el('div', { class: 'wk-progress db-meter', role: 'presentation' }, bar); v[key].bar = bar; return v[key]; };
       const card = (label, ...body) => el('div', { class: 'wk-card db-ov' }, el('div', { class: 'db-lbl', text: label }), ...body);
+      const hwHead = el('h2', { class: 'wk-eyebrow db-h sp wk-hide', text: 'Hardware health' });
       const cards = el('div', { class: 'db-cards' },
         card('CPU', mk('db-big', 'cpuPct'), meter('cpuBar'), mk('db-sec db-ell', 'cpuName')),
         card('Memory', mk('db-big', 'memPct'), meter('memBar'), mk('db-sec', 'memTxt')),
@@ -86,6 +95,43 @@
         card('GPU', mk('db-t db-wrapt', 'gpu')),
         card('Network', mk('db-t', 'net'), mk('db-sec db-ell', 'adapter')),
         card('Windows', mk('db-t db-wrapt', 'win'), mk('db-sec', 'uptime')));
+
+      // ---- hardware health: drives and (on laptops) the battery ----
+      const hwCards = el('div', { class: 'db-cards db-hw' });
+      let hwAt = 0, hwBusy = false;
+      const fmtMin = (m) => Math.floor(m / 60) + ' h ' + (m % 60) + ' min';
+      function drivesCard(list) {
+        const rows = list.slice().sort((a, b) => (a.type === 'Fixed' ? 0 : 1) - (b.type === 'Fixed' ? 0 : 1)).slice(0, 5).map((d) => {
+          const used = d.totalBytes ? Math.round((d.totalBytes - d.freeBytes) * 100 / d.totalBytes) : 0;
+          return el('div', { class: 'db-dr', title: (d.label ? d.label + ' \u00b7 ' : '') + d.fileSystem + ' \u00b7 ' + WK.fmt.bytes(d.totalBytes) + ' in total' },
+            el('span', { class: 'db-dl', text: d.letter }), el('div', { class: 'wk-progress' + (used >= 95 ? ' bad' : used >= 85 ? ' warn' : '') }, el('i', { style: 'width:' + used + '%' })), el('span', { class: 'wk-muted', text: WK.fmt.bytes(d.freeBytes) + ' free' }));
+        });
+        const full = list.filter((d) => d.totalBytes && (d.totalBytes - d.freeBytes) * 100 / d.totalBytes >= 90);
+        return el('div', { class: 'wk-card db-ov link', tabindex: 0, role: 'button', title: 'See what is using the space', onclick: () => WK.nav.go('system', { tab: 'disk' }),
+          onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); WK.nav.go('system', { tab: 'disk' }); } } },
+          el('div', { class: 'db-lbl', text: 'Drives' }), ...rows,
+          full.length ? el('div', { class: 'db-sec warn', style: 'margin-top:8px', text: full.map((d) => d.letter).join(', ') + (full.length === 1 ? ' is' : ' are') + ' almost full. Click to see what is using the space.' }) : null);
+      }
+      function batteryCard(b) {
+        const p = b.percent, low = p != null && !b.onAc && p <= 20, crit = p != null && !b.onAc && p <= 10;
+        const state = b.charging ? 'Charging' : b.onAc ? 'Plugged in' : 'On battery' + (b.remainingMinutes != null ? ' \u00b7 about ' + fmtMin(b.remainingMinutes) + ' left' : '');
+        const bar = el('i', { style: 'width:' + (p == null ? 0 : p) + '%' });
+        let hl = null;
+        if (b.wearPercent != null) { const keep = Math.round(100 - b.wearPercent); hl = el('div', { class: 'db-sec db-bhealth' + (b.health === 'Worn' ? ' warn' : ''), title: b.fullMwh + ' of ' + b.designMwh + ' mWh' + (b.cycleCount ? ' \u00b7 ' + b.cycleCount + ' charge cycles' : ''), text: 'Health: ' + b.health + ' \u00b7 holds ' + keep + '% of its original charge' }); }
+        return el('div', { class: 'wk-card db-ov' }, el('div', { class: 'db-lbl', text: 'Battery' }), el('div', { class: 'db-big', text: p == null ? '\u2014' : p + '%' }),
+          el('div', { class: 'wk-progress db-meter' + (crit ? ' bad' : low ? ' warn' : ''), role: 'presentation' }, bar), el('div', { class: 'db-sec', text: state }), hl);
+      }
+      async function loadHardware() {
+        if (hwBusy) return; hwBusy = true; hwAt = Date.now();
+        try {
+          const [drives, hw] = await Promise.all([WK.native('disk_drives').catch(() => null), WK.native('hw_health').catch(() => null)]);
+          if (disposed) return;
+          const cards = [];
+          if (Array.isArray(drives) && drives.length) cards.push(drivesCard(drives));
+          if (hw && hw.battery && hw.battery.present) cards.push(batteryCard(hw.battery));
+          hwCards.replaceChildren(...cards); hwHead.classList.toggle('wk-hide', !cards.length); hwCards.classList.toggle('wk-hide', !cards.length);
+        } finally { hwBusy = false; }
+      }
 
       function setMeter(key, value) {
         const m = v[key], ok = typeof value === 'number' && isFinite(value);
@@ -112,7 +158,9 @@
         renderUptime();
       }
       function renderUptime() {
-        v.uptime.textContent = uptimeBase == null ? '' : 'Up for ' + WK.fmt.uptimeMs(uptimeBase + (performance.now() - uptimeAt));
+        const up = uptimeBase == null ? null : uptimeBase + (performance.now() - uptimeAt);
+        v.uptime.textContent = up == null ? '' : 'Up for ' + WK.fmt.uptimeMs(up) + (up > 14 * 86400000 ? ' \u00b7 a restart is due' : '');
+        v.uptime.classList.toggle('warn', up != null && up > 14 * 86400000);
       }
       function setUptime(ms) { if (typeof ms === 'number' && isFinite(ms)) { uptimeBase = ms; uptimeAt = performance.now(); } }
 
@@ -123,6 +171,7 @@
           if (o && typeof o === 'object') { overview = o; setUptime(o.uptimeMs); }
         } catch (e) { console.warn('sysinfo_get failed', e); }
         finally { inFlight = false; if (!disposed) renderOverview(); }
+        if (!disposed && Date.now() - hwAt > 30000) loadHardware();
       }
 
       // ---- quick actions ----
@@ -131,7 +180,7 @@
         onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } } },
         icon(ic), el('div', null, el('div', { class: 'db-qt', text: title }), el('div', { class: 'db-qd', text: desc })));
       const qa = el('div', { class: 'db-qa' },
-        quick('diagnostics', 'Run Diagnostics', 'Check connectivity, firewall, and updates', () => WK.nav.go('diagnostics')),
+        quick('diagnostics', 'Run Diagnostics', 'Check connectivity, firewall, and updates', () => WK.nav.go('diagnostics', { run: true })),
         quick('cleanup', 'Clean Temporary Files', 'Free up space from temp and cache files', () => WK.nav.go('cleanup')),
         quick('network', 'Network Test', 'Ping, DNS lookup, and traceroute tools', () => WK.nav.go('network')),
         quick('system', 'System Information', 'Processes, startup apps, and services', () => WK.nav.go('system')));
@@ -150,6 +199,7 @@
       root.append(el('div', { class: 'db-wrap' },
         greet, el('div', { class: 'db-status' }, status),
         el('h2', { class: 'wk-eyebrow db-h', text: 'System overview' }), cards,
+        hwHead, hwCards,
         el('h2', { class: 'wk-eyebrow db-h sp', text: 'Quick actions' }), qa,
         el('h2', { class: 'wk-eyebrow db-h sp', text: 'Recent activity' }), actCard));
 
@@ -163,11 +213,12 @@
         show() {
           stop();
           updateGreeting(); renderActivity(); renderUptime();
+          hwAt = 0;                                                  // re-read drives and battery whenever the page is opened
           unsubs.push(
             WK.on('diag_summary_changed', applySummary),
             WK.on('activity:changed', renderActivity),
             WK.on('profile:changed', updateGreeting));
-          refreshTimer = setInterval(() => { updateGreeting(); refreshOverview(); }, REFRESH_MS);
+          refreshTimer = setInterval(() => { if (document.hidden) return; updateGreeting(); refreshOverview(); }, REFRESH_MS);      // nothing to refresh while minimised
           tickTimer = setInterval(renderUptime, TICK_MS);
           loadSummary();
           if (uptimeBase == null) WK.native('sysinfo_uptime').then((u) => { if (uptimeBase == null && u) { setUptime(u.uptimeMs); renderUptime(); } }).catch(() => {});

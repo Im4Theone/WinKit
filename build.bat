@@ -20,14 +20,17 @@ if not exist wv2\build\native\include\WebView2.h (
 )
 
 rem --- version comes from version.txt (single source of truth) ---
-set "WKVER=2.0.0"
+set "WKVER=2.1.0"
 if exist version.txt set /p WKVER=<version.txt
 
-rem --- embed index.html, the manifest and the icon into a resource file ---
+rem --- pack index.html (Windows LZMS compression, about 5x smaller) and embed it with the manifest and the icon ---
+cl /nologo /O1 /EHsc /MT /W3 /D_CRT_SECURE_NO_WARNINGS packui.cpp /Fo"%TEMP%\packui.obj" /Fe:packui.exe /link /SUBSYSTEM:CONSOLE cabinet.lib >nul || goto fail
+"%~dp0packui.exe" index.html index.pack || goto fail
+del packui.exe >nul 2>nul
 rc /nologo app.rc || goto fail
 
-rem --- compile and link a single static exe ---
-cl /nologo /O2 /EHsc /MT /std:c++17 /utf-8 /W3 /DWINKIT_VERSION=L\"%WKVER%\" winkit.cpp app.res /I wv2\build\native\include /link /SUBSYSTEM:WINDOWS /OUT:WinKit.exe wv2\build\native\x64\WebView2LoaderStatic.lib user32.lib gdi32.lib dwmapi.lib shlwapi.lib || goto fail
+rem --- compile and link a single static exe (optimised for SIZE: /O1 + link-time code generation; WinKit is never CPU-bound) ---
+cl /nologo /O1 /GL /Gy /Gw /EHsc /MT /std:c++17 /utf-8 /W3 /DWINKIT_VERSION=L\"%WKVER%\" winkit.cpp app.res /I wv2\build\native\include /link /SUBSYSTEM:WINDOWS /LTCG /OPT:REF /OPT:ICF /OUT:WinKit.exe wv2\build\native\x64\WebView2LoaderStatic.lib user32.lib gdi32.lib dwmapi.lib shlwapi.lib || goto fail
 
 echo.
 echo Built WinKit.exe %WKVER%

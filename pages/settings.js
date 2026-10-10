@@ -14,9 +14,15 @@
 .st-grow{flex:1;min-width:0}
 .st-btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
 .st-btns button{padding:6px 12px}
-.st-select{width:180px;flex:none}
-.st-prev{display:flex;gap:4px;flex:none}
-.st-prev i{display:block;width:18px;height:18px;border-radius:5px;border:1px solid rgba(128,128,128,.4)}
+.st-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px;margin:14px 0 12px}
+.st-tile{display:flex;flex-direction:column;gap:8px;padding:6px 6px 8px;background:transparent;border:2px solid transparent;border-radius:calc(var(--wk-radius) + 3px);text-align:center;font-weight:400}
+.st-tile:hover:not(:disabled){background:rgba(var(--wk-text-primary-rgb),.05);border-color:transparent}
+.st-tile.on{border-color:var(--wk-accent)}
+.st-tile.on .st-tname{font-weight:600}
+.st-mini{position:relative;height:62px;border-radius:var(--wk-radius-sm);overflow:hidden;border:1px solid rgba(128,128,128,.35);pointer-events:none}
+.st-mini.half{position:absolute;inset:0;border:0;clip-path:polygon(50% 0,100% 0,100% 100%,50% 100%)}
+.st-mini>i{position:absolute;display:block}
+.st-tname{font-size:var(--wk-font-size-small)}
 .st-editor{margin-top:14px;padding:16px;background:var(--wk-surface);border:1px solid var(--wk-border);border-radius:var(--wk-radius-sm)}
 .st-card .st-editor{background:var(--wk-background)}
 .st-edtop{display:flex;gap:10px;margin-bottom:12px;align-items:center}
@@ -46,7 +52,6 @@
 
   const COLORS = [['background', 'Background'], ['surface', 'Surface'], ['surfaceElevated', 'Elevated surface'], ['border', 'Border'], ['textPrimary', 'Primary text'], ['textSecondary', 'Secondary text'], ['textMuted', 'Muted text'], ['accent', 'Accent'], ['accentHover', 'Accent hover'], ['onAccent', 'Text on accent'], ['success', 'Success'], ['warning', 'Warning'], ['error', 'Error'], ['update', 'Update']];
   const HEX = /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
-  const opts = (sel, list, val) => { sel.replaceChildren(...list.map(n => el('option', { value: n, text: n }))); sel.value = val; if (sel.value !== val && list.length) sel.selectedIndex = -1; };
 
   WK.pages.register('settings', {
     title: 'Settings',
@@ -54,14 +59,13 @@
       let unsubs = [], editorEl = null, ed = null, active = false;
 
       // ---- Appearance ----
-      const themeSel = el('select', { class: 'st-select', 'aria-label': 'Theme', onchange: () => { WK.themes.select(themeSel.value); } });
       const delBtn = el('button', { text: 'Delete', class: 'destructive', onclick: () => WK.themes.deleteFlow() });
       const editorHost = el('div');
-      const preview = el('div', { class: 'st-prev', 'aria-hidden': 'true', title: 'Colours of the active theme' });
+      const tiles = el('div', { class: 'st-tiles', role: 'radiogroup', 'aria-label': 'Appearance' });
       const appearance = el('div', { class: 'wk-card st-card' },
         el('div', { class: 'st-row' },
-          el('div', { class: 'st-grow' }, el('div', { text: 'Theme' }), el('div', { class: 'wk-muted', text: 'Choose a built-in theme, follow Windows, or use a custom one.' })),
-          preview, themeSel),
+          el('div', { class: 'st-grow' }, el('div', { text: 'Theme' }), el('div', { class: 'wk-muted', text: 'Pick a look. "Auto" follows your Windows light or dark setting.' }))),
+        tiles,
         el('div', { class: 'st-btns' },
           el('button', { text: 'Create theme', onclick: () => WK.themeEditor.openCreate() }),
           el('button', { text: 'Edit current theme', onclick: () => WK.themeEditor.openEditCurrent() }),
@@ -71,13 +75,28 @@
           delBtn),
         editorHost);
 
+      // a miniature window drawn in the theme's own colours
+      function mini(th, half) {
+        const c = (k) => WK.themes.hexToCss(th.colors[k]) || 'transparent', box = el('div', { class: 'st-mini' + (half ? ' half' : ''), style: 'background:' + c('background') });
+        box.append(el('i', { style: 'left:0;top:0;bottom:0;width:26%;background:' + c('surface') + ';border-right:1px solid ' + c('border') }),
+          el('i', { style: 'left:34%;top:9px;width:30%;height:5px;border-radius:3px;background:' + c('textPrimary') + ';opacity:.85' }),
+          el('i', { style: 'left:34%;top:21px;right:8px;height:24px;border-radius:5px;background:' + c('surface') + ';border:1px solid ' + c('border') }),
+          el('i', { style: 'left:39%;top:29px;width:24%;height:8px;border-radius:4px;background:' + c('accent') }));
+        return box;
+      }
+      function tile(name, on) {
+        const auto = name === 'System', box = el('div', { style: 'position:relative' });
+        if (auto) { const dark = WK.themes.find('Dusk') || WK.themes.current(), light = WK.themes.find('Dawn') || WK.themes.current(); box.append(mini(dark), mini(light, true)); }
+        else box.append(mini(WK.themes.find(name) || WK.themes.current()));
+        return el('button', { class: 'st-tile' + (on ? ' on' : ''), type: 'button', role: 'radio', 'aria-checked': on ? 'true' : 'false', 'data-theme': name, title: auto ? 'Follow the Windows light / dark setting' : name,
+          onclick: () => { WK.themes.select(name); } }, box, el('span', { class: 'st-tname', text: auto ? 'Auto' : name }));
+      }
       function refreshThemes() {
-        const names = WK.themes.names(), sel = WK.themes.selected();
-        opts(themeSel, names, sel);
+        const names = WK.themes.names(), sel = WK.themes.selected(), had = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.theme : null;
+        tiles.replaceChildren(...names.map(n => tile(n, n === sel)));
+        if (had) { const t = tiles.querySelector('[data-theme="' + had.replace(/"/g, '') + '"]'); if (t) t.focus(); }       // keep keyboard focus on the tile after it rebuilds
         const isCustom = WK.themes.custom().some(t => t.name === sel);
         delBtn.classList.toggle('wk-hide', !isCustom);
-        const cur = WK.themes.current();
-        preview.replaceChildren(...['background', 'surface', 'surfaceElevated', 'accent', 'textPrimary'].map(k => el('i', { style: 'background:' + (WK.themes.hexToCss(cur.colors[k]) || 'transparent') })));
       }
 
       // ---- editor ----
@@ -131,8 +150,8 @@
       }
 
       // ---- Personalization ----
-      const nameIn = el('input', { type: 'text', 'aria-label': 'Your name', onkeydown: e => { if (e.key === 'Enter') saveName(); } });
-      const saveName = () => WK.settings.saveName(nameIn.value);
+      const nameIn = el('input', { type: 'text', 'aria-label': 'Your name', maxlength: 40, onkeydown: e => { if (e.key === 'Enter') saveName(); } });
+      const saveName = async () => { try { await WK.settings.saveName(nameIn.value); } catch (e) { await WK.alert("Couldn't save your name", 'WinKit could not write its settings file.', e && e.message); } };
       const pers = el('div', { class: 'wk-card st-card' }, el('div', { class: 'st-nm' },
         el('div', { class: 'st-grow' }, el('div', { text: 'Your name', style: 'margin-bottom:8px' }), nameIn),
         el('button', { class: 'primary', text: 'Save', style: 'padding:8px 16px', onclick: saveName })));
@@ -140,7 +159,10 @@
       // ---- Behavior ----
       const sw = {};
       const toggle = (key, label, setter, last) => {
-        const inp = el('input', { type: 'checkbox', class: 'wk-switch', 'aria-label': label, onchange: async () => { await WK.settings[setter](inp.checked); syncSettings(); } });
+        const inp = el('input', { type: 'checkbox', class: 'wk-switch', 'aria-label': label, onchange: async () => {
+          try { await WK.settings[setter](inp.checked); } catch (e) { await WK.alert("Couldn't save this setting", 'WinKit could not write its settings file.', e && e.message); }
+          syncSettings();
+        } });
         sw[key] = inp;
         return el('label', { class: 'st-row' + (last ? ' nomargin' : '') }, el('span', { class: 'st-grow', text: label }), inp);
       };

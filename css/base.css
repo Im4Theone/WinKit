@@ -2,10 +2,10 @@
    Fallbacks = Midnight so the first paint is already dark and matches the native window colour. */
 :root{
   --wk-background:#161618;--wk-surface:#1D1D20;--wk-surface-elevated:#242427;--wk-border:#2B2B2F;
-  --wk-text-primary:#DCDAD4;--wk-text-secondary:#A29F97;--wk-text-muted:#8C8981;
+  --wk-text-primary:#DCDAD4;--wk-text-secondary:#A29F97;--wk-text-muted:#918E86;
   --wk-accent:#8EA0B5;--wk-accent-hover:#A4B3C5;--wk-on-accent:#161618;
-  --wk-success:#86B58F;--wk-warning:#D4A85F;--wk-error:#D9826F;--wk-update:#8EA0B5;
-  --wk-accent-rgb:142,160,181;--wk-error-rgb:217,130,111;--wk-success-rgb:134,181,143;--wk-warning-rgb:212,168,95;
+  --wk-success:#86B58F;--wk-warning:#D4A85F;--wk-error:#D98370;--wk-update:#8EA0B5;
+  --wk-accent-rgb:142,160,181;--wk-error-rgb:217,131,112;--wk-success-rgb:134,181,143;--wk-warning-rgb:212,168,95;
   --wk-text-primary-rgb:220,218,212;--wk-border-rgb:43,43,47;
   --wk-radius:10px;--wk-radius-sm:10px;--wk-sidebar-width:232px;
   --wk-shadow-md:0 10px 30px rgba(0,0,0,.42);
@@ -122,7 +122,8 @@ input.wk-switch:focus-visible{box-shadow:0 0 0 2px var(--wk-background),0 0 0 4p
 table.wk-table{width:100%;border-collapse:collapse}
 .wk-table th{position:sticky;top:0;z-index:1;background:var(--wk-surface);text-align:left;color:var(--wk-text-muted);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--wk-border);white-space:nowrap}
 .wk-table th[data-sort]{cursor:pointer}.wk-table th[data-sort]:hover{color:var(--wk-text-primary)}
-.wk-table th .arr{margin-left:5px;color:var(--wk-accent)}
+.wk-table th .arr{margin-left:6px;font-weight:700;color:var(--wk-accent)}
+.wk-table th:has(.arr){color:var(--wk-text-primary)}
 .wk-table td{padding:9px 14px;border-bottom:1px solid rgba(var(--wk-border-rgb),.7);vertical-align:middle}
 .wk-table tr:last-child td{border-bottom:0}
 .wk-table tbody tr:hover td{background:rgba(var(--wk-text-primary-rgb),.04)}
