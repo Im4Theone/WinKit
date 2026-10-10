@@ -397,6 +397,44 @@ ff6c639e0f85cfd15d476b01a353abe0d4d509fc92b2a3b7bb2baf5b3d60ff0e  WinKitSetup-2.
       </div>
     </section>
 
+    <!-- ============ Code signing policy ============ -->
+    <section class="policy" id="signing" aria-labelledby="signing-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">Code signing policy</p>
+        <h2 id="signing-title" class="reveal">How releases are signed.</h2>
+
+        <div class="policy-body reveal">
+          <p><strong>Free code signing provided by <a class="link-underline" href="https://signpath.io" target="_blank" rel="noopener noreferrer">SignPath.io</a>, certificate by <a class="link-underline" href="https://signpath.org" target="_blank" rel="noopener noreferrer">SignPath Foundation</a>.</strong></p>
+          <p>Status: WinKit is applying to the SignPath Foundation program. Until signing is in place, releases are unsigned and Windows SmartScreen may show an "unknown publisher" notice. Every download has a SHA-256 checksum you can verify.</p>
+          <ul>
+            <li><strong>What is signed.</strong> Only <span class="mono">WinKit.exe</span> and the installer, built from the public source code in this repository by an automated GitHub Actions build. Nothing is signed from a developer's own PC.</li>
+            <li><strong>Authors, reviewers and approvers.</strong> <a class="link-underline" href="https://github.com/Im4Theone" target="_blank" rel="noopener noreferrer">Im4Theone</a> (project owner). Every signing request is approved by hand.</li>
+            <li><strong>Security.</strong> Everyone with access to the repository or to signing uses multi-factor authentication.</li>
+            <li><strong>Behaviour.</strong> WinKit asks before it changes the system, can be uninstalled, and does not send personal data (see the privacy policy below).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Privacy policy ============ -->
+    <section class="policy" id="privacy" aria-labelledby="privacy-title">
+      <div class="wrap">
+        <p class="eyebrow reveal">Privacy policy</p>
+        <h2 id="privacy-title" class="reveal">WinKit does not collect your data.</h2>
+
+        <div class="policy-body reveal">
+          <p>WinKit has no account, no analytics and no telemetry. Settings, themes and activity history stay on your PC in <span class="mono">%LOCALAPPDATA%\WinKit</span>. The program does not transfer information to other systems unless you ask it to. The only network use is:</p>
+          <ul>
+            <li><strong>Update check.</strong> If enabled (the default, and it can be turned off in Settings), WinKit asks <span class="mono">api.github.com</span> for the latest release. It sends no personal data beyond what any web request includes, such as your IP address. Downloading an update happens only when you choose it, from GitHub, and is verified with a SHA-256 checksum.</li>
+            <li><strong>Error reports.</strong> Only when an error occurs and you press <em>Send</em>. You can preview the report first. It contains an error ID, the WinKit and Windows versions, the architecture and the technical error details, and goes to a report collector run by the developer. Nothing is sent automatically.</li>
+            <li><strong>Network tools.</strong> Ping, traceroute and DNS lookup contact the host you type. The connection test contacts your router, <span class="mono">1.1.1.1</span> or <span class="mono">8.8.8.8</span>, and <span class="mono">example.com</span>.</li>
+            <li><strong>Web view.</strong> The window uses the Microsoft Edge WebView2 Runtime that comes with Windows. WinKit loads no remote content in it, and the runtime is covered by Microsoft's own privacy statement.</li>
+          </ul>
+          <p>The health report is saved or copied only when you ask, and leaves out your computer name, network addresses and Wi-Fi names unless you tick a box.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ GitHub ============ -->
     <section class="source" aria-labelledby="source-title">
       <div class="wrap">
@@ -418,6 +456,8 @@ ff6c639e0f85cfd15d476b01a353abe0d4d509fc92b2a3b7bb2baf5b3d60ff0e  WinKitSetup-2.
         <a href="#features">Features</a>
         <a href="#faq">FAQ</a>
         <a href="#download">Download</a>
+        <a href="#signing">Code signing</a>
+        <a href="#privacy">Privacy</a>
         <a href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="https://github.com/Im4Theone/WinKit/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">Changelog</a>
         <a href="https://github.com/Im4Theone/WinKit/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>
