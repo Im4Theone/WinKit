@@ -79,6 +79,70 @@
     select(tabs[0], false);
   }
 
+  /* ---------- Showcase video ----------
+     Plays muted while at least a third of it is on screen and pauses when scrolled away.
+     The button pauses it for good (WCAG 2.2.2). With reduced motion it waits for a click. */
+
+  var video = document.getElementById('showcase');
+  var toggle = document.getElementById('showcase-toggle');
+
+  if (video && toggle) {
+    var figure = video.closest('.showcase');
+    var userPaused = reducedMotion;
+    var started = false;
+
+    video.removeAttribute('controls');
+    toggle.hidden = false;
+
+    var sync = function () {
+      var state = video.paused ? (started ? 'paused' : 'idle') : 'playing';
+      figure.setAttribute('data-state', state);
+      toggle.setAttribute('aria-label', video.paused ? 'Play video' : 'Pause video');
+    };
+
+    var play = function () {
+      var p = video.play();
+      if (p && p.catch) p.catch(sync);
+    };
+
+    video.addEventListener('play', function () { started = true; sync(); });
+    video.addEventListener('pause', sync);
+
+    toggle.addEventListener('click', function () {
+      if (video.paused) { userPaused = false; play(); }
+      else { userPaused = true; video.pause(); }
+    });
+    video.addEventListener('click', function () { toggle.click(); });
+
+    /* Full screen: the burned-in captions are small on phones. Native controls appear while full screen. */
+    var fsButton = document.getElementById('showcase-fs');
+    var enterFs = video.requestFullscreen || video.webkitRequestFullscreen || video.webkitEnterFullscreen;
+    if (fsButton && enterFs) {
+      fsButton.hidden = false;
+      fsButton.addEventListener('click', function () {
+        userPaused = false;
+        play();
+        enterFs.call(video);
+      });
+      document.addEventListener('fullscreenchange', function () {
+        video.controls = document.fullscreenElement === video;
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { if (!userPaused) play(); }
+          else if (!video.paused) video.pause();
+        });
+      }, { threshold: 0.35 }).observe(video);
+    } else if (!userPaused) {
+      play();
+    }
+
+    sync();
+  }
+
   /* ---------- Footer year ---------- */
 
   var year = document.getElementById('year');

@@ -13,9 +13,44 @@
   <meta property="og:title" content="WinKit" />
   <meta property="og:description" content="Windows administration, without the clutter. One file under 1 MB." />
   <meta property="og:url" content="https://im4theone.github.io/WinKit/" />
-  <meta property="og:image" content="https://im4theone.github.io/WinKit/assets/shot-dashboard.png" />
+  <meta property="og:image" content="https://im4theone.github.io/WinKit/assets/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="The WinKit dashboard with the caption: Your PC at a glance." />
+  <meta property="og:video" content="https://im4theone.github.io/WinKit/assets/winkit-showcase.mp4" />
+  <meta property="og:video:type" content="video/mp4" />
+  <meta property="og:video:width" content="1920" />
+  <meta property="og:video:height" content="1080" />
   <meta name="twitter:card" content="summary_large_image" />
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "WinKit",
+    "description": "A small, calm Windows toolkit: system overview, diagnostics, disk usage, Wi-Fi and network tools, cleanup and more, in one file under 1 MB.",
+    "url": "https://im4theone.github.io/WinKit/",
+    "downloadUrl": "https://github.com/Im4Theone/WinKit/releases/latest",
+    "softwareVersion": "2.1.0",
+    "operatingSystem": "Windows 10, Windows 11",
+    "applicationCategory": "UtilitiesApplication",
+    "image": "https://im4theone.github.io/WinKit/assets/og-image.jpg",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Kaloyan K.", "url": "https://im4theone.github.io/" },
+    "video": {
+      "@type": "VideoObject",
+      "name": "WinKit in 30 seconds",
+      "description": "A 30-second tour of WinKit 2.1.0: dashboard, Quick Open, disk usage, diagnostics, cleanup, network tools and themes.",
+      "thumbnailUrl": "https://im4theone.github.io/WinKit/assets/showcase-poster.jpg",
+      "contentUrl": "https://im4theone.github.io/WinKit/assets/winkit-showcase.mp4",
+      "uploadDate": "2026-10-10",
+      "duration": "PT30S"
+    }
+  }
+  </script>
+
+  <!-- Reveal-on-scroll only hides content once we know JavaScript is running. -->
+  <script>document.documentElement.classList.add('js');</script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -60,14 +95,27 @@
       </div>
     </section>
 
-    <!-- ============ Product screenshot ============ -->
-    <section class="shot-section" aria-label="WinKit interface">
+    <!-- ============ Showcase video ============ -->
+    <!-- Plays muted while on screen (script.js). Without JavaScript it keeps the native controls. -->
+    <section class="shot-section" aria-label="WinKit in 30 seconds">
       <div class="wrap">
-        <figure class="shot reveal">
-          <img
-            src="assets/shot-dashboard.png"
-            alt="The WinKit dashboard in the Dusk theme: usage meters for CPU, memory and storage, GPU, network and Windows cards, a hardware health section with drive free space and battery health, and quick actions."
-            width="1280" height="820" />
+        <figure class="showcase reveal" data-state="idle">
+          <div class="showcase-frame">
+            <video id="showcase" class="showcase-video" controls muted loop playsinline preload="none"
+                   poster="assets/showcase-poster.jpg" width="1920" height="1080"
+                   aria-label="A 30-second silent tour of WinKit: the dashboard, Quick Open, disk usage, diagnostics, cleanup, network tools and live theme switching.">
+              <source src="assets/winkit-showcase-720.mp4" type="video/mp4" media="(max-width: 900px)" />
+              <source src="assets/winkit-showcase.mp4" type="video/mp4" />
+            </video>
+            <button class="showcase-toggle" id="showcase-toggle" type="button" aria-controls="showcase" aria-label="Play video" hidden>
+              <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
+              <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" /></svg>
+            </button>
+            <button class="showcase-fs" id="showcase-fs" type="button" aria-controls="showcase" aria-label="Watch full screen" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" /></svg>
+            </button>
+          </div>
+          <figcaption>WinKit 2.1.0 in 30 seconds. Every shot is a real recording of the app; some are sped up.</figcaption>
         </figure>
       </div>
     </section>
@@ -323,7 +371,7 @@
             <h3>Portable x64</h3>
             <p>One small file. Download and run it. Nothing is installed, nothing is registered.</p>
             <a class="btn" href="https://github.com/Im4Theone/WinKit/releases/download/2.1.0/WinKit-2.1.0-portable.exe">Download .exe</a>
-            <p class="download-size">0.85 MB &nbsp;·&nbsp; <a class="link-underline" href="https://github.com/Im4Theone/WinKit/releases/download/2.1.0/WinKit-2.1.0-portable.zip">or as .zip</a></p>
+            <p class="download-size">0.83 MB &nbsp;·&nbsp; <a class="link-underline" href="https://github.com/Im4Theone/WinKit/releases/download/2.1.0/WinKit-2.1.0-portable.zip">or as .zip</a></p>
           </article>
 
           <article class="download-card reveal">
@@ -354,7 +402,7 @@ ff6c639e0f85cfd15d476b01a353abe0d4d509fc92b2a3b7bb2baf5b3d60ff0e  WinKitSetup-2.
       <div class="wrap">
         <h2 id="source-title" class="reveal">Source</h2>
         <p class="source-lede reveal">Issues, the full changelog and every previous release live on GitHub.</p>
-        <a class="source-link reveal" href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">View on GitHub <span class="source-arrow" aria-hidden="true"></span></a>
+        <a class="source-link reveal" href="https://github.com/Im4Theone/WinKit" target="_blank" rel="noopener noreferrer">View on GitHub <span class="source-arrow" aria-hidden="true">&rarr;</span></a>
       </div>
     </section>
 

@@ -208,13 +208,14 @@ main section {
 
 /* ---------- 6. Reveal on scroll ---------- */
 
-.reveal {
+/* Only hidden when JavaScript runs (the .js class is set in <head>), so the page never goes blank without it. */
+.js .reveal {
   opacity: 0;
   transform: translateY(22px);
   transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
 }
 
-.reveal.is-visible {
+.js .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -352,12 +353,134 @@ main section {
 }
 
 /* Screenshot leads with a slightly deeper, slower entrance than body copy. */
-.shot.reveal {
+.js .shot.reveal,
+.js .showcase.reveal {
   transform: translateY(32px) scale(0.992);
 }
 
-.shot.reveal.is-visible {
+.js .shot.reveal.is-visible,
+.js .showcase.reveal.is-visible {
   transform: translateY(0) scale(1);
+}
+
+/* ---------- 9b. Showcase video ---------- */
+
+.showcase {
+  margin: 0;
+}
+
+.showcase-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0a0a0c;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 12px 28px -12px rgba(0, 0, 0, 0.16),
+    0 40px 80px -40px rgba(0, 0, 0, 0.22);
+}
+
+.showcase-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.showcase-toggle,
+.showcase-fs {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(24, 24, 27, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--dur-fast) var(--ease), transform var(--dur-base) var(--ease),
+    width var(--dur-base) var(--ease), height var(--dur-base) var(--ease);
+}
+
+.showcase-toggle[hidden],
+.showcase-fs[hidden],
+.showcase[data-state="idle"] .showcase-fs {
+  display: none;
+}
+
+.showcase-fs {
+  right: 68px;
+}
+
+.showcase-fs svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.showcase-frame:hover .showcase-toggle,
+.showcase-frame:hover .showcase-fs,
+.showcase-toggle:focus-visible,
+.showcase-fs:focus-visible,
+.showcase[data-state="paused"] .showcase-toggle,
+.showcase[data-state="paused"] .showcase-fs,
+.showcase[data-state="idle"] .showcase-toggle {
+  opacity: 1;
+}
+
+.showcase-toggle:focus-visible,
+.showcase-fs:focus-visible {
+  outline-color: #fff;
+}
+
+.showcase-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.showcase-toggle .i-pause,
+.showcase[data-state="playing"] .showcase-toggle .i-play {
+  display: none;
+}
+
+.showcase[data-state="playing"] .showcase-toggle .i-pause {
+  display: block;
+}
+
+/* Before the first play (or with reduced motion), a larger centred play button. */
+.showcase[data-state="idle"] .showcase-toggle {
+  right: 50%;
+  bottom: 50%;
+  width: 76px;
+  height: 76px;
+  transform: translate(50%, 50%);
+}
+
+.showcase[data-state="idle"] .showcase-toggle svg {
+  width: 28px;
+  height: 28px;
+}
+
+.showcase figcaption {
+  margin-top: var(--space-2);
+  font-size: 0.9375rem;
+  color: var(--text-tertiary);
 }
 
 /* ---------- 10. Features ---------- */
@@ -368,8 +491,8 @@ main section {
   border-bottom: 1px solid var(--line);
 }
 
+/* The heading's <br> sets the break; a ch-based max-width here used to strand "keeps" on its own line. */
 .features h2 {
-  max-width: 20ch;
   margin-bottom: var(--space-6);
 }
 
