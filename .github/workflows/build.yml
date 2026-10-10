@@ -1,0 +1,48 @@
+name: Build
+
+# Builds WinKit from this repository on a GitHub-hosted Windows runner: the portable exe, the zip, the installer and the checksums.
+# Run it by hand (Actions tab, "Run workflow") or by pushing a tag. Releases are built here, never on a developer's PC.
+# Code signing (SignPath Foundation) will be added to this workflow as a step between the build and the upload.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The embedded interface matches its sources
+        shell: bash
+        run: |
+          python build_ui.py
+          git diff --ignore-cr-at-eol --exit-code -- index.html
+
+      - name: Make sure Inno Setup 6 is available
+        shell: pwsh
+        run: |
+          $paths = @("$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe")
+          if (-not ($paths | Where-Object { Test-Path $_ })) { choco install innosetup -y --no-progress }
+
+      - name: Build the portable exe, zip, installer and checksums
+        shell: cmd
+        run: call release.bat < nul
+
+      - name: Show what was built
+        shell: pwsh
+        run: |
+          Get-ChildItem release | Select-Object Name, Length
+          Get-Content release\SHA256SUMS.txt
+          (Get-Item release\*portable.exe).VersionInfo | Format-List ProductName, ProductVersion, FileVersion
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: winkit-unsigned
+          path: release/*
+          if-no-files-found: error
