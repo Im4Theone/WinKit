@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- WinKit mark as used in the showcase videos: Dusk accent #8EA0B5, glyph #161618.
+       Same geometry as the app (16-unit glyph path, stroke 1.9) on a 132:32 rounded square. -->
+  <rect width="512" height="512" rx="124" fill="#8EA0B5"/>
+  <g transform="translate(112.5 112.5) scale(17.9375)">
+    <path d="M2 4.5 L4.8 12 L8 6.5 L11.2 12 L14 4.5" fill="none" stroke="#161618" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

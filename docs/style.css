@@ -208,16 +208,11 @@ main section {
 
 /* ---------- 6. Reveal on scroll ---------- */
 
-/* Only hidden when JavaScript runs (the .js class is set in <head>), so the page never goes blank without it. */
-.js .reveal {
+/* Hidden only while the GSAP motion layer runs (the .anim class is set in <head> and removed if motion.js
+   doesn't start), so the page never goes blank. motion.js fades each element in with ScrollTrigger. */
+.anim .reveal {
   opacity: 0;
-  transform: translateY(22px);
-  transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
-}
-
-.js .reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+  transform: translateY(24px);
 }
 
 /* ---------- 7. Navigation ---------- */
@@ -272,7 +267,16 @@ main section {
 }
 
 .nav-brand-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--text);
+}
+
+.nav-logo {
+  width: 22px;
+  height: 22px;
+  align-self: center;
 }
 
 .nav-links {
@@ -300,6 +304,13 @@ main section {
 
 .hero h1 {
   margin-bottom: var(--space-3);
+}
+
+.hero-logo {
+  width: clamp(72px, 6vw + 40px, 104px);
+  height: auto;
+  margin-bottom: var(--space-4);
+  filter: drop-shadow(0 18px 30px rgba(91, 111, 134, 0.35));
 }
 
 .hero-lede {
@@ -353,14 +364,9 @@ main section {
 }
 
 /* Screenshot leads with a slightly deeper, slower entrance than body copy. */
-.js .shot.reveal,
-.js .showcase.reveal {
-  transform: translateY(32px) scale(0.992);
-}
-
-.js .shot.reveal.is-visible,
-.js .showcase.reveal.is-visible {
-  transform: translateY(0) scale(1);
+.anim .shot.reveal,
+.anim .showcase.reveal {
+  transform: translateY(36px);
 }
 
 /* ---------- 9b. Showcase video ---------- */
@@ -928,19 +934,42 @@ footer {
   margin: 0;
 }
 
-.tour-panel img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1280 / 820;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 28px -12px rgba(0, 0, 0, 0.16);
+/* Tour: screenshot and description side by side (stacked on phones). */
+.tour-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-6);
 }
 
-.tour-panel figcaption {
-  max-width: 62ch;
-  margin-top: var(--space-2);
+.tour-media {
+  border-radius: 16px;
+  overflow: hidden;
+  background: #161618;
+  box-shadow: 0 0 0 1px var(--line), 0 2px 4px rgba(0, 0, 0, 0.04), 0 30px 60px -28px rgba(0, 0, 0, 0.35);
+}
+
+.tour-media img {
+  width: 100%;
+  height: auto;
+}
+
+.tour-copy h3 {
+  font-size: clamp(1.75rem, 1.4vw + 1.1rem, 2.5rem);
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-2);
+}
+
+.tour-copy p {
+  font-size: 1.125rem;
+  max-width: 38ch;
   color: var(--text-secondary);
+}
+
+.tour-lede {
+  margin-top: calc(var(--space-4) * -1);
+  margin-bottom: var(--space-4);
+  color: var(--text-tertiary);
 }
 
 .js .tour-panel[hidden] {
@@ -1147,4 +1176,97 @@ kbd {
 .policy-body li {
   margin-bottom: 0.6rem;
   max-width: 68ch;
+}
+
+/* ---------- 17. Motion layer: statement (React Bits ScrollReveal), SpotlightCard, SplitText ---------- */
+
+.statement {
+  padding-block: var(--space-7) !important;
+}
+
+.statement-text {
+  font-size: clamp(2rem, 3.4vw + 1rem, 4.25rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  color: var(--text);
+  max-width: 22ch;
+}
+
+.scroll-reveal {
+  display: block;
+}
+
+.scroll-reveal .word {
+  display: inline-block;
+}
+
+/* React Bits SpotlightCard. The card keeps its own padding and border; the component adds the light layers. */
+[data-rb="spotlight"].rb-mounted {
+  padding: 0;
+  border-color: transparent;
+}
+
+.spotlight-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: 100%;
+  padding: var(--space-4);
+  border-radius: 14px;
+  background-color: var(--spotlight-card-surface);
+}
+
+.spotlight-card__light,
+.spotlight-card__border,
+.spotlight-card__edge {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.spotlight-card__light {
+  z-index: -1;
+  opacity: 0;
+}
+
+.spotlight-card__border,
+.spotlight-card__edge {
+  z-index: 1;
+  padding: 1px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+.spotlight-card__border {
+  background: var(--spotlight-card-border);
+}
+
+.spotlight-card__edge {
+  opacity: 0;
+}
+
+.spotlight-card__content h3 {
+  margin-bottom: var(--space-1);
+}
+
+.spotlight-card__content p {
+  font-size: 0.9688rem;
+}
+
+.split-parent {
+  line-height: inherit;
+}
+
+@media (max-width: 900px) {
+  .tour-panel {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .tour-media {
+    max-width: 560px;
+  }
 }

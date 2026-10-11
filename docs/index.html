@@ -3,54 +3,200 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WinKit: Windows administration, without the clutter.</title>
-  <meta name="description" content="WinKit is a small, calm Windows toolkit: system overview, diagnostics, disk usage, Wi-Fi and network tools, cleanup and more. One file under 1 MB, no account, no telemetry. Windows 10 and 11, x64." />
+  <title>WinKit: Free Windows Toolkit for Diagnostics, Disk Usage &amp; Cleanup</title>
+  <meta name="description" content="Free, open-source Windows 10 and 11 toolkit under 1 MB: diagnostics, disk usage, cleanup, Wi-Fi, open ports and network tests. No account, no telemetry." />
+  <link rel="canonical" href="https://im4theone.github.io/WinKit/" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="author" content="Kaloyan K." />
+  <meta name="theme-color" content="#8EA0B5" />
 
-  <link rel="icon" href="assets/icon-64.png" sizes="64x64" />
-  <link rel="apple-touch-icon" href="assets/icon-256.png" />
+  <link rel="icon" href="assets/winkit-logo.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="WinKit" />
-  <meta property="og:description" content="Windows administration, without the clutter. One file under 1 MB." />
+  <meta property="og:site_name" content="WinKit" />
+  <meta property="og:title" content="WinKit: a free toolkit for your Windows PC" />
+  <meta property="og:description" content="Diagnostics, disk usage, cleanup, Wi-Fi and network tools in one portable app under 1 MB. Free and open source." />
   <meta property="og:url" content="https://im4theone.github.io/WinKit/" />
   <meta property="og:image" content="https://im4theone.github.io/WinKit/assets/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="The WinKit dashboard with the caption: Your PC at a glance." />
+  <meta property="og:image:alt" content="WinKit: System, network, cleanup and diagnostics. In one small app." />
   <meta property="og:video" content="https://im4theone.github.io/WinKit/assets/winkit-showcase.mp4" />
   <meta property="og:video:type" content="video/mp4" />
   <meta property="og:video:width" content="1920" />
   <meta property="og:video:height" content="1080" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="WinKit: a free toolkit for your Windows PC" />
+  <meta name="twitter:description" content="Diagnostics, disk usage, cleanup, Wi-Fi and network tools in one portable app under 1 MB." />
+  <meta name="twitter:image" content="https://im4theone.github.io/WinKit/assets/og-image.jpg" />
 
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "WinKit",
-    "description": "A small, calm Windows toolkit: system overview, diagnostics, disk usage, Wi-Fi and network tools, cleanup and more, in one file under 1 MB.",
-    "url": "https://im4theone.github.io/WinKit/",
-    "downloadUrl": "https://github.com/Im4Theone/WinKit/releases/latest",
-    "softwareVersion": "2.1.0",
-    "operatingSystem": "Windows 10, Windows 11",
-    "applicationCategory": "UtilitiesApplication",
-    "image": "https://im4theone.github.io/WinKit/assets/og-image.jpg",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "author": { "@type": "Person", "name": "Kaloyan K.", "url": "https://im4theone.github.io/" },
-    "video": {
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://im4theone.github.io/WinKit/#website",
+      "url": "https://im4theone.github.io/WinKit/",
+      "name": "WinKit",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://im4theone.github.io/WinKit/#app",
+      "name": "WinKit",
+      "url": "https://im4theone.github.io/WinKit/",
+      "description": "A free, open-source Windows toolkit in one portable file under 1 MB: system dashboard, 11 diagnostics checks, disk usage explorer, cleanup, Wi-Fi, open ports and network tools.",
+      "applicationCategory": "UtilitiesApplication",
+      "applicationSubCategory": "System utility",
+      "operatingSystem": "Windows 10, Windows 11",
+      "softwareVersion": "2.1.0",
+      "fileSize": "0.83 MB",
+      "downloadUrl": "https://github.com/Im4Theone/WinKit/releases/latest",
+      "license": "https://github.com/Im4Theone/WinKit/blob/main/LICENSE",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "image": "https://im4theone.github.io/WinKit/assets/og-image.jpg",
+      "screenshot": [
+        {
+          "@type": "ImageObject",
+          "url": "https://im4theone.github.io/WinKit/assets/winkit-dashboard.webp",
+          "caption": "The WinKit dashboard: CPU, memory, storage, GPU, network, Windows build and hardware health"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://im4theone.github.io/WinKit/assets/winkit-disk-usage.webp",
+          "caption": "WinKit Disk usage: the biggest folders on drive C, sorted by size"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://im4theone.github.io/WinKit/assets/winkit-diagnostics.webp",
+          "caption": "WinKit Diagnostics: 1 issue found, 2 GB of temporary files"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://im4theone.github.io/WinKit/assets/winkit-connection-test.webp",
+          "caption": "WinKit connection test: adapter, router, internet and DNS all answered"
+        }
+      ],
+      "featureList": [
+        "System dashboard with hardware health",
+        "11 diagnostics checks",
+        "Disk usage explorer",
+        "Temporary file cleanup with review",
+        "Wi-Fi details and connection test",
+        "Open ports with owning process",
+        "Health report",
+        "Quick Open (Ctrl+K)",
+        "Six themes"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Kaloyan K.",
+        "url": "https://im4theone.github.io/"
+      },
+      "sameAs": [
+        "https://github.com/Im4Theone/WinKit"
+      ],
+      "video": {
+        "@id": "https://im4theone.github.io/WinKit/#video"
+      }
+    },
+    {
       "@type": "VideoObject",
+      "@id": "https://im4theone.github.io/WinKit/#video",
       "name": "WinKit in 30 seconds",
       "description": "A 30-second tour of WinKit 2.1.0: dashboard, Quick Open, disk usage, diagnostics, cleanup, network tools and themes.",
       "thumbnailUrl": "https://im4theone.github.io/WinKit/assets/showcase-poster.jpg",
       "contentUrl": "https://im4theone.github.io/WinKit/assets/winkit-showcase.mp4",
-      "uploadDate": "2026-10-10",
+      "uploadDate": "2026-10-10T12:00:00+00:00",
       "duration": "PT30S"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://im4theone.github.io/WinKit/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Windows says the publisher is unknown. Is it safe?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "WinKit is not code-signed yet, so Windows SmartScreen may show an \"unknown publisher\" notice the first time you run it. The source code is public on GitHub, and every download has a SHA-256 checksum you can verify below."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it need administrator rights?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It starts as a normal app. A few actions, such as resetting the network stack or editing the hosts file, ask Windows for approval when you use them. Checks that need those rights say so instead of guessing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does it send over the internet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nothing on its own, apart from an optional check for new versions against GitHub Releases, which you can turn off. There is no account and no telemetry."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Portable or installer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The portable file runs from anywhere and leaves nothing behind. The installer adds a Start Menu shortcut and an uninstaller, and both update themselves from GitHub Releases after a checksum check."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "It says WebView2 is missing.",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "WinKit's interface uses the Microsoft Edge WebView2 Runtime, which Windows 11 and current Windows 10 already include. If yours is missing, WinKit offers the official download link."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where is my data stored, and how do I remove it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Settings, themes and history live in %LOCALAPPDATA%\\WinKit. Delete that folder to remove everything. The installer's uninstaller also removes the start-with-Windows entry."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it replace Task Manager?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It covers a lot of the same ground in a calmer window, and adds disk usage, Wi-Fi, diagnostics and a health report. It does not try to be a performance profiler."
+          }
+        }
+      ]
     }
-  }
+  ]
+}
   </script>
 
-  <!-- Reveal-on-scroll only hides content once we know JavaScript is running. -->
-  <script>document.documentElement.classList.add('js');</script>
+  <!-- "js": tabs and the video player are enhanced. "anim": content fades in with GSAP (only when motion is allowed;
+       removed again if the motion script has not started within 4 s, so nothing can stay hidden). -->
+  <script>
+    (function (d) {
+      d.classList.add('js');
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        d.classList.add('anim');
+        setTimeout(function () { if (!window.__wkMotion) d.classList.remove('anim'); }, 4000);
+      }
+    })(document.documentElement);
+  </script>
+  <link rel="stylesheet" href="vendor/lenis.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -63,7 +209,7 @@
       <a class="nav-brand" href="https://im4theone.github.io/">
         <span class="nav-brand-owner">Kaloyan K.</span>
         <span class="nav-brand-sep" aria-hidden="true">/</span>
-        <span class="nav-brand-app">WinKit</span>
+        <span class="nav-brand-app"><img class="nav-logo" src="assets/winkit-logo.svg" width="22" height="22" alt="" />WinKit</span>
       </a>
 
       <nav class="nav-links" aria-label="Primary">
@@ -82,9 +228,10 @@
     <!-- ============ Hero ============ -->
     <section class="hero" id="top" aria-label="WinKit">
       <div class="wrap">
-        <h1 class="reveal">WinKit</h1>
+        <img class="hero-logo" src="assets/winkit-logo.svg" width="104" height="104" alt="WinKit logo" />
+        <h1 data-rb="split-text">WinKit</h1>
         <p class="hero-lede reveal">Windows administration, without the clutter.</p>
-        <p class="hero-sub reveal">A small, calm toolkit to see what your PC is doing, find what is wrong and fix it. Disk usage, Wi-Fi, diagnostics, cleanup and more, in one file under 1&nbsp;MB.</p>
+        <p class="hero-sub reveal">A free, open-source toolkit for Windows 10 and 11 that shows what your PC is doing, finds what is wrong and helps you fix it: diagnostics, disk usage, cleanup, Wi-Fi and network tools, in one portable file under 1&nbsp;MB.</p>
 
         <div class="hero-actions reveal">
           <a class="btn" href="#download">Download 2.1.0</a>
@@ -132,6 +279,13 @@
       </div>
     </section>
 
+    <!-- ============ Statement (React Bits ScrollReveal) ============ -->
+    <section class="statement" aria-label="What WinKit promises">
+      <div class="wrap">
+        <p class="statement-text" data-rb="scroll-reveal">Every action WinKit takes is a real, explainable operation. No fake optimizations, no invented performance claims.</p>
+      </div>
+    </section>
+
     <!-- ============ What's new ============ -->
     <section class="whatsnew" id="whats-new" aria-labelledby="new-title">
       <div class="wrap">
@@ -139,27 +293,27 @@
         <h2 id="new-title" class="reveal">Find the problem,<br />not just the symptoms.</h2>
 
         <div class="new-grid">
-          <article class="new-card reveal">
+          <article class="new-card reveal" data-rb="spotlight">
             <h3>Disk usage</h3>
             <p>Pick a drive and click through the biggest folders and files to see where your space went. It only reads. It never deletes.</p>
           </article>
-          <article class="new-card reveal">
+          <article class="new-card reveal" data-rb="spotlight">
             <h3>Wi-Fi and connection test</h3>
             <p>Signal, channel, speed and security, plus a one-click test that says whether the problem is your PC, your router, your provider or DNS.</p>
           </article>
-          <article class="new-card reveal">
+          <article class="new-card reveal" data-rb="spotlight">
             <h3>Health report</h3>
             <p>Save a plain-text summary of your PC to send to whoever is helping you. Names and addresses stay out unless you tick a box.</p>
           </article>
-          <article class="new-card reveal">
+          <article class="new-card reveal" data-rb="spotlight">
             <h3>Hardware health</h3>
             <p>Free space for every drive and, on laptops, battery charge and how much of its original capacity is left.</p>
           </article>
-          <article class="new-card reveal">
+          <article class="new-card reveal" data-rb="spotlight">
             <h3>Open ports</h3>
             <p>Every open port and connection with the program that owns it. See what is using port 3000 or talking to the internet.</p>
           </article>
-          <article class="new-card reveal">
+          <article class="new-card reveal" data-rb="spotlight">
             <h3>Right-click menus</h3>
             <p>Copy, show in folder, search online and end process, right where you need them. Click an address or value to copy it.</p>
           </article>
@@ -172,45 +326,61 @@
       <div class="wrap">
         <p class="eyebrow reveal">Tour</p>
         <h2 id="tour-title" class="reveal">A closer look.</h2>
+        <p class="tour-lede reveal">Real screenshots of WinKit 2.1.0 on Windows 11.</p>
 
         <div class="tour-tabs reveal" role="tablist" aria-label="Screenshots">
           <button role="tab" id="tab-dash" aria-controls="panel-dash" aria-selected="true">Dashboard</button>
+          <button role="tab" id="tab-quick" aria-controls="panel-quick" aria-selected="false" tabindex="-1">Quick Open</button>
           <button role="tab" id="tab-disk" aria-controls="panel-disk" aria-selected="false" tabindex="-1">Disk usage</button>
-          <button role="tab" id="tab-wifi" aria-controls="panel-wifi" aria-selected="false" tabindex="-1">Wi-Fi</button>
-          <button role="tab" id="tab-conn" aria-controls="panel-conn" aria-selected="false" tabindex="-1">Connection test</button>
           <button role="tab" id="tab-diag" aria-controls="panel-diag" aria-selected="false" tabindex="-1">Diagnostics</button>
-          <button role="tab" id="tab-menu" aria-controls="panel-menu" aria-selected="false" tabindex="-1">Right-click</button>
-          <button role="tab" id="tab-dawn" aria-controls="panel-dawn" aria-selected="false" tabindex="-1">Light theme</button>
+          <button role="tab" id="tab-clean" aria-controls="panel-clean" aria-selected="false" tabindex="-1">Cleanup</button>
+          <button role="tab" id="tab-conn" aria-controls="panel-conn" aria-selected="false" tabindex="-1">Connection test</button>
+          <button role="tab" id="tab-ports" aria-controls="panel-ports" aria-selected="false" tabindex="-1">Open ports</button>
+          <button role="tab" id="tab-report" aria-controls="panel-report" aria-selected="false" tabindex="-1">Health report</button>
+          <button role="tab" id="tab-wifi" aria-controls="panel-wifi" aria-selected="false" tabindex="-1">Wi-Fi</button>
+          <button role="tab" id="tab-themes" aria-controls="panel-themes" aria-selected="false" tabindex="-1">Themes</button>
         </div>
 
         <div class="tour-panels reveal">
           <figure class="tour-panel" id="panel-dash" role="tabpanel" aria-labelledby="tab-dash">
-            <img src="assets/shot-dashboard.png" width="1280" height="820" loading="lazy" decoding="async" alt="The dashboard with usage meters, hardware health and quick actions." />
-            <figcaption>The dashboard shows the state of your PC at a glance, and warns when a drive is nearly full or a battery is wearing out.</figcaption>
+            <div class="tour-media"><img src="assets/winkit-dashboard.webp" srcset="assets/winkit-dashboard-720.webp 720w, assets/winkit-dashboard.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="The WinKit dashboard in the Dusk theme: CPU, memory, storage, GPU, network and Windows cards, and hardware health for three drives and the battery." /></div>
+            <figcaption class="tour-copy"><h3>Your PC at a glance.</h3><p>Live CPU and memory, storage, GPU, network and Windows build, plus hardware health: free space on every drive and, on laptops, how much of the battery&rsquo;s original capacity is left.</p></figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-quick" role="tabpanel" aria-labelledby="tab-quick">
+            <div class="tour-media"><img src="assets/winkit-quick-open.webp" srcset="assets/winkit-quick-open-720.webp 720w, assets/winkit-quick-open.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="WinKit Quick Open with ports typed and Open ports as the top result." /></div>
+            <figcaption class="tour-copy"><h3>Ctrl&nbsp;+&nbsp;K, then type.</h3><p>Jump to any page, tab or action with a few letters. Here &ldquo;ports&rdquo; finds the open ports list, and Enter opens it.</p></figcaption>
           </figure>
           <figure class="tour-panel" id="panel-disk" role="tabpanel" aria-labelledby="tab-disk">
-            <img src="assets/shot-disk.png" width="1280" height="820" loading="lazy" decoding="async" alt="Disk usage listing the biggest folders on drive C with size bars." />
-            <figcaption>Disk usage lists the biggest folders and files with a size bar. Click a folder to look inside. Nothing is ever deleted from here.</figcaption>
-          </figure>
-          <figure class="tour-panel" id="panel-wifi" role="tabpanel" aria-labelledby="tab-wifi">
-            <img src="assets/shot-wifi.png" width="1280" height="820" loading="lazy" decoding="async" alt="Wi-Fi details showing signal, channel, link speed, security and nearby networks." />
-            <figcaption>Wi-Fi details show signal, band, channel, speed and security, with plain advice when the signal is weak or the channel is crowded.</figcaption>
-          </figure>
-          <figure class="tour-panel" id="panel-conn" role="tabpanel" aria-labelledby="tab-conn">
-            <img src="assets/shot-conntest.png" width="1280" height="820" loading="lazy" decoding="async" alt="The connection test passing every step: adapter, router, internet and name lookup." />
-            <figcaption>The connection test checks each step between your PC and the internet, then tells you where the problem is and what to try.</figcaption>
+            <div class="tour-media"><img src="assets/winkit-disk-usage.webp" srcset="assets/winkit-disk-usage-720.webp 720w, assets/winkit-disk-usage.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="WinKit Disk usage on drive C: 307.7 GB in 534,163 files, Program Files (x86) first at 141.8 GB." /></div>
+            <figcaption class="tour-copy"><h3>Where did the space go?</h3><p>Pick a drive and see every folder and file sorted biggest first, with its size and share of the drive. Click a folder to look inside. It only reads, it never deletes.</p></figcaption>
           </figure>
           <figure class="tour-panel" id="panel-diag" role="tabpanel" aria-labelledby="tab-diag">
-            <img src="assets/shot-diagnostics.png" width="1280" height="820" loading="lazy" decoding="async" alt="Diagnostics results with warnings and one-click fixes." />
-            <figcaption>Eleven checks in plain language, with a one-click fix where one exists. Export the results as a report to share.</figcaption>
+            <div class="tour-media"><img src="assets/winkit-diagnostics.webp" srcset="assets/winkit-diagnostics-720.webp 720w, assets/winkit-diagnostics.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="WinKit Diagnostics: 1 issue found, 8 passed, 1 warning. Temporary Files warns that 2 GB have accumulated." /></div>
+            <figcaption class="tour-copy"><h3>11 checks, in plain language.</h3><p>Storage, Windows integrity and updates, drivers, startup, services and network, each with a short explanation and a fix where one exists. On this PC: one warning, 2&nbsp;GB of temporary files.</p></figcaption>
           </figure>
-          <figure class="tour-panel" id="panel-menu" role="tabpanel" aria-labelledby="tab-menu">
-            <img src="assets/shot-menu.png" width="1280" height="820" loading="lazy" decoding="async" alt="A right-click menu on a process offering copy, show in File Explorer, search online and end process." />
-            <figcaption>Right-click a process, service, startup item or port for the actions you would otherwise hunt for.</figcaption>
+          <figure class="tour-panel" id="panel-clean" role="tabpanel" aria-labelledby="tab-clean">
+            <div class="tour-media"><img src="assets/winkit-cleanup.webp" srcset="assets/winkit-cleanup-720.webp 720w, assets/winkit-cleanup.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="WinKit Cleanup with user temporary files, Windows temporary files, the thumbnail cache, the Recycle Bin (not selected by default) and the Windows Update cache, 2.08 GB selected." /></div>
+            <figcaption class="tour-copy"><h3>Review first. Then clean.</h3><p>Each category shows its size, item count and location. The Recycle Bin is not selected unless you choose it, and nothing is removed until you confirm the total.</p></figcaption>
           </figure>
-          <figure class="tour-panel" id="panel-dawn" role="tabpanel" aria-labelledby="tab-dawn">
-            <img src="assets/shot-dawn.png" width="1280" height="820" loading="lazy" decoding="async" alt="The dashboard in the light Dawn theme." />
-            <figcaption>Six built-in themes. Dawn is the light companion to Dusk, and Auto follows Windows.</figcaption>
+          <figure class="tour-panel" id="panel-conn" role="tabpanel" aria-labelledby="tab-conn">
+            <div class="tour-media"><img src="assets/winkit-connection-test.webp" srcset="assets/winkit-connection-test-720.webp 720w, assets/winkit-connection-test.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="The WinKit connection test: your connection looks healthy, with the network adapter, router, internet and DNS lookup all answering." /></div>
+            <figcaption class="tour-copy"><h3>Find where it breaks.</h3><p>Checks each step between your PC and the internet: network adapter, router, internet and name lookup, with timings, then says where the problem is.</p></figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-ports" role="tabpanel" aria-labelledby="tab-ports">
+            <div class="tour-media"><img src="assets/winkit-ports.webp" srcset="assets/winkit-ports-720.webp 720w, assets/winkit-ports.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="WinKit Open ports filtered to 445: the System process, PID 4, listening on TCP, with a right-click menu to copy the address, port or PID." /></div>
+            <figcaption class="tour-copy"><h3>Know what&rsquo;s listening.</h3><p>Every open port and connection with the program and PID that owns it. Right-click to copy an address or search the program online.</p></figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-report" role="tabpanel" aria-labelledby="tab-report">
+            <div class="tour-media"><img src="assets/winkit-health-report.webp" srcset="assets/winkit-health-report-720.webp 720w, assets/winkit-health-report.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="The WinKit health report dialog with a plain-text summary, personal info left out, and buttons to copy or save it." /></div>
+            <figcaption class="tour-copy"><h3>A summary you can share.</h3><p>One plain-text report of your PC for whoever is helping you. Computer name, network addresses and Wi-Fi names are left out unless you tick a box.</p></figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-wifi" role="tabpanel" aria-labelledby="tab-wifi">
+            <div class="tour-media"><img src="assets/shot-wifi.png" width="1280" height="820" loading="lazy" decoding="async" alt="Wi-Fi details showing signal, channel, link speed, security and nearby networks." /></div>
+            <figcaption class="tour-copy"><h3>Signal, channel and speed.</h3><p>Wi-Fi details show signal, band, channel, speed and security, with plain advice when the signal is weak or the channel is crowded.</p></figcaption>
+          </figure>
+          <figure class="tour-panel" id="panel-themes" role="tabpanel" aria-labelledby="tab-themes">
+            <div class="tour-media"><img src="assets/winkit-themes.webp" srcset="assets/winkit-themes-720.webp 720w, assets/winkit-themes.webp 1382w" sizes="(max-width: 900px) 92vw, 560px" width="1382" height="1490" loading="lazy" decoding="async" alt="WinKit Settings with the theme picker: Auto, Carbon, Dawn, Dusk, Light, Midnight and Slate." /></div>
+            <figcaption class="tour-copy"><h3>Six themes, plus Auto.</h3><p>Dusk, Dawn, Midnight, Carbon, Slate and Light, or Auto to follow Windows. Edit a theme, or import and export your own.</p></figcaption>
           </figure>
         </div>
       </div>
@@ -278,15 +448,15 @@
         <h2 id="principles-title" class="reveal">Small, private, honest.</h2>
 
         <div class="principle-grid">
-          <article class="principle reveal">
+          <article class="principle reveal" data-rb="spotlight">
             <h3>Small on purpose</h3>
             <p>The whole app is one executable under 1&nbsp;MB. It idles at almost no CPU, and stops polling entirely while minimised.</p>
           </article>
-          <article class="principle reveal">
+          <article class="principle reveal" data-rb="spotlight">
             <h3>Private by default</h3>
             <p>Settings and history stay on your machine under <span class="mono">%LOCALAPPDATA%\WinKit</span>. No account, no cloud sync, no telemetry. Crash reports are only sent if you press Send.</p>
           </article>
-          <article class="principle reveal">
+          <article class="principle reveal" data-rb="spotlight">
             <h3>No fake optimisation</h3>
             <p>Every action is a real, explainable operation. Anything destructive asks first, and WinKit never follows a link or junction out of the folder it was asked to clean.</p>
           </article>
@@ -467,6 +637,15 @@ ff6c639e0f85cfd15d476b01a353abe0d4d509fc92b2a3b7bb2baf5b3d60ff0e  WinKitSetup-2.
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- Motion: GSAP + ScrollTrigger + SplitText, Lenis smooth scrolling, and React Bits components (SplitText, ScrollReveal,
+       SpotlightCard) rendered with React. All of it enhances content that is already in the HTML above. -->
+  <script src="vendor/gsap.min.js" defer></script>
+  <script src="vendor/ScrollTrigger.min.js" defer></script>
+  <script src="vendor/SplitText.min.js" defer></script>
+  <script src="vendor/lenis.min.js" defer></script>
+  <script src="vendor/react.production.min.js" defer></script>
+  <script src="vendor/react-dom.production.min.js" defer></script>
+  <script src="motion.js" defer></script>
+  <script src="script.js" defer></script>
 </body>
 </html>

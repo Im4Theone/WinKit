@@ -7,7 +7,7 @@ Windows administration, without the clutter. A small, calm toolkit for Windows 1
 - **Changelog:** [CHANGELOG.md](CHANGELOG.md)
 - **License:** [MIT](LICENSE)
 
-![WinKit dashboard](docs/assets/shot-dashboard.png)
+![The WinKit dashboard](docs/assets/winkit-dashboard.webp)
 
 ## Building
 
