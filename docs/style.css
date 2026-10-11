@@ -937,7 +937,7 @@ footer {
 /* Tour: screenshot and description side by side (stacked on phones). */
 .tour-panel {
   display: grid;
-  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 680px) minmax(0, 1fr);
   align-items: center;
   gap: var(--space-6);
 }
@@ -949,9 +949,13 @@ footer {
   box-shadow: 0 0 0 1px var(--line), 0 2px 4px rgba(0, 0, 0, 0.04), 0 30px 60px -28px rgba(0, 0, 0, 0.35);
 }
 
+/* Every screenshot is shown as a 3:2 app window (the Wi-Fi shot is cropped to fit). */
 .tour-media img {
   width: 100%;
   height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: top left;
 }
 
 .tour-copy h3 {
@@ -1267,6 +1271,6 @@ kbd {
   }
 
   .tour-media {
-    max-width: 560px;
+    max-width: 680px;
   }
 }
